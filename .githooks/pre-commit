@@ -1,0 +1,41 @@
+#!/bin/sh
+
+FAIL=
+fail () {
+	FAIL="$FAIL $*"
+}
+check_fail () {
+	if [ -n "$FAIL" ]; then
+		echo " *** Checks failed: $FAIL"
+		echo " *** Commit aborted! ***"
+		exit 1
+	fi
+}
+
+# find files affected by commit
+# exclude deleted files
+FILES=`(git diff --cached --name-only --diff-filter=A; git diff --cached --name-only) |\
+	egrep '\.cgi$|\.pl$|\.t$|\.pm$|\.psgi$' | sort -u `
+# echo "Commit (w/deleted): $FILES"
+
+FILES=`for i in $FILES; do [ -f "$i" ] && echo "$i"; done`
+echo "Checking files: $FILES"
+
+# check selected files
+for i in $FILES; do
+	echo "$i"
+	perl -Ilib -Ilib/perl5 -wc "$i" || fail "$i" - "Syntax error"
+	perl -Mwarnings=FATAL,all -Mstrict -Ilib -Ilib/perl5 -w "$i" || fail "$i" - Strict 
+	perl -wne '/\s\n/ and exit 1' "$i" || fail "$i" - "Spaces at EOL"
+	perlcritic "$i" || fail "$i" - "Perl critic"
+
+	# The module part
+	echo "$i" | egrep -q 'pm$' || continue;
+	git diff --cached $i | grep '^+.*\$VERSION' || fail "$i" - "No version change"
+done 
+
+check_fail
+
+prove -Ilib -r t || fail "tests fail"
+
+check_fail

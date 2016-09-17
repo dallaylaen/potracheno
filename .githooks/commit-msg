@@ -1,0 +1,11 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+$/ = '';
+my $msg = <>;
+
+# Add smiley for releases ONLY
+$msg =~ /^[A-Z]{3}[A-Z_0-9]* +/ or $msg =~ /^\^_\^ +Version +\d+.\d+ +released/
+	or die "Commit message must start with capital tag(API, DOC, TST ...)";
