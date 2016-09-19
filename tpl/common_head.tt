@@ -1,0 +1,6 @@
+<html>
+<head>
+    <title>[% HTML(title) %] - Potracheno</title>
+</head>
+<body>
+<h1>[% HTML(title) %]</h1>

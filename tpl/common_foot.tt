@@ -1,0 +1,4 @@
+<hr>
+<i>&copy; 2016 [% HTML(copyright_by) %]</i>
+</body>
+</html>
