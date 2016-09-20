@@ -8,3 +8,15 @@ NEXT
 
 BACKLOG
 
+0.01    0.10    comment pagination
+0.01    0.10    css
+0.01    0.10    some js
+0.01    0.10    logo & favicon
+0.01    0.10    article search
+0.01    0.10    markdown support
+0.01    0.20    article, comment editing (versioned?)
+0.01    0.10    runs on mysql, pg
+0.01    0.20    tags/projects
+
+THINK MORE
+0.01    0.20    DBIx::Class? Other orm?
