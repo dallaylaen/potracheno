@@ -6,6 +6,7 @@ our $VERSION = 0.01;
 
 use URI::Escape;
 use Data::Dumper;
+use POSIX qw(strftime);
 
 use FindBin qw($Bin);
 use File::Basename qw(dirname);
@@ -24,7 +25,8 @@ MVC::Neaf->load_view( TT => TT =>
     POST_PROCESS => "common_foot.tt",
 )->render({ -template => \"\n\ntest\n\n" });
 
-MVC::Neaf->set_default( HTML => \&HTML, URI => \&URI, copyright_by => "Lodin" );
+MVC::Neaf->set_default( HTML => \&HTML, URI => \&URI, DATE => \&DATE
+    , copyright_by => "Lodin" );
 
 # fetch usr
 # model.add article
@@ -53,7 +55,6 @@ MVC::Neaf->route( post => sub {
     $req->redirect( "/article/$id" );
 } );
 
-
 MVC::Neaf->route( article => sub {
     my $req = shift;
 
@@ -61,14 +62,16 @@ MVC::Neaf->route( article => sub {
     die 422 unless $id;
 
     my $data = $model->get_article( id => $id );
-    die 404 unless $data;
-
+    die 404 unless $data->{article_id};
     warn Dumper($data);
+
+    my $comments = $model->get_comments( article_id => $id, sort => '+posted' );
 
     return {
         -template => "article.html",
         title => "#$data->{article_id} - $data->{summary}",
         article => $data,
+        comments => $comments,
     };
 } );
 
@@ -76,8 +79,24 @@ MVC::Neaf->route( article => sub {
 # model. add time
 # return to view
 MVC::Neaf->route( addtime => sub {
+    my $req = shift;
 
-} );
+    # TODO use form!!!!
+    my $article_id = $req->param( article_id => qr/\d+/ );
+    my $username = $req->param( user => qr/\w+/ );
+    my $seconds  = $req->param( seconds => qr/\d+/, 0 );
+    my $note     = $req->param( note => qr/.*\S.+/ );
+
+    my $user = $model->get_user( name => $username );
+
+    die 422 unless $article_id;
+    die 403 unless $user;
+
+    $model->add_time( article_id => $article_id, user_id => $user->{user_id}
+        , time => $seconds, note => $note);
+
+    $req->redirect( "/article/$article_id" );
+}, method => "POST" );
 
 MVC::Neaf->route( "/" => sub {
     my $req = shift;
@@ -104,6 +123,11 @@ sub HTML {
 sub URI {
     my $str = shift;
     return uri_escape_utf8($str);
+};
+
+sub DATE {
+    my $time = shift;
+    return strftime("%Y-%m-%d %H:%M:%S", localtime($time));
 };
 
 MVC::Neaf->run();

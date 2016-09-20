@@ -1,5 +1,22 @@
 <pre>
 [% HTML(article.body) %]
 </pre>
-By [% HTML(article.author) %]<br>
-<b>[% article.time_spent %] wasted on this!</b>
+Posted on [% DATE(article.posted) %] by [% HTML(article.author) %]<br>
+<b>[% article.time_spent || 'No time' %] wasted on this!</b><br>
+<form action="/addtime" method="POST">
+    <input type="hidden" name="article_id" value="[% article.article_id %]">
+    User:<br>
+    <input name="user"><br>
+    Time wasted:<br>
+    <input name="seconds"><br>
+    Comment:<br>
+    <textarea name="note"></textarea><br>
+    <input type="submit" value="Add time/comment">
+</form>
+[% FOREACH item IN comments %]
+<div class="comment" style="border: 1px dotted red">
+    [% IF item.seconds %][% HTML(item.seconds) %] spent [% ELSE %]Added[% END %]
+    by [% HTML(item.user_name) %] on [% DATE(item.posted) %]<br>
+    <pre>[% HTML(item.note) %]</pre>
+</div>
+[% END %]

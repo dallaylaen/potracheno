@@ -80,4 +80,18 @@ $model->add_time( article_id => $art->{article_id}, user_id => 2, time => 2 );
 $art = $model->get_article( id => $id );
 is ($art->{time_spent}, 3, "3 time spent");
 
+my $comments = $model->get_comments;
+
+foreach my $extra( qw(posted time_spent_id) ) {
+    foreach (@$comments) {
+        (delete $_->{$extra}) =~ /^\d+$/
+            or die "Bad format of $extra, must be natural number";
+    };
+};
+@$comments = sort { $a->{user_id} <=> $b->{user_id} } @$comments;
+is_deeply( $comments, [
+    { user_id => 1, note => undef, user_name => "Foo", article_id => 1, seconds => 1 },
+    { user_id => 2, note => undef, user_name => "Bar", article_id => 1, seconds => 2 },
+], "Comments as expected" );
+
 done_testing;
