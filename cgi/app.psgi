@@ -14,7 +14,9 @@ use MVC::Neaf;
 use Potracheno::Model;
 
 # Will consume config later
-my $model = Potracheno::Model->new;
+my $model = Potracheno::Model->new(
+    db_handle => "dbi:SQLite:dbname=$Bin/../nocommit-data/potracheno.sqlite",
+);
 
 MVC::Neaf->load_view( TT => TT =>
     INCLUDE_PATH => "$Bin/../tpl",
@@ -65,8 +67,8 @@ MVC::Neaf->route( article => sub {
 
     return {
         -template => "article.html",
-        title => "#$data->{id} - $data->{summary}",
-        %$data,
+        title => "#$data->{article_id} - $data->{summary}",
+        article => $data,
     };
 } );
 
@@ -75,6 +77,18 @@ MVC::Neaf->route( article => sub {
 # return to view
 MVC::Neaf->route( addtime => sub {
 
+} );
+
+MVC::Neaf->route( "/" => sub {
+    my $req = shift;
+
+    # this is main page ONLY
+    die 404 if $req->path_info gt '/';
+
+    return {
+        title => "Potracheno - wasted time tracker",
+        -template => "main.html",
+    };
 } );
 
 my %replace = qw( & &amp; < &gt; > &gt; " &qout; );
