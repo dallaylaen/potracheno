@@ -61,13 +61,14 @@ note explain $user;
 
 note "TESTING ARTICLE";
 
-my $id = $model->add_article( body => "++", summary => "+", user => $user );
+my $id = $model->add_article( body => "explanation", summary => "summary"
+    , user => $user );
 
 my $art = $model->get_article( id => $id );
 
 is ($art->{author}, "Foo", "Author as expected");
-is ($art->{body}, "++", "Round-trip - body");
-is ($art->{summary}, "+", "Round-trip - summary");
+is ($art->{body}, "explanation", "Round-trip - body");
+is ($art->{summary}, "summary", "Round-trip - summary");
 is ($art->{time_spent}, 0, "0 time spent");
 
 note explain $art;
@@ -93,5 +94,11 @@ is_deeply( $comments, [
     { user_id => 1, note => undef, user_name => "Foo", article_id => 1, seconds => 1 },
     { user_id => 2, note => undef, user_name => "Bar", article_id => 1, seconds => 2 },
 ], "Comments as expected" );
+
+note "TESTING SEARCH";
+
+my $results = $model->search( terms => [ "expl" ] );
+
+note explain $results;
 
 done_testing;

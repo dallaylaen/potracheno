@@ -4,3 +4,7 @@
 </head>
 <body>
 <h1>[% HTML(title) %]</h1>
+<form method="GET" action="/search">
+    <input name="q" value="[% HTML(q) %]">
+    <input type="submit" value="Search">
+</form><br>

@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.01;
+our $VERSION = 0.0101;
 
 use URI::Escape;
 use Data::Dumper;
@@ -72,6 +72,24 @@ MVC::Neaf->route( article => sub {
         title => "#$data->{article_id} - $data->{summary}",
         article => $data,
         comments => $comments,
+    };
+} );
+
+MVC::Neaf->route( search => sub {
+    my $req = shift;
+
+    my $q = $req->param(q => '.*');
+
+    my @term = $q =~ /([\w*?]+)/g;
+
+    my $result = $model->search(terms => \@term);
+
+    return {
+        -template => 'search.html',
+        title => "Search results for @term",
+        results => $result,
+        q => $q,
+        terms => \@term,
     };
 } );
 

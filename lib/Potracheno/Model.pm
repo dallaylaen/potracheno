@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0103;
+our $VERSION = 0.0104;
 
 use DBI;
 
@@ -172,6 +172,47 @@ sub get_comments {
     };
 
     return \@ret;
+};
+
+my $sql_search_art = <<"SQL";
+SELECT article_id, 0 AS comment_id, body, summary, posted FROM article WHERE
+SQL
+
+sub search {
+    my ($self, %opt) = @_;
+
+    my $terms = $opt{terms};
+    return [] unless $terms and ref $terms eq 'ARRAY' and @$terms;
+
+    my @terms_sql = map { my $x = $_; $x =~ tr/*?\\'/%___/; "%$x%" } @$terms;
+    my @terms_re  = map {
+        my $x = $_; $x =~ tr/?/./; $x =~ s/\*/.*/g; $x =~ s/\\/\\\\/g; $x
+    } @$terms;
+    my $match_re  = join "|", @terms_re;
+    $match_re     = qr/(.{0,40})($match_re)(.{0,40})/;
+
+    my $where = join ' AND '
+        , map { "(body LIKE '$_' OR summary LIKE '$_')" } @terms_sql;
+
+    my $order = "ORDER BY posted DESC"; # TODO $opt{sort}
+
+    my $sth = $self->{dbh}->prepare( "$sql_search_art $where $order" );
+    $sth->execute;
+
+    my @result;
+    FETCH: while ( my $row = $sth->fetchrow_hashref ) {
+        my @snip;
+        foreach my $t( @terms_re ) {
+            $row->{summary} =~ /(.{0,40})($t)(.{0,40})/i
+                or $row->{body} =~ /(.{0,40})($t)(.{0,40})/i
+                or next FETCH;
+            push @snip, [ $1, $2, $3 ];
+        };
+        $row->{snippets} = \@snip;
+        push @result, $row;
+    };
+
+    return \@result;
 };
 
 1;
