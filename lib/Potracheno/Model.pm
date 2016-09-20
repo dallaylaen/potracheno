@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0102;
+our $VERSION = 0.0103;
 
 use DBI;
 
@@ -41,6 +41,27 @@ sub get_user {
         return $data;
     };
     die "Failed to either find or create user name=$name";
+};
+
+
+sub load_user {
+    my ($self, %opt) = @_;
+
+    my $where = '';
+    my @arg;
+    foreach (qw(user_id name)) {
+        defined $opt{$_} or next;
+        $where .= " AND $_ = ?";
+        push @arg, $opt{$_};
+    };
+    die "No conditions found" unless @arg;
+
+    my $sth = $self->{dbh}->prepare( "SELECT * FROM user WHERE 1 = 1".$where );
+    $sth->execute(@arg);
+
+    my ($data) = $sth->fetchrow_hashref;
+    $sth->finish;
+    return $data;
 };
 
 

@@ -98,6 +98,22 @@ MVC::Neaf->route( addtime => sub {
     $req->redirect( "/article/$article_id" );
 }, method => "POST" );
 
+MVC::Neaf->route( user => sub {
+    my $req = shift;
+
+    my $id = $req->param( user_id => '\d+', $req->path_info =~ /(\d+)/ );
+    my $data = $model->load_user ( user_id => $id );
+    die 404 unless $data->{user_id};
+
+    my $comments = $model->get_comments( user_id => $id, sort => '-posted' );
+    return {
+        -template => 'user.html',
+        title => "$data->{name} - user details",
+        user => $data,
+        comments => $comments,
+    };
+});
+
 MVC::Neaf->route( "/" => sub {
     my $req = shift;
 

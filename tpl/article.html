@@ -16,7 +16,8 @@ Posted on [% DATE(article.posted) %] by [% HTML(article.author) %]<br>
 [% FOREACH item IN comments %]
 <div class="comment" style="border: 1px dotted red">
     [% IF item.seconds %][% HTML(item.seconds) %] spent [% ELSE %]Added[% END %]
-    by [% HTML(item.user_name) %] on [% DATE(item.posted) %]<br>
+    by <a href="/user/[% item.user_id %]">[% HTML(item.user_name) %]</a>
+    on [% DATE(item.posted) %]<br>
     <pre>[% HTML(item.note) %]</pre>
 </div>
 [% END %]
