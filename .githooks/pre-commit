@@ -30,7 +30,7 @@ for i in $FILES; do
 	perlcritic "$i" || fail "$i" - "Perl critic"
 
 	# The module part
-	echo "$i" | egrep -q 'pm$' || continue;
+	echo "$i" | egrep -q 'pm$|psgi$' || continue;
 	git diff --cached $i | grep '^+.*\$VERSION' || fail "$i" - "No version change"
 done 
 
