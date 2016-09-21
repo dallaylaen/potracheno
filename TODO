@@ -17,6 +17,11 @@ BACKLOG
 0.01    0.20    article, comment editing (versioned?)
 0.01    0.10    runs on mysql, pg
 0.01    0.20    tags/projects
+0.01    0.10    seamless install.pl (win included)
+0.01    0.20    db migration script
+0.01    0.20    reports - time spent this month etc
+0.01    0.20    fix proposal - special comment with LOE - multiple can exist
+0.01    0.30    adjust time "price" for different team members
 
 THINK MORE
 0.01    0.20    DBIx::Class? Other orm?
