@@ -1,0 +1,9 @@
+<form method="POST">
+    [% IF wrong %]
+        <span style="color: red">[% HTML(wrong) %]</span><br>
+    [% END %]
+    <imput type="hidden" name="return_to" value="[% HTML(return_to) %]">
+    Username: <input name="name" value="[% HTML(name) %]"><br>
+    Password: <input name="pass" type="password"><br>
+    <input type="submit" value="Log in!">
+</form>

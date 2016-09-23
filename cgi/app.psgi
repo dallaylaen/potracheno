@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0101;
+our $VERSION = 0.0103;
 
 use URI::Escape;
 use Data::Dumper;
@@ -11,7 +11,8 @@ use POSIX qw(strftime);
 use FindBin qw($Bin);
 use File::Basename qw(dirname);
 use lib "$Bin/../lib";
-use MVC::Neaf;
+use MVC::Neaf 0.0702;
+use MVC::Neaf::Exception qw(neaf_err);
 use Potracheno::Model;
 
 # Will consume config later
@@ -23,16 +24,82 @@ MVC::Neaf->load_view( TT => TT =>
     INCLUDE_PATH => "$Bin/../tpl",
     PRE_PROCESS  => "common_head.tt",
     POST_PROCESS => "common_foot.tt",
+    EVAL_PERL => 1,
 )->render({ -template => \"\n\ntest\n\n" });
 
 MVC::Neaf->set_default( HTML => \&HTML, URI => \&URI, DATE => \&DATE
     , copyright_by => "Lodin" );
+
+MVC::Neaf->set_session_handler( engine => $model, view_as => 'session' );
+
+MVC::Neaf->route( login => sub {
+    my $req = shift;
+
+    my $name = $req->param( name => '\w+' );
+    my $pass = $req->param( pass => '.+' );
+    my $data;
+    my $wrong;
+    if ($req->method eq 'POST' and $name and $pass) {
+        $data = $model->login( $name, $pass );
+        $wrong = "Login failed!";
+    };
+    if ($data) {
+        warn "LOGIN SUCCESSFUL!!!";
+        $req->save_session( $data );
+        $req->redirect( $req->param( return_to => '/.*', '/') );
+    };
+
+    return {
+        -template => 'login.html',
+        wrong => $wrong,
+        name => $name,
+    };
+} );
+
+MVC::Neaf->route( logout => sub {
+    my $req = shift;
+
+    $req->delete_session;
+    $req->redirect( $req->referer || '/' );
+});
+
+MVC::Neaf->route( register => sub {
+    my $req = shift;
+
+    my $user = $req->param( user => '\w+' );
+    if ($req->method eq 'POST') {
+        eval {
+            $user or die "FORM: [User must be nonempty alphanumeric]";
+            my $pass  = $req->param( pass  => '.+' );
+            $pass or die "FORM: [Password empty]";
+            my $pass2 = $req->param( pass2 => '.+' );
+            $pass eq $pass2 or die "FORM: [Passwords do not match]";
+
+            my $id = $model->add_user( $user, $pass );
+            $id   or die "FORM: [Username '$user' already taken]";
+
+            $req->session->{user_id} = $id;
+            $req->redirect("/");
+        };
+        neaf_err($@);
+    };
+
+    my ($wrong) = $@ =~ /^FORM:\s*\[(.*)\]/;
+
+    return {
+        -template => 'register.html',
+        user => $user,
+        wrong => $wrong,
+    };
+});
 
 # fetch usr
 # model.add article
 # returnto view
 MVC::Neaf->route( post => sub {
     my $req = shift;
+
+    my $user     = $req->session;
 
     if ( $req->method ne 'POST' ) {
         return {
@@ -42,14 +109,11 @@ MVC::Neaf->route( post => sub {
     };
 
     # Switch to form?
-    my $username = $req->param( user => qr/\w+/ );
     my $summary  = $req->param( summary => qr/\S.+\S/ );
     my $body     = $req->param( body => qr/.*\S.+/ );
 
-    die 422 unless $username and $summary and $body;
-
-    my $user = $model->get_user( name => $username );
-    die 403 unless $user; # TODO take to login page instead
+    die 403 unless $user->{user_id};
+    die 422 unless $summary and $body;
 
     my $id = $model->add_article( user => $user, summary => $summary, body => $body );
     $req->redirect( "/article/$id" );
@@ -99,16 +163,15 @@ MVC::Neaf->route( search => sub {
 MVC::Neaf->route( addtime => sub {
     my $req = shift;
 
+    my $user = $req->session;
+    die 403 unless $user;
+
     # TODO use form!!!!
     my $article_id = $req->param( article_id => qr/\d+/ );
-    my $username = $req->param( user => qr/\w+/ );
     my $seconds  = $req->param( seconds => qr/\d+/, 0 );
     my $note     = $req->param( note => qr/.*\S.+/ );
 
-    my $user = $model->get_user( name => $username );
-
     die 422 unless $article_id;
-    die 403 unless $user;
 
     $model->add_time( article_id => $article_id, user_id => $user->{user_id}
         , time => $seconds, note => $note);

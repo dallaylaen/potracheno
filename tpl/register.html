@@ -1,0 +1,9 @@
+<form method="POST">
+    [% IF wrong %]
+        <span style="color: red">[% HTML(wrong) %]</span><br>
+    [% END %]
+    Username: <input name="user" value="[% HTML(user) %]"><br>
+    Password: <input name="pass" type="password"><br>
+    Password: <input name="pass2" type="password"><br>
+    <input type="submit" value="Register a new user">
+</form>

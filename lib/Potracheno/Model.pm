@@ -2,9 +2,12 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0104;
+our $VERSION = 0.0106;
 
 use DBI;
+use Digest::MD5 qw(md5_base64);
+
+use parent qw(MVC::Neaf::X::Session);
 
 sub new {
     my ($class, %opt) = @_;
@@ -16,6 +19,8 @@ sub new {
 
     return $self;
 };
+
+sub dbh { return $_[0]->{dbh} };
 
 my $sql_user_by_id   = "SELECT user_id,name FROM user WHERE user_id = ?";
 my $sql_user_by_name = "SELECT user_id,name FROM user WHERE name = ?";
@@ -64,6 +69,43 @@ sub load_user {
     return $data;
 };
 
+sub login {
+    my ($self, $name, $pass) = @_;
+
+    my $user = $self->load_user( name => $name );
+    return unless $user;
+
+    my $crypt = $self->make_pass( $user->{password}, $pass );
+    return unless $crypt eq $user->{password};
+
+    return $user;
+};
+
+my $sql_user_ins = <<'SQL';
+INSERT INTO user(name,password) VALUES (?,?);
+SQL
+
+sub add_user {
+    my ($self, $user, $pass) = @_;
+
+    my $crypt = $self->make_pass( $self->get_session_id.'#', $pass );
+    my $sth = $self->dbh->prepare( $sql_user_ins );
+    eval {
+        $sth->execute( $user, $crypt );
+    };
+    return if ($@ =~ /unique/);
+    die $@ if $@; # rethrow
+
+    my $id = $self->dbh->last_insert_id("", "", "article", "article_id");
+    return $id;
+};
+
+sub make_pass {
+    my ($self, $salt, $pass) = @_;
+
+    $salt =~ s/#.*//;
+    return join '#', $salt, md5_base64( join '#', $salt, $pass );
+};
 
 my $sql_art_ins = "INSERT INTO article(summary,body,author_id,posted) VALUES(?,?,?,?)";
 my $sql_art_sel = <<"SQL";
@@ -213,6 +255,43 @@ sub search {
     };
 
     return \@result;
+};
+
+my $sql_sess_load = <<'SQL';
+SELECT u.user_id, u.name
+FROM user u JOIN sess s USING(user_id)
+WHERE s.sess_id = ?
+SQL
+
+my $sql_sess_upd = <<'SQL';
+UPDATE sess SET user_id = ? WHERE sess_id = ?
+SQL
+
+sub load_session {
+    my ($self, $id) = @_;
+
+    my $sth = $self->dbh->prepare($sql_sess_load);
+
+    $sth->execute( $id );
+    my ($user_id, $name) = $sth->fetchrow_array;
+    $sth->finish;
+
+    return { user_id => $user_id, user_name => $name };
+};
+
+sub save_session {
+    my ($self, $id, $data) = @_;
+
+    my $sth_ins = $self->dbh->prepare(
+        "INSERT INTO sess(sess_id,user_id,created) VALUES (?,?,?)" );
+    eval {
+        $sth_ins->execute($id, $data->{user_id}, time);
+    };
+    # ignore insert errors
+    die $@ if $@ and $@ !~ /unique/i;
+
+    my $sth = $self->dbh->prepare($sql_sess_upd);
+    $sth->execute( $data->{user_id}, $id );
 };
 
 1;

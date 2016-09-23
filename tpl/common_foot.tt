@@ -1,4 +1,11 @@
 <hr>
 <i>&copy; 2016 [% HTML(copyright_by) %]</i>
+
+<pre>
+    [% PERL %]
+        use Data::Dumper;
+        print Dumper($stash);
+    [% END %]
+</pre>
 </body>
 </html>

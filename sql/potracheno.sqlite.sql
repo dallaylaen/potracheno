@@ -21,3 +21,8 @@ CREATE TABLE time_spent (
     posted INT -- unix time
 );
 
+CREATE TABLE sess (
+    sess_id varchar(22) PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    created INT -- unix time
+);

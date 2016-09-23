@@ -3,6 +3,14 @@
     <title>[% HTML(title) %] - Potracheno</title>
 </head>
 <body>
+<div class="session" aling="right">
+[% IF session.user_id %]
+<b>Welcome, [% HTML(session.user_name) %]!</b>
+<form method="POST" action="/logout"><input type="submit" value="Log out"></form>
+[% ELSE %]
+<a href="/login">login</a>|<a href="register">register</a>
+[% END %]
+</div>
 <h1>[% HTML(title) %]</h1>
 <form method="GET" action="/search">
     <input name="q" value="[% HTML(q) %]">

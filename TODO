@@ -22,6 +22,7 @@ BACKLOG
 0.01    0.20    reports - time spent this month etc
 0.01    0.20    fix proposal - special comment with LOE - multiple can exist
 0.01    0.30    adjust time "price" for different team members
+0.01    0.20    restore password
 
 THINK MORE
 0.01    0.20    DBIx::Class? Other orm?

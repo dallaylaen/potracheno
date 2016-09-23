@@ -2,3 +2,5 @@
 /data
 nocommit-*
 /lib/local
+cover_db
+nytprof*
