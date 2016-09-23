@@ -61,10 +61,10 @@ note explain $user;
 
 note "TESTING ARTICLE";
 
-my $id = $model->add_article( body => "explanation", summary => "summary"
+my $id = $model->add_issue( body => "explanation", summary => "summary"
     , user => $user );
 
-my $art = $model->get_article( id => $id );
+my $art = $model->get_issue( id => $id );
 
 is ($art->{author}, "Foo", "Author as expected");
 is ($art->{body}, "explanation", "Round-trip - body");
@@ -75,10 +75,10 @@ note explain $art;
 
 note "TESTING TIME";
 
-$model->add_time( article_id => $art->{article_id}, user_id => 1, time => 1 );
-$model->add_time( article_id => $art->{article_id}, user_id => 2, time => 2 );
+$model->add_time( issue_id => $art->{issue_id}, user_id => 1, time => 1 );
+$model->add_time( issue_id => $art->{issue_id}, user_id => 2, time => 2 );
 
-$art = $model->get_article( id => $id );
+$art = $model->get_issue( id => $id );
 is ($art->{time_spent}, 3, "3 time spent");
 
 my $comments = $model->get_comments;
@@ -91,8 +91,8 @@ foreach my $extra( qw(posted time_spent_id) ) {
 };
 @$comments = sort { $a->{user_id} <=> $b->{user_id} } @$comments;
 is_deeply( $comments, [
-    { user_id => 1, note => undef, user_name => "Foo", article_id => 1, seconds => 1 },
-    { user_id => 2, note => undef, user_name => "Bar", article_id => 1, seconds => 2 },
+    { user_id => 1, note => undef, user_name => "Foo", issue_id => 1, seconds => 1 },
+    { user_id => 2, note => undef, user_name => "Bar", issue_id => 1, seconds => 2 },
 ], "Comments as expected" );
 
 note "TESTING SEARCH";

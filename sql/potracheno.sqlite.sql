@@ -4,8 +4,8 @@ CREATE TABLE user (
     password varchar(256)
 );
 
-CREATE TABLE article (
-    article_id INTEGER PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE issue (
+    issue_id INTEGER PRIMARY KEY AUTOINCREMENT,
     summary varchar (256) NOT NULL,
     body varchar(4096) NOT NULL,
     author_id INT,
@@ -15,7 +15,7 @@ CREATE TABLE article (
 CREATE TABLE time_spent (
     time_spent_id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INT NOT NULL,
-    article_id INT NOT NULL,
+    issue_id INT NOT NULL,
     seconds INT NOT NULL,
     note varchar(4096),
     posted INT -- unix time

@@ -5,7 +5,7 @@
 <div class="comment" style="border: 1px dotted red">
     [% IF item.seconds %][% HTML(item.seconds) %] spent [% ELSE %]
         Commented[% END %]
-    on <a href="/article/[% item.article_id %]">article [% item.article_id %]</a>
+    on <a href="/issue/[% item.issue_id %]">issue [% item.issue_id %]</a>
     on [% DATE(item.posted) %]<br>
     <pre>[% HTML(item.note) %]</pre>
 </div>

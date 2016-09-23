@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0106;
+our $VERSION = 0.0107;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -96,7 +96,7 @@ sub add_user {
     return if ($@ =~ /unique/);
     die $@ if $@; # rethrow
 
-    my $id = $self->dbh->last_insert_id("", "", "article", "article_id");
+    my $id = $self->dbh->last_insert_id("", "", "issue", "issue_id");
     return $id;
 };
 
@@ -107,26 +107,26 @@ sub make_pass {
     return join '#', $salt, md5_base64( join '#', $salt, $pass );
 };
 
-my $sql_art_ins = "INSERT INTO article(summary,body,author_id,posted) VALUES(?,?,?,?)";
+my $sql_art_ins = "INSERT INTO issue(summary,body,author_id,posted) VALUES(?,?,?,?)";
 my $sql_art_sel = <<"SQL";
-    SELECT a.article_id AS article_id, a.body AS body, a.summary AS summary
+    SELECT a.issue_id AS issue_id, a.body AS body, a.summary AS summary
         , a.author_id AS author_id, u.name AS author
         , a.posted AS posted
-    FROM article a JOIN user u ON a.author_id = u.user_id
-    WHERE a.article_id = ?;
+    FROM issue a JOIN user u ON a.author_id = u.user_id
+    WHERE a.issue_id = ?;
 SQL
-sub add_article {
+sub add_issue {
     my ($self, %opt) = @_;
 
     my $dbh = $self->{dbh};
     my $sth = $dbh->prepare( $sql_art_ins );
     $sth->execute( $opt{summary}, $opt{body}, $opt{user}{user_id}, time );
 
-    my $id = $dbh->last_insert_id("", "", "article", "article_id");
+    my $id = $dbh->last_insert_id("", "", "issue", "issue_id");
     return $id;
 };
 
-sub get_article {
+sub get_issue {
     my ($self, %opt) = @_;
 
     my $sth = $self->{dbh}->prepare( $sql_art_sel );
@@ -134,18 +134,18 @@ sub get_article {
     my $data = $sth->fetchrow_hashref;
     $sth->finish;
 
-    $data->{time_spent} = $self->get_time( article_id => $opt{id} );
+    $data->{time_spent} = $self->get_time( issue_id => $opt{id} );
 
     return $data;
 };
 
-my $sql_time_ins = "INSERT INTO time_spent(user_id,article_id,seconds,note,posted) VALUES(?,?,?,?,?)";
+my $sql_time_ins = "INSERT INTO time_spent(user_id,issue_id,seconds,note,posted) VALUES(?,?,?,?,?)";
 my $sql_time_sum = "SELECT sum(seconds) FROM time_spent WHERE 1 = 1";
 sub add_time {
     my ($self, %opt) = @_;
 
     my $sth = $self->{dbh}->prepare( $sql_time_ins );
-    $sth->execute( $opt{user_id}, $opt{article_id}, $opt{time}
+    $sth->execute( $opt{user_id}, $opt{issue_id}, $opt{time}
         , $opt{note}, $opt{posted} || time );
 };
 
@@ -154,7 +154,7 @@ sub get_time {
 
     my $where = '';
     my @arg;
-    foreach (qw(user_id article_id)) {
+    foreach (qw(user_id issue_id)) {
         defined $opt{$_} or next;
         $where .= " AND $_ = ?";
         push @arg, $opt{$_};
@@ -170,7 +170,7 @@ sub get_time {
 
 my $sql_time_sel = "SELECT
     t.time_spent_id AS time_spent_id,
-    t.article_id AS article_id,
+    t.issue_id AS issue_id,
     t.user_id AS user_id,
     u.name AS user_name,
     t.seconds AS seconds,
@@ -183,7 +183,7 @@ sub get_comments {
 
     my $where = '';
     my @arg;
-    foreach (qw(user_id article_id)) {
+    foreach (qw(user_id issue_id)) {
         defined $opt{$_} or next;
         $where .= " AND $_ = ?";
         push @arg, $opt{$_};
@@ -217,7 +217,7 @@ sub get_comments {
 };
 
 my $sql_search_art = <<"SQL";
-SELECT article_id, 0 AS comment_id, body, summary, posted FROM article WHERE
+SELECT issue_id, 0 AS comment_id, body, summary, posted FROM issue WHERE
 SQL
 
 sub search {

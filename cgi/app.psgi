@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0103;
+our $VERSION = 0.0104;
 
 use URI::Escape;
 use Data::Dumper;
@@ -22,8 +22,8 @@ my $model = Potracheno::Model->new(
 
 MVC::Neaf->load_view( TT => TT =>
     INCLUDE_PATH => "$Bin/../tpl",
-    PRE_PROCESS  => "common_head.tt",
-    POST_PROCESS => "common_foot.tt",
+    PRE_PROCESS  => "common_head.html",
+    POST_PROCESS => "common_foot.html",
     EVAL_PERL => 1,
 )->render({ -template => \"\n\ntest\n\n" });
 
@@ -94,7 +94,7 @@ MVC::Neaf->route( register => sub {
 });
 
 # fetch usr
-# model.add article
+# model.add issue
 # returnto view
 MVC::Neaf->route( post => sub {
     my $req = shift;
@@ -104,7 +104,7 @@ MVC::Neaf->route( post => sub {
     if ( $req->method ne 'POST' ) {
         return {
             -template => "post.html",
-            title => "Submit new article",
+            title => "Submit new issue",
         };
     };
 
@@ -115,26 +115,26 @@ MVC::Neaf->route( post => sub {
     die 403 unless $user->{user_id};
     die 422 unless $summary and $body;
 
-    my $id = $model->add_article( user => $user, summary => $summary, body => $body );
-    $req->redirect( "/article/$id" );
+    my $id = $model->add_issue( user => $user, summary => $summary, body => $body );
+    $req->redirect( "/issue/$id" );
 } );
 
-MVC::Neaf->route( article => sub {
+MVC::Neaf->route( issue => sub {
     my $req = shift;
 
     my $id = $req->path_info =~ /(\d+)/ ? $1 : $req->param ( id => '\d+' );
     die 422 unless $id;
 
-    my $data = $model->get_article( id => $id );
-    die 404 unless $data->{article_id};
+    my $data = $model->get_issue( id => $id );
+    die 404 unless $data->{issue_id};
     warn Dumper($data);
 
-    my $comments = $model->get_comments( article_id => $id, sort => '+posted' );
+    my $comments = $model->get_comments( issue_id => $id, sort => '+posted' );
 
     return {
-        -template => "article.html",
-        title => "#$data->{article_id} - $data->{summary}",
-        article => $data,
+        -template => "issue.html",
+        title => "#$data->{issue_id} - $data->{summary}",
+        issue => $data,
         comments => $comments,
     };
 } );
@@ -167,16 +167,16 @@ MVC::Neaf->route( addtime => sub {
     die 403 unless $user;
 
     # TODO use form!!!!
-    my $article_id = $req->param( article_id => qr/\d+/ );
+    my $issue_id = $req->param( issue_id => qr/\d+/ );
     my $seconds  = $req->param( seconds => qr/\d+/, 0 );
     my $note     = $req->param( note => qr/.*\S.+/ );
 
-    die 422 unless $article_id;
+    die 422 unless $issue_id;
 
-    $model->add_time( article_id => $article_id, user_id => $user->{user_id}
+    $model->add_time( issue_id => $issue_id, user_id => $user->{user_id}
         , time => $seconds, note => $note);
 
-    $req->redirect( "/article/$article_id" );
+    $req->redirect( "/issue/$issue_id" );
 }, method => "POST" );
 
 MVC::Neaf->route( user => sub {

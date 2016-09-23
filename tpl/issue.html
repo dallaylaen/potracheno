@@ -1,10 +1,10 @@
 <pre>
-[% HTML(article.body) %]
+[% HTML(issue.body) %]
 </pre>
-Posted on [% DATE(article.posted) %] by [% HTML(article.author) %]<br>
-<b>[% article.time_spent || 'No time' %] wasted on this!</b><br>
+Posted on [% DATE(issue.posted) %] by [% HTML(issue.author) %]<br>
+<b>[% issue.time_spent || 'No time' %] wasted on this!</b><br>
 <form action="/addtime" method="POST">
-    <input type="hidden" name="article_id" value="[% article.article_id %]">
+    <input type="hidden" name="issue_id" value="[% issue.issue_id %]">
     Time wasted:<br>
     <input name="seconds"><br>
     Comment:<br>

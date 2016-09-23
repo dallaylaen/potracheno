@@ -1,8 +1,8 @@
 <ol>
 [% FOREACH item IN results %]
     <li>
-        <a href="/article/[% item.article_id %]#[% item.comment_id %]">
-            [% item.article_id %] - [% HTML( item.summary ) %]
+        <a href="/issue/[% item.issue_id %]#[% item.comment_id %]">
+            [% item.issue_id %] - [% HTML( item.summary ) %]
         </a><br>
         [% FOREACH snip IN item.snippets %]
             [% HTML(snip.0) %]<b>[% HTML(snip.1) %]</b>[% HTML(snip.2) %]...
