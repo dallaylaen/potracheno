@@ -9,7 +9,7 @@ It became a local meme after being incorrectly used in
 
 # DESCRIPTION
 
-Like a normal ITS, Potracheno has issues, which in turn have comments and
+Just like a normal ITS, Potracheno has issues, which in turn have comments and
 time tracking facility.
 However, instead of tracking time spent on *resolving* an issue,
 it tracks time spent *working around it*.

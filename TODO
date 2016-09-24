@@ -1,28 +1,26 @@
 VERSION ADDED | VERSION TBD | TITLE
 
-NEXT
+-- NEXT --
+0.01    0.05    css
+0.01    0.05    pretty time (1h 30m)
+0.01    0.05    db migration script
+0.01    0.05    restore password
+0.01    0.05    logo & favicon
+0.01    0.05    change user details (user reg template)
+0.01    0.05    powered by Neaf
 
-0   0.01    no auth, start article + add time
-0   0.02    cookie, register page, user stat
-0   0.03    password auth
-
-BACKLOG
+-- BACKLOG --
 
 0.01    0.10    comment pagination
-0.01    0.10    css
 0.01    0.10    some js
-0.01    0.10    logo & favicon
-0.01    0.10    article search
 0.01    0.10    markdown support
 0.01    0.20    article, comment editing (versioned?)
 0.01    0.10    runs on mysql, pg
 0.01    0.20    tags/projects
 0.01    0.10    seamless install.pl (win included)
-0.01    0.20    db migration script
 0.01    0.20    reports - time spent this month etc
 0.01    0.20    fix proposal - special comment with LOE - multiple can exist
 0.01    0.30    adjust time "price" for different team members
-0.01    0.20    restore password
 
 THINK MORE
 0.01    0.20    DBIx::Class? Other orm?
