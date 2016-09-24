@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0107;
+our $VERSION = 0.0108;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -88,7 +88,7 @@ SQL
 sub add_user {
     my ($self, $user, $pass) = @_;
 
-    my $crypt = $self->make_pass( $self->get_session_id.'#', $pass );
+    my $crypt = $self->make_pass( $self->get_session_id, $pass );
     my $sth = $self->dbh->prepare( $sql_user_ins );
     eval {
         $sth->execute( $user, $crypt );
