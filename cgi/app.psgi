@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.03;
+our $VERSION = 0.0301;
 
 use URI::Escape;
 use Data::Dumper;
@@ -88,8 +88,39 @@ MVC::Neaf->route( register => sub {
 
     return {
         -template => 'register.html',
+        title => "Register new user",
         user => $user,
         wrong => $wrong,
+    };
+});
+
+MVC::Neaf->route( edit_user => sub {
+    my $req = shift;
+
+    $req->redirect("/login") unless $req->session->{user_id};
+    my $details = $model->load_user( user_id => $req->session->{user_id} );
+
+    if ($req->method eq 'POST') {
+        # form submitted
+        my $oldpass = $req->param( oldpass => '.+' );
+        $model->check_pass( $details->{password}, $oldpass )
+            or die 403; # TODO show form again
+
+        my $newpass = $req->param( pass  => '.+' );
+        my $pass2   = $req->param( pass2 => '.+' );
+        if ($newpass) {
+            $newpass eq $pass2 or die "422"; # TODO show form again
+            $details->{pass} = $newpass;
+        };
+
+        $model->save_user( $details );
+        $req->redirect( "/user/$details->{user_id}" );
+    };
+
+    return {
+        -template => 'register.html',
+        title => "Edit user $details->{name}",
+        details => $details,
     };
 });
 

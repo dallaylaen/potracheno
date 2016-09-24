@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0302;
+our $VERSION = 0.0303;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -26,29 +26,6 @@ my $sql_user_by_id   = "SELECT user_id,name FROM user WHERE user_id = ?";
 my $sql_user_by_name = "SELECT user_id,name FROM user WHERE name = ?";
 my $sql_user_insert  = "INSERT INTO user(name) VALUES(?)";
 
-sub get_user {
-    my ($self, %opt) = @_;
-
-    my $name = $opt{name};
-
-    my $dbh = $self->{dbh};
-    my $sth_insert = $dbh->prepare($sql_user_insert);
-    my $sth_select = $dbh->prepare($sql_user_by_name);
-
-    $sth_select->execute( $name );
-    if (my $data = $sth_select->fetchrow_hashref) {
-        return $data;
-    };
-
-    $sth_insert->execute( $name );
-    $sth_select->execute( $name );
-    if (my $data = $sth_select->fetchrow_hashref) {
-        return $data;
-    };
-    die "Failed to either find or create user name=$name";
-};
-
-
 sub load_user {
     my ($self, %opt) = @_;
 
@@ -59,7 +36,7 @@ sub load_user {
         $where .= " AND $_ = ?";
         push @arg, $opt{$_};
     };
-    die "No conditions found" unless @arg;
+    $self->my_croak( "No conditions found" ) unless @arg;
 
     my $sth = $self->{dbh}->prepare( "SELECT * FROM user WHERE 1 = 1".$where );
     $sth->execute(@arg);
@@ -73,10 +50,9 @@ sub login {
     my ($self, $name, $pass) = @_;
 
     my $user = $self->load_user( name => $name );
-    return unless $user;
 
-    my $crypt = $self->make_pass( $user->{password}, $pass );
-    return unless $crypt eq $user->{password};
+    return unless $user;
+    return unless $self->check_pass( $user->{password}, $pass );
 
     return $user;
 };
@@ -85,6 +61,7 @@ my $sql_user_ins = <<'SQL';
 INSERT INTO user(name,password) VALUES (?,?);
 SQL
 
+# TODO refactor into (insert stub, save_user)
 sub add_user {
     my ($self, $user, $pass) = @_;
 
@@ -96,8 +73,39 @@ sub add_user {
     return if ($@ =~ /unique/);
     die $@ if $@; # rethrow
 
-    my $id = $self->dbh->last_insert_id("", "", "issue", "issue_id");
+    my $id = $self->dbh->last_insert_id("", "", "user", "user_id");
     return $id;
+};
+
+
+sub save_user {
+    my ($self, $data) = @_;
+
+    my $id = $data->{user_id};
+    $self->my_croak("User id required")
+        unless $id;
+
+    my %new;
+    $new{password} = $self->make_pass( $self->get_session_id, $data->{pass} )
+        if defined $data->{pass};
+    # TODO more options here
+
+    return unless %new;
+
+    # Here's some ORM going on :)
+    my @order = sort keys %new;
+    my $set = join ", ", map { "$_=?" } @order;
+
+    my $sth = $self->dbh->prepare("UPDATE user SET $set WHERE user_id = ?");
+    $sth->execute( @new{@order}, $id );
+    $sth->finish;
+    return $id;
+};
+
+sub check_pass {
+    my ($self, $salt, $pass) = @_;
+
+    return $self->make_pass( $salt, $pass ) eq $salt;
 };
 
 sub make_pass {

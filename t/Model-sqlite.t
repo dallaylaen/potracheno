@@ -43,17 +43,15 @@ my $model = Potracheno::Model->new(
 # Huh, let the tests begin
 note "TESTING USER";
 
-my $user = $model->get_user( name => "Foo" );
+my $user = $model->add_user( "Foo", "secret" );
 
-is ($user->{user_id}, 1, "1st user on a clean db" );
-is ($user->{name}, "Foo", "Input round trip" );
+is ($user, 1, "1st user on a clean db" );
 
-$user = $model->get_user( name => "Bar" );
+$user = $model->add_user( "Bar", "secret" );
 
-is ($user->{user_id}, 2, "2nd user on a clean db" );
-is ($user->{name}, "Bar", "Input round trip (2)" );
+is ($user, 2, "2nd user on a clean db" );
 
-$user = $model->get_user( name => "Foo" );
+$user = $model->load_user( name => "Foo" );
 is ($user->{user_id}, 1, "Fetching 1st user again" );
 is ($user->{name}, "Foo", "Input round trip(3)" );
 

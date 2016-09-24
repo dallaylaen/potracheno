@@ -1,9 +1,14 @@
+[% SET id = session.user_id %]
 <form method="POST">
     [% IF wrong %]
         <span style="color: red">[% HTML(wrong) %]</span><br>
     [% END %]
+    [% IF id %]
+    Current password: <input name="oldpass" type="password"><br>
+    [% ELSE %]
     Username: <input name="user" value="[% HTML(user) %]"><br>
+    [% END %]
     Password: <input name="pass" type="password"><br>
     Password: <input name="pass2" type="password"><br>
-    <input type="submit" value="Register a new user">
+    <input type="submit" value="[% IF id %]Save[% ELSE %]Register a new user[% END %]">
 </form>

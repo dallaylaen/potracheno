@@ -5,8 +5,10 @@
 <body>
 <div class="session" aling="right">
 [% IF session.user_id %]
+<form method="POST" action="/logout">
 <b>Welcome, [% HTML(session.user_name) %]!</b>
-<form method="POST" action="/logout"><input type="submit" value="Log out"></form>
+<a href="/edit_user">Edit</a>|
+<input type="submit" value="Log out"></form>
 [% ELSE %]
 <a href="/login">login</a>|<a href="register">register</a>
 [% END %]
