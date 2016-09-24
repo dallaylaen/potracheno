@@ -1,0 +1,12 @@
+
+
+0.03    Sat Sep 24 2016
+        APP Add login, register support
+        APP Add search for issues
+        APP Add user detail page, very primitive for now
+        APP Add comments & wasted time
+        APP Add local sqlite, add time_spent
+        MOD sqlite-based model with tests
+
+0.01    Sep Smth 2016
+        Crude in-memory version started out

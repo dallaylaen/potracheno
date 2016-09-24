@@ -8,6 +8,7 @@ VERSION ADDED | VERSION TBD | TITLE
 0.01    0.05    db migration script
 0.01    0.05    logo & favicon
 0.01    0.05    css
+0.03    0.05    Don't show forms when unauthorized
 
 -- BACKLOG --
 
