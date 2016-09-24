@@ -1,13 +1,13 @@
 VERSION ADDED | VERSION TBD | TITLE
 
 -- NEXT --
-0.01    0.05    css
-0.01    0.05    pretty time (1h 30m)
+0.01    0.04    pretty time (1h 30m)
+0.01    0.04    restore password
+0.01    0.04    change user details (user reg template)
+0.01    0.04    powered by Neaf
 0.01    0.05    db migration script
-0.01    0.05    restore password
 0.01    0.05    logo & favicon
-0.01    0.05    change user details (user reg template)
-0.01    0.05    powered by Neaf
+0.01    0.05    css
 
 -- BACKLOG --
 

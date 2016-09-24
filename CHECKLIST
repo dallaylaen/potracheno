@@ -3,7 +3,7 @@
 % git status
 - no extra files
 
-% prove -I lib xt t
+% prove -I lib t
 - no warnings
 
 % cover -t
@@ -28,7 +28,7 @@
 - remove completed, add new, sort by target version
 - catch up with features
 
-% git commit -m "^_^ Version 0.04 released NOCODE"
+% git commit -a -m "^_^ Version 0.04 released NOCODE"
 
 % git tag v.0.04 -m "Version 0.04 released"
 
