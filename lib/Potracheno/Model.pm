@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0301;
+our $VERSION = 0.0302;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -134,7 +134,8 @@ sub get_issue {
     my $data = $sth->fetchrow_hashref;
     $sth->finish;
 
-    $data->{time_spent} = $self->get_time( issue_id => $opt{id} );
+    $data->{seconds_spent} = $self->get_time( issue_id => $opt{id} );
+    $data->{time_spent}    = $self->time2human( $data->{seconds_spent} );
 
     return $data;
 };
@@ -144,8 +145,10 @@ my $sql_time_sum = "SELECT sum(seconds) FROM time_spent WHERE 1 = 1";
 sub add_time {
     my ($self, %opt) = @_;
 
+    my $time = $self->human2time( $opt{time} );
+
     my $sth = $self->{dbh}->prepare( $sql_time_ins );
-    $sth->execute( $opt{user_id}, $opt{issue_id}, $opt{time}
+    $sth->execute( $opt{user_id}, $opt{issue_id}, $time
         , $opt{note}, $opt{posted} || time );
 };
 
@@ -201,6 +204,7 @@ sub get_comments {
 
     my @ret;
     while (my $data = $sth->fetchrow_hashref) {
+        $data->{time} = $self->time2human($data->{seconds});
         push @ret, $data;
     };
 
@@ -300,6 +304,8 @@ my %time_unit = (
     h => 60*60,
     d => 60*60*24,
     w => 60*60*24*7,
+    mon => 60*60*24*30,
+    y => 60*60*24*365,
 );
 my $time_unit_re = join "|", reverse sort keys %time_unit;
 $time_unit_re = qr/(?:$time_unit_re|)/;
@@ -309,6 +315,7 @@ sub human2time {
     my ($self, $str) = @_;
 
     my $t = 0;
+    return $t unless $str;
     while ( $str =~ /($num_re)\s*($time_unit_re)/g ) {
         $t += $1 * $time_unit{$2 || 'h'};
     };
@@ -323,7 +330,7 @@ sub time2human {
 
     my @ret;
     foreach (@unit_desc) {
-        $t > $_ or next;
+        $t >= $_ or next;
         push @ret, int($t/$_).$unit_time{$_};
         $t = $t % $_;
     };

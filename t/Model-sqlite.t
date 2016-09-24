@@ -75,11 +75,11 @@ note explain $art;
 
 note "TESTING TIME";
 
-$model->add_time( issue_id => $art->{issue_id}, user_id => 1, time => 1 );
-$model->add_time( issue_id => $art->{issue_id}, user_id => 2, time => 2 );
+$model->add_time( issue_id => $art->{issue_id}, user_id => 1, time => "1s" );
+$model->add_time( issue_id => $art->{issue_id}, user_id => 2, time => "2s" );
 
 $art = $model->get_issue( id => $id );
-is ($art->{time_spent}, 3, "3 time spent");
+is ($art->{time_spent}, "3s", "3 time spent");
 
 my $comments = $model->get_comments;
 
@@ -91,8 +91,8 @@ foreach my $extra( qw(posted time_spent_id) ) {
 };
 @$comments = sort { $a->{user_id} <=> $b->{user_id} } @$comments;
 is_deeply( $comments, [
-    { user_id => 1, note => undef, user_name => "Foo", issue_id => 1, seconds => 1 },
-    { user_id => 2, note => undef, user_name => "Bar", issue_id => 1, seconds => 2 },
+    { user_id => 1, note => undef, user_name => "Foo", issue_id => 1, seconds => 1, time => "1s" },
+    { user_id => 2, note => undef, user_name => "Bar", issue_id => 1, seconds => 2, time => "2s" },
 ], "Comments as expected" );
 
 note "TESTING SEARCH";

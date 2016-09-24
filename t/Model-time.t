@@ -15,4 +15,7 @@ is (Potracheno::Model->human2time(0.25), 15*60, "Default hours");
 is (Potracheno::Model->human2time("I wasted 0.25 minutes"), 15
     , "Reads minutes ok");
 
+is (Potracheno::Model->time2human(Potracheno::Model->human2time("60m")),"1h"
+    , "Time units compacted");
+
 done_testing;
