@@ -1,20 +1,35 @@
 <html>
 <head>
     <title>[% HTML(title) %] - Potracheno</title>
+    <link rel="stylesheet" type="text/css" href="/i/main.css">
 </head>
 <body>
-<div class="session" aling="right">
-[% IF session.user_id %]
-<form method="POST" action="/logout">
-<b>Welcome, [% HTML(session.user_name) %]!</b>
-<a href="/edit_user">Edit</a>|
-<input type="submit" value="Log out"></form>
-[% ELSE %]
-<a href="/login">login</a>|<a href="register">register</a>
-[% END %]
-</div>
-<h1>[% HTML(title) %]</h1>
-<form method="GET" action="/search">
-    <input name="q" value="[% HTML(q) %]">
-    <input type="submit" value="Search">
-</form><br>
+<table width="100%" cellspacing="0" cellpadding="1" border="0">
+<tr>
+    <td width="100" rowspan="2">
+        <a href="/"><img height="100" width="100" src="/i/logo.png"></a>
+    </td>
+    <td>
+        <form method="GET" action="/search" class="search">
+            <input name="q" value="[% HTML(q) %]">
+            <input type="submit" value="Search">
+        </form>
+    </td>
+    <td align="right">
+        <div class="session" aling="right">
+        [% IF session.user_id %]
+            <form method="POST" action="/logout">
+            <b>Welcome, <a class="menu" href="/user/[% session.user_id %]">[% HTML(session.user_name) %]</a>!</b>
+            <a class="menu" href="/edit_user">Edit</a>|
+            <input type="submit" value="Log out"></form>
+        [% ELSE %]
+            <a href="/login">login</a>|<a href="register">register</a>
+        [% END %]
+        </div>
+    </td>
+</tr>
+<tr>
+<td colspan="2" valign="bottom"><h1>[% HTML(title) %]</h1></td>
+</tr>
+<tr>
+<td colspan="3">

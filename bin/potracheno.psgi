@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0301;
+our $VERSION = 0.0302;
 
 use URI::Escape;
 use Data::Dumper;
@@ -31,6 +31,9 @@ MVC::Neaf->set_default( HTML => \&HTML, URI => \&URI, DATE => \&DATE
     , copyright_by => "Lodin" );
 
 MVC::Neaf->set_session_handler( engine => $model, view_as => 'session' );
+
+MVC::Neaf->static( i => "$Bin/../html/i" );
+MVC::Neaf->static( 'favicon.ico' => "$Bin/../html/i/icon.png" );
 
 MVC::Neaf->route( login => sub {
     my $req = shift;
@@ -199,7 +202,7 @@ MVC::Neaf->route( addtime => sub {
 
     # TODO use form!!!!
     my $issue_id = $req->param( issue_id => qr/\d+/ );
-    my $seconds  = $req->param( seconds => qr/\d+/, 0 );
+    my $seconds  = $req->param( seconds => qr/.+/, 0 );
     my $note     = $req->param( note => qr/.*\S.+/ );
 
     die 422 unless $issue_id;
