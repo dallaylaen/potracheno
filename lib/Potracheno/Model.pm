@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.03;
+our $VERSION = 0.0301;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -292,6 +292,43 @@ sub save_session {
 
     my $sth = $self->dbh->prepare($sql_sess_upd);
     $sth->execute( $data->{user_id}, $id );
+};
+
+my %time_unit = (
+    s => 1,
+    m => 60,
+    h => 60*60,
+    d => 60*60*24,
+    w => 60*60*24*7,
+);
+my $time_unit_re = join "|", reverse sort keys %time_unit;
+$time_unit_re = qr/(?:$time_unit_re|)/;
+my $num_re = qr/(?:\d+(?:\.\d+)?)/; # no minus, no sophisticated stuff
+
+sub human2time {
+    my ($self, $str) = @_;
+
+    my $t = 0;
+    while ( $str =~ /($num_re)\s*($time_unit_re)/g ) {
+        $t += $1 * $time_unit{$2 || 'h'};
+    };
+
+    return int($t);
+};
+
+my %unit_time = reverse %time_unit;
+my @unit_desc = sort { $b <=> $a } keys %unit_time;
+sub time2human {
+    my ($self, $t) = @_;
+
+    my @ret;
+    foreach (@unit_desc) {
+        $t > $_ or next;
+        push @ret, int($t/$_).$unit_time{$_};
+        $t = $t % $_;
+    };
+
+    return @ret ? join " ", @ret : '0';
 };
 
 1;
