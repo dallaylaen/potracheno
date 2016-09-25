@@ -1,6 +1,7 @@
 # Perform these checks before releasing a version
 
 % git status
+- on branch devel
 - no extra files
 
 % prove -I lib t
@@ -20,7 +21,7 @@
 
 # got here - commit!
 
-% grep -r VERSION cgi lib | grep '[0-9][0-9][0-9]' | sed 's/:/ /'
+% grep -r VERSION bin lib | grep '[0-9][0-9][0-9]' | sed 's/:/ /'
 - version-bump ALL except 0.0x (didn't change since last release)
 
 % vim -p Changes TODO README.md
@@ -28,10 +29,16 @@
 - remove completed, add new, sort by target version
 - catch up with features
 
-% git commit -a -m "^_^ Version 0.04 released NOCODE"
+% git commit -a -m "^_^ Version 0.05 released NOCODE"
 
-% git tag v.0.04 -m "Version 0.04 released"
+% git checkout master
+
+% git merge
+
+% git tag v.0.05 -m "Version 0.05 released"
 
 % git push && git push --tags
+
+% git checkout devel
 
 ALL FOLKS
