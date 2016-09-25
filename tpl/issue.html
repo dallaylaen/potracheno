@@ -3,6 +3,7 @@
 </pre>
 Posted on [% DATE(issue.posted) %] by [% HTML(issue.author) %]<br>
 <b>[% issue.time_spent || 'No time' %] wasted on this!</b><br>
+[% IF session.user_id %]
 <form action="/addtime" method="POST">
     <input type="hidden" name="issue_id" value="[% issue.issue_id %]">
     Time wasted:<br>
@@ -11,6 +12,9 @@ Posted on [% DATE(issue.posted) %] by [% HTML(issue.author) %]<br>
     <textarea name="note"></textarea><br>
     <input type="submit" value="Add time/comment">
 </form>
+[% ELSE %]
+<div class="error"><b>Please log in to be able to comment and track time</b></div>
+[% END %]
 [% FOREACH item IN comments %]
 <div class="comment" style="border: 1px dotted red">
     [% IF item.time %][% HTML(item.time) %] spent [% ELSE %]Added[% END %]

@@ -1,3 +1,4 @@
+[% IF session.user_id %]
 <form method="POST">
     Summary*: <br>
     <input name="summary" value="[% HTML(summary) %]"><br>
@@ -5,3 +6,6 @@
     <textarea name="body">[% HTML(body) %]</textarea><br>
     <input type="submit" value="Submit!">
 </form>
+[% ELSE %]
+<h1 class="error">Please log in to be able to post new issues</h1>
+[% END %]
