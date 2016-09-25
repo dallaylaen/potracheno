@@ -2,8 +2,9 @@
 [% FOREACH item IN results %]
     <li>
         <a href="/issue/[% item.issue_id %]#[% item.comment_id %]">
-            [% item.issue_id %] - [% HTML( item.summary ) %]
-        </a><br>
+            [%- item.issue_id %] - [% HTML( item.summary ) -%]</a>
+            <span class="status">[[% HTML(item.status) %]]</span>
+        <br>
         [% FOREACH snip IN item.snippets %]
             [% HTML(snip.0) %]<b>[% HTML(snip.1) %]</b>[% HTML(snip.2) %]...
         [% END %]

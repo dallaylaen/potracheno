@@ -2,7 +2,7 @@ package Potracheno::Config;
 
 use strict;
 use warnings;
-our $VERSION = 0.04;
+our $VERSION = 0.0401;
 
 # TODO replace with stock module!!!!!
 
@@ -58,7 +58,7 @@ All other errors will die.
 
 =cut
 
-my $key = qr{[A-Za-z_][A-Za-z_0-9\.\-]*};
+my $key = qr{[A-Za-z_0-9\.\-]+};
 my $bareword = qr{[A-Za-z_0-9\.\-:/&=\?\@]+};
 my %replace = (qw( ' ' " " \ \ ), n =>"\n");
 my $js = JSON::XS->new->relaxed;

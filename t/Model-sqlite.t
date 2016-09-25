@@ -73,8 +73,8 @@ note explain $art;
 
 note "TESTING TIME";
 
-$model->add_time( issue_id => $art->{issue_id}, user_id => 1, time => "1s" );
-$model->add_time( issue_id => $art->{issue_id}, user_id => 2, time => "2s" );
+$model->log_activity( issue_id => $art->{issue_id}, user_id => 1, time => "1s" );
+$model->log_activity( issue_id => $art->{issue_id}, user_id => 2, time => "2s" );
 
 $art = $model->get_issue( id => $id );
 is ($art->{time_spent}, "3s", "3 time spent");

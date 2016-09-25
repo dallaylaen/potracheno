@@ -36,3 +36,11 @@ input.num {
 .error {
     color: red;
 }
+
+.status {
+    display: inline-block;
+    background-color: #f0f0f0;
+    color: green;
+    border: 1px dotted gray;
+    font-size: 0.7em;
+}

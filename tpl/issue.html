@@ -1,14 +1,28 @@
+Posted on [% DATE(issue.created) %] by
+<a href="/user/[% issue.user_id %]">[% HTML(issue.author) %]</a><br>
+<b>[% issue.time_spent || 'No time' %] wasted on this!</b>
+<span class="status">[[% HTML(issue.status) %]]</span><br>
 <pre class="descr">
 [% HTML(issue.body) %]
 </pre>
-Posted on [% DATE(issue.created) %] by
-<a href="/user/[% issue.user_id %]">[% HTML(issue.author) %]</a><br>
-<b>[% issue.time_spent || 'No time' %] wasted on this!</b><br>
 [% IF session.user_id %]
 <form action="/addtime" method="POST">
     <input type="hidden" name="issue_id" value="[% issue.issue_id %]">
-    Time wasted:<br>
-    <input name="seconds"><br>
+    Time wasted:
+    <input class="numeric" name="seconds">
+    <select name="status_id">
+        [% FOREACH item IN statuses %]
+        <option
+            [%- IF item.0 == issue.status_id -%]
+                selected value=""
+            [%- ELSE -%]
+                value="[% item.0 %]"
+            [%- END -%]>
+            [%- HTML(item.1) -%]
+        </option>
+        [% END %]
+    </select>
+    <br>
     Comment:<br>
     <textarea name="note"></textarea><br>
     <input type="submit" value="Add time/comment">

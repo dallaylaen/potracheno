@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0401;
+our $VERSION = 0.0402;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -18,6 +18,8 @@ sub new {
             || $opt{config}; # fallback to defaults if file not found
     };
 
+    $opt{status} = $opt{config}{status} || { 0 => "Closed", 1 => "Open" };
+
     my $self = bless \%opt, $class;
 
     my $db = $self->{config}{db};
@@ -28,6 +30,22 @@ sub new {
 };
 
 sub dbh { return $_[0]->{dbh} };
+
+sub get_status {
+    my ($self, $id) = @_;
+    return $self->{status}{$id};
+};
+
+sub get_status_pairs {
+    my $self = shift;
+
+    # return status hash as a list of pairs, sorted by id
+    return $self->{status_pairs} ||= [
+        sort { $a->[0] <=> $b->[0] }
+        map { [ $_ => $self->{status}{$_} ] }
+        keys %{ $self->{status} }
+    ];
+};
 
 my $sql_user_by_id   = "SELECT user_id,name FROM user WHERE user_id = ?";
 my $sql_user_by_name = "SELECT user_id,name FROM user WHERE name = ?";
@@ -125,6 +143,7 @@ sub make_pass {
 my $sql_art_ins = "INSERT INTO issue(summary,body,user_id,created) VALUES(?,?,?,?)";
 my $sql_art_sel = <<"SQL";
     SELECT a.issue_id AS issue_id, a.body AS body, a.summary AS summary
+        , a.status_id AS status_id
         , a.user_id AS user_id, u.name AS author
         , a.created AS created
     FROM issue a JOIN user u ON a.user_id = u.user_id
@@ -133,11 +152,14 @@ SQL
 sub add_issue {
     my ($self, %opt) = @_;
 
+    my $t = time;
+
     my $dbh = $self->{dbh};
     my $sth = $dbh->prepare( $sql_art_ins );
-    $sth->execute( $opt{summary}, $opt{body}, $opt{user}{user_id}, time );
+    $sth->execute( $opt{summary}, $opt{body}, $opt{user}{user_id}, $t );
 
     my $id = $dbh->last_insert_id("", "", "issue", "issue_id");
+
     return $id;
 };
 
@@ -151,20 +173,35 @@ sub get_issue {
 
     $data->{seconds_spent} = $self->get_time( issue_id => $opt{id} );
     $data->{time_spent}    = $self->time2human( $data->{seconds_spent} );
+    $data->{status}        = $self->{status}{ $data->{status_id} };
 
     return $data;
 };
 
 my $sql_time_ins = "INSERT INTO activity(user_id,issue_id,seconds,note,created) VALUES(?,?,?,?,?)";
 my $sql_time_sum = "SELECT sum(seconds) FROM activity WHERE 1 = 1";
-sub add_time {
+my $sql_issue_status = "UPDATE issue SET status_id = ? WHERE issue_id = ?";
+sub log_activity {
     my ($self, %opt) = @_;
 
-    my $time = $self->human2time( $opt{time} );
+    my $user     = $opt{user_id};
+    my $issue    = $opt{issue_id};
+    my $note     = $opt{note};
+    my $created  = $opt{created} || time;
+    my $status   = $opt{status_id};
+    my $time     = $self->human2time( $opt{time} );
 
-    my $sth = $self->{dbh}->prepare( $sql_time_ins );
-    $sth->execute( $opt{user_id}, $opt{issue_id}, $time
-        , $opt{note}, $opt{created} || time );
+    if (defined $status) {
+        $self->{status}{ $status }
+            or $self->my_croak("Illegal status_id $status");
+        my $sth_st = $self->dbh->prepare( $sql_issue_status );
+        $sth_st->execute( $status, $issue );
+        $note = "Status changed to $self->{status}{ $status }"
+            . ( defined $note ? "\n\n$note" : "");
+    };
+
+    my $sth = $self->dbh->prepare( $sql_time_ins );
+    $sth->execute( $user, $issue, $time, $note, $created );
 };
 
 sub get_time {
@@ -236,7 +273,8 @@ sub get_comments {
 };
 
 my $sql_search_art = <<"SQL";
-SELECT issue_id, 0 AS comment_id, body, summary, created FROM issue WHERE
+SELECT issue_id, 0 AS comment_id, body, summary, status_id, created
+FROM issue WHERE
 SQL
 
 sub search {
@@ -270,6 +308,7 @@ sub search {
             push @snip, [ $1, $2, $3 ];
         };
         $row->{snippets} = \@snip;
+        $row->{status} = $self->{status}{ $row->{status_id} };
         push @result, $row;
     };
 

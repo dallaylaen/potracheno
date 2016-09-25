@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0401;
+our $VERSION = 0.0402;
 
 use URI::Escape;
 use Data::Dumper;
@@ -36,7 +36,7 @@ MVC::Neaf->load_view( TT => TT =>
 )->render({ -template => \"\n\ntest\n\n" });
 
 MVC::Neaf->set_default( HTML => \&HTML, URI => \&URI, DATE => \&DATE
-    , copyright_by => "Lodin" );
+    , copyright_by => "Lodin", version => "$VERSION/".Potracheno::Model->VERSION );
 
 MVC::Neaf->set_session_handler( engine => $model, view_as => 'session' );
 
@@ -178,6 +178,7 @@ MVC::Neaf->route( issue => sub {
         title => "#$data->{issue_id} - $data->{summary}",
         issue => $data,
         comments => $comments,
+        statuses => $model->get_status_pairs,
     };
 } );
 
@@ -212,11 +213,16 @@ MVC::Neaf->route( addtime => sub {
     my $issue_id = $req->param( issue_id => qr/\d+/ );
     my $seconds  = $req->param( seconds => qr/.+/, 0 );
     my $note     = $req->param( note => qr/.*\S.+/ );
+    my $status_id = $req->param( status_id => qr/\d+/, undef );
 
     die 422 unless $issue_id;
+    if (defined $status_id) {
+        defined $model->get_status($status_id)
+            or die 422;
+    };
 
-    $model->add_time( issue_id => $issue_id, user_id => $user->{user_id}
-        , time => $seconds, note => $note);
+    $model->log_activity( issue_id => $issue_id, user_id => $user->{user_id}
+        , time => $seconds, note => $note, status_id => $status_id);
 
     $req->redirect( "/issue/$issue_id" );
 }, method => "POST" );
