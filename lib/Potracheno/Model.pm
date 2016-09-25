@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.04;
+our $VERSION = 0.0401;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -122,12 +122,12 @@ sub make_pass {
     return join '#', $salt, md5_base64( join '#', $salt, $pass );
 };
 
-my $sql_art_ins = "INSERT INTO issue(summary,body,author_id,posted) VALUES(?,?,?,?)";
+my $sql_art_ins = "INSERT INTO issue(summary,body,user_id,created) VALUES(?,?,?,?)";
 my $sql_art_sel = <<"SQL";
     SELECT a.issue_id AS issue_id, a.body AS body, a.summary AS summary
-        , a.author_id AS author_id, u.name AS author
-        , a.posted AS posted
-    FROM issue a JOIN user u ON a.author_id = u.user_id
+        , a.user_id AS user_id, u.name AS author
+        , a.created AS created
+    FROM issue a JOIN user u ON a.user_id = u.user_id
     WHERE a.issue_id = ?;
 SQL
 sub add_issue {
@@ -155,8 +155,8 @@ sub get_issue {
     return $data;
 };
 
-my $sql_time_ins = "INSERT INTO time_spent(user_id,issue_id,seconds,note,posted) VALUES(?,?,?,?,?)";
-my $sql_time_sum = "SELECT sum(seconds) FROM time_spent WHERE 1 = 1";
+my $sql_time_ins = "INSERT INTO activity(user_id,issue_id,seconds,note,created) VALUES(?,?,?,?,?)";
+my $sql_time_sum = "SELECT sum(seconds) FROM activity WHERE 1 = 1";
 sub add_time {
     my ($self, %opt) = @_;
 
@@ -164,7 +164,7 @@ sub add_time {
 
     my $sth = $self->{dbh}->prepare( $sql_time_ins );
     $sth->execute( $opt{user_id}, $opt{issue_id}, $time
-        , $opt{note}, $opt{posted} || time );
+        , $opt{note}, $opt{created} || time );
 };
 
 sub get_time {
@@ -187,14 +187,14 @@ sub get_time {
 };
 
 my $sql_time_sel = "SELECT
-    t.time_spent_id AS time_spent_id,
+    t.activity_id AS activity_id,
     t.issue_id AS issue_id,
     t.user_id AS user_id,
     u.name AS user_name,
     t.seconds AS seconds,
     t.note AS note,
-    t.posted AS posted
-FROM time_spent t JOIN user u USING(user_id)
+    t.created AS created
+FROM activity t JOIN user u USING(user_id)
 WHERE 1 = 1";
 sub get_comments {
     my ($self, %opt) = @_;
@@ -236,7 +236,7 @@ sub get_comments {
 };
 
 my $sql_search_art = <<"SQL";
-SELECT issue_id, 0 AS comment_id, body, summary, posted FROM issue WHERE
+SELECT issue_id, 0 AS comment_id, body, summary, created FROM issue WHERE
 SQL
 
 sub search {
@@ -255,7 +255,7 @@ sub search {
     my $where = join ' AND '
         , map { "(body LIKE '$_' OR summary LIKE '$_')" } @terms_sql;
 
-    my $order = "ORDER BY posted DESC"; # TODO $opt{sort}
+    my $order = "ORDER BY created DESC"; # TODO $opt{sort}
 
     my $sth = $self->{dbh}->prepare( "$sql_search_art $where $order" );
     $sth->execute;
@@ -353,7 +353,7 @@ sub time2human {
     return @ret ? join " ", @ret : '0';
 };
 
-my @tables = qw(user issue time_spent);
+my @tables = qw(user issue activity);
 sub dump {
     my $self = shift;
 

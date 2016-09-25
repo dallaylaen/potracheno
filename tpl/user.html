@@ -6,7 +6,7 @@
     [% IF item.time %][% HTML(item.time) %] spent [% ELSE %]
         Commented[% END %]
     on <a href="/issue/[% item.issue_id %]">issue [% item.issue_id %]</a>
-    on [% DATE(item.posted) %]<br>
+    on [% DATE(item.created) %]<br>
     <pre>[% HTML(item.note) %]</pre>
 </div>
 [% END %]

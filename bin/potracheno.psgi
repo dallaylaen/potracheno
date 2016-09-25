@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.04;
+our $VERSION = 0.0401;
 
 use URI::Escape;
 use Data::Dumper;
@@ -171,7 +171,7 @@ MVC::Neaf->route( issue => sub {
     die 404 unless $data->{issue_id};
     warn Dumper($data);
 
-    my $comments = $model->get_comments( issue_id => $id, sort => '+posted' );
+    my $comments = $model->get_comments( issue_id => $id, sort => '+created' );
 
     return {
         -template => "issue.html",
@@ -228,7 +228,7 @@ MVC::Neaf->route( user => sub {
     my $data = $model->load_user ( user_id => $id );
     die 404 unless $data->{user_id};
 
-    my $comments = $model->get_comments( user_id => $id, sort => '-posted' );
+    my $comments = $model->get_comments( user_id => $id, sort => '-created' );
     return {
         -template => 'user.html',
         title => "$data->{name} - user details",

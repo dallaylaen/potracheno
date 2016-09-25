@@ -81,7 +81,7 @@ is ($art->{time_spent}, "3s", "3 time spent");
 
 my $comments = $model->get_comments;
 
-foreach my $extra( qw(posted time_spent_id) ) {
+foreach my $extra( qw(created activity_id) ) {
     foreach (@$comments) {
         (delete $_->{$extra}) =~ /^\d+$/
             or die "Bad format of $extra, must be natural number";

@@ -8,17 +8,17 @@ CREATE TABLE issue (
     issue_id INTEGER PRIMARY KEY AUTOINCREMENT,
     summary varchar (256) NOT NULL,
     body varchar(4096) NOT NULL,
-    author_id INT,
-    posted INT -- unix time
+    user_id INT,
+    created INT -- unix time
 );
 
-CREATE TABLE time_spent (
-    time_spent_id INTEGER PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE activity (
+    activity_id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INT NOT NULL,
     issue_id INT NOT NULL,
     seconds INT NOT NULL,
     note varchar(4096),
-    posted INT -- unix time
+    created INT -- unix time
 );
 
 CREATE TABLE sess (
