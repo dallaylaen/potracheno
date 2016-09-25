@@ -27,6 +27,14 @@ is_deeply( $conf, { global => { json => { x => 42, y => [] } } }
 $conf = Potracheno::Config->load_config(\'    # this is a comment');
 is_deeply( $conf, {}, "Comment");
 
+$conf = Potracheno::Config->load_config(\"[x]\nfoo=42\nbar=\"\$(x#foo)0\"");
+is_deeply( $conf, { x => { foo => 42, bar => 420 } }, "Interpolation");
+
+$conf = Potracheno::Config->load_config(\"log='\$(ROOT)/error.log'"
+    , ROOT => "foo" );
+is_deeply( $conf, { global => { ROOT => "foo", log => "foo/error.log" } }
+    , "Interpolation + default subst");
+
 note "NEGATIVE CASES";
 
 eval {
@@ -52,5 +60,12 @@ eval {
 };
 note $@;
 like ($@, qr/^Potracheno::Config->load_config/, "Exception as planned");
+
+eval {
+    Potracheno::Config->load_config(\"foo='\$(UNKNOWN)'");
+};
+note $@;
+like ($@, qr/^Potracheno::Config->load_config/, "Exception as planned");
+
 
 done_testing;

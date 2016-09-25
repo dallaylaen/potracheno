@@ -2,7 +2,7 @@ package Potracheno::Config;
 
 use strict;
 use warnings;
-our $VERSION = 0.0301;
+our $VERSION = 0.0302;
 
 # TODO replace with stock module!!!!!
 
@@ -48,7 +48,7 @@ use Errno qw(ENOENT);
 
 use parent qw(MVC::Neaf::X); # get my_croak
 
-=head2 load_config
+=head2 load_config( $filename, %defaults )
 
 One and only public static method for now.
 Loads config and returns a hash.
@@ -64,7 +64,7 @@ my %replace = (qw( ' ' " " \ \ ), n =>"\n");
 my $js = JSON::XS->new->relaxed;
 
 sub load_config {
-    my ($self, $file) = @_;
+    my ($self, $file, %opt) = @_;
 
     my $fd;
     if (!open ($fd, "<", $file)) {
@@ -73,6 +73,7 @@ sub load_config {
     };
 
     my %conf;
+    $conf{global} = \%opt if %opt;
     my @cont;
     my $line;
     my $section = "global";
@@ -124,6 +125,14 @@ sub load_config {
         if (/^(["'])((?:[^"']+|\\["'\\])*)\1$/) {
             my $value = $2;
             $value =~ s/\\(['"\n\\])/$replace{$1}/gs;
+
+            $value =~ s[\$\((?:($bareword)\#)?($key)\)][
+                my $sec = defined $1 ? $1 : "global";
+                exists $conf{$sec}{$2}
+                    or $self->my_croak("Unknown value \$($sec#$2) substituted at $file line $line");
+                $conf{$sec}{$2};
+            ]xge;
+
             $conf{$section}{$param} = $value;
             next;
         };
