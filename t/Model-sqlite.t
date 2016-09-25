@@ -37,7 +37,7 @@ $dbh->do( $_ ) for split /;/, $sql; # this autodies
 $dbh->disconnect;
 
 my $model = Potracheno::Model->new(
-    db_handle => $db,
+    config => { db => { handle => $db }},
 );
 
 # Huh, let the tests begin

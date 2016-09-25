@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0302;
+our $VERSION = 0.0303;
 
 use URI::Escape;
 use Data::Dumper;
@@ -15,9 +15,17 @@ use MVC::Neaf 0.0702;
 use MVC::Neaf::Exception qw(neaf_err);
 use Potracheno::Model;
 
+my $conf = {
+    db => {
+        handle => "dbi:SQLite:dbname=$Bin/../local/potracheno.sqlite",
+    },
+};
+
 # Will consume config later
 my $model = Potracheno::Model->new(
-    db_handle => "dbi:SQLite:dbname=$Bin/../nocommit-data/potracheno.sqlite",
+    config => $conf, # fallback value
+    config_file => "$Bin/../local/potracheno.cfg",
+    ROOT   => "$Bin/..",
 );
 
 MVC::Neaf->load_view( TT => TT =>

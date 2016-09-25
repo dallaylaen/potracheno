@@ -2,19 +2,26 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0303;
+our $VERSION = 0.0304;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
 
 use parent qw(MVC::Neaf::X::Session);
+use Potracheno::Config;
 
 sub new {
     my ($class, %opt) = @_;
 
+    if ($opt{config_file}) {
+        $opt{config} = Potracheno::Config->load_config( $opt{config_file}, %opt )
+            || $opt{config}; # fallback to defaults if file not found
+    };
+
     my $self = bless \%opt, $class;
 
-    $self->{dbh} = DBI->connect($opt{db_handle}, $opt{db_user}, $opt{db_pass},
+    my $db = $self->{config}{db};
+    $self->{dbh} = DBI->connect($db->{handle}, $db->{user}, $db->{pass},
         { RaiseError => 1 });
 
     return $self;
