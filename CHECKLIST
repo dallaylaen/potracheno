@@ -9,7 +9,7 @@
 % cover -t
 - must exceed 70%
 
-% plackup cgi/app.psgi
+% plackup bin/potracheno.psgi
 - http://localhost:5000/
 - can register
 - can log in

@@ -1,4 +1,12 @@
 
+0.04    Sun Sep 25 2016
+        TPL Don't show forms to anon user
+        MOD Add migrate.pl for dump, restore
+        MOD Add config (local/potracheno.cfg); add lostpass.pl for resetting password
+        CSS Add css, logo & table layout. Still needs work tho
+        REF Rename app.psgi => bin/potracheno.psgi
+        APP Add some crude change password
+        UXP Use pretty time
 
 0.03    Sat Sep 24 2016
         APP Add login, register support

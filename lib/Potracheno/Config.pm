@@ -2,7 +2,7 @@ package Potracheno::Config;
 
 use strict;
 use warnings;
-our $VERSION = 0.0302;
+our $VERSION = 0.04;
 
 # TODO replace with stock module!!!!!
 
