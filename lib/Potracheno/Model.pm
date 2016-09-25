@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0304;
+our $VERSION = 0.0305;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -351,6 +351,47 @@ sub time2human {
     };
 
     return @ret ? join " ", @ret : '0';
+};
+
+my @tables = qw(user issue time_spent);
+sub dump {
+    my $self = shift;
+
+    my %dump;
+    my $dbh = $self->dbh;
+    foreach my $t (@tables) {
+        my $sth = $dbh->prepare( "SELECT * FROM $t" );
+        $sth->execute;
+        while (my $row = $sth->fetchrow_hashref) {
+            push @{ $dump{$t} }, $row;
+        };
+    };
+
+    return \%dump;
+};
+
+sub restore {
+    my ($self, $dump) = @_;
+
+    my $dbh = $self->dbh;
+    $dbh->begin_work;
+    local $SIG{__DIE__} = sub { $dbh->rollback };
+    foreach my $t (@tables) {
+        next unless $dump->{$t};
+        foreach my $row( @{ $dump->{$t} } ) {
+            defined $row->{$_} or delete $row->{$_}
+                for keys %$row;
+            my @keys = sort keys %$row;
+            next unless @keys;
+            my @values = @$row{@keys};
+            my $into  = join ",", @keys;
+            my $quest = join ",", ("?") x @keys;
+            my $sth = $dbh->prepare_cached("INSERT INTO $t($into) VALUES ($quest)");
+            $sth->execute( @values );
+        };
+    };
+
+    $dbh->commit;
 };
 
 1;
