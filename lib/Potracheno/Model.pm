@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0402;
+our $VERSION = 0.0403;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -22,14 +22,32 @@ sub new {
 
     my $self = bless \%opt, $class;
 
-    my $db = $self->{config}{db};
-    $self->{dbh} = DBI->connect($db->{handle}, $db->{user}, $db->{pass},
-        { RaiseError => 1 });
+    $self->{dbh} = $self->get_dbh( $self->{config}{db} );
 
     return $self;
 };
 
 sub dbh { return $_[0]->{dbh} };
+
+sub get_dbh {
+    my ($self, $db) = @_;
+
+    my ($type) = $db->{handle}=~ /dbi:([^:]+)/;
+    if ($type eq 'SQLite') {
+        return DBI->connect($db->{handle}, $db->{user}, $db->{pass},
+            { RaiseError => 1, sqlite_unicode => 1 });
+    } elsif($type eq 'mysql') {
+        my $dbh = DBI->connect($db->{handle}, $db->{user}, $db->{pass},
+            { RaiseError => 1 });
+        $dbh->do('SET NAMES utf8;');
+        return $dbh;
+    };
+    # TODO more DB types welcome
+
+    warn "WARN Unknown DB is being used";
+    return DBI->connect($db->{handle}, $db->{user}, $db->{pass},
+        { RaiseError => 1 });
+};
 
 sub get_status {
     my ($self, $id) = @_;
@@ -170,6 +188,7 @@ sub get_issue {
     my $rows = $sth->execute( $opt{id} );
     my $data = $sth->fetchrow_hashref;
     $sth->finish;
+    return unless $data;
 
     $data->{seconds_spent} = $self->get_time( issue_id => $opt{id} );
     $data->{time_spent}    = $self->time2human( $data->{seconds_spent} );
