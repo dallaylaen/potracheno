@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0402;
+our $VERSION = 0.0403;
 
 use URI::Escape;
 use Data::Dumper;
@@ -89,7 +89,7 @@ MVC::Neaf->route( register => sub {
             my $id = $model->add_user( $user, $pass );
             $id   or die "FORM: [Username '$user' already taken]";
 
-            $req->session->{user_id} = $id;
+            $req->save_session( { user_id => $id } );
             $req->redirect("/");
         };
         neaf_err($@);
