@@ -3,8 +3,13 @@
 
 [% FOREACH item IN comments %]
 <div class="comment" style="border: 1px dotted red">
-    [% IF item.time %][% HTML(item.time) %] spent [% ELSE %]
-        Commented[% END %]
+    [% IF item.time %]
+        Spent [% HTML(item.time) %]
+    [% ELSIF item.solve_time %]
+        Proposed a solution in [% HTML(item.solve_time) %]
+    [% ELSE %]
+        Commented
+    [% END %]
     on <a href="/issue/[% item.issue_id %]">issue [% item.issue_id %]</a>
     on [% DATE(item.created) %]<br>
     <pre>[% HTML(item.note) %]</pre>

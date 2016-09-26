@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0403;
+our $VERSION = 0.0404;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -200,27 +200,45 @@ sub get_issue {
 my $sql_time_ins = "INSERT INTO activity(user_id,issue_id,seconds,note,created) VALUES(?,?,?,?,?)";
 my $sql_time_sum = "SELECT sum(seconds) FROM activity WHERE 1 = 1";
 my $sql_issue_status = "UPDATE issue SET status_id = ? WHERE issue_id = ?";
+
+# TODO rename to spent_time, solve_time
+my @log_required = qw(user_id issue_id);
+my @log_known = (@log_required, qw( note seconds fix_estimate created ));
 sub log_activity {
     my ($self, %opt) = @_;
 
-    my $user     = $opt{user_id};
-    my $issue    = $opt{issue_id};
-    my $note     = $opt{note};
-    my $created  = $opt{created} || time;
-    my $status   = $opt{status_id};
-    my $time     = $self->human2time( $opt{time} );
+    my @missing = grep { !defined $opt{$_} } @log_required;
+    $self->my_croak( "required args missing: @missing" )
+        if @missing;
+
+    $opt{created}    ||= time;
+    $opt{seconds}      = $self->human2time( $opt{time} ) || undef;
+    $opt{fix_estimate} = $self->human2time( $opt{solve_time} ) || undef;
+    my $status         = $opt{status_id};
 
     if (defined $status) {
         $self->{status}{ $status }
             or $self->my_croak("Illegal status_id $status");
         my $sth_st = $self->dbh->prepare( $sql_issue_status );
-        $sth_st->execute( $status, $issue );
-        $note = "Status changed to $self->{status}{ $status }"
-            . ( defined $note ? "\n\n$note" : "");
+        $sth_st->execute( $status, $opt{issue_id} );
+        $opt{note} = "Status changed to $self->{status}{ $status }"
+            . ( defined $opt{note} ? "\n\n$opt{note}" : "");
     };
 
-    my $sth = $self->dbh->prepare( $sql_time_ins );
-    $sth->execute( $user, $issue, $time, $note, $created );
+    # TODO orm it?
+    # Make sql request
+    my @fields;
+    my @values;
+    foreach (@log_known) {
+        defined $opt{$_} or next;
+        push @fields, $_;
+        push @values, $opt{$_};
+    };
+    my $quest = join ",", ("?") x @fields;
+    my $into  = join ",", @fields;
+
+    my $sth = $self->dbh->prepare( "INSERT INTO activity($into) VALUES ($quest)" );
+    $sth->execute( @values );
 };
 
 sub get_time {
@@ -248,6 +266,7 @@ my $sql_time_sel = "SELECT
     t.user_id AS user_id,
     u.name AS user_name,
     t.seconds AS seconds,
+    t.fix_estimate AS solve_time_s,
     t.note AS note,
     t.created AS created
 FROM activity t JOIN user u USING(user_id)
@@ -276,6 +295,7 @@ sub get_comments {
     my @ret;
     while (my $data = $sth->fetchrow_hashref) {
         $data->{time} = $self->time2human($data->{seconds});
+        $data->{solve_time} = $self->time2human($data->{solve_time_s});
         push @ret, $data;
     };
 
@@ -400,6 +420,8 @@ my %unit_time = reverse %time_unit;
 my @unit_desc = sort { $b <=> $a } keys %unit_time;
 sub time2human {
     my ($self, $t) = @_;
+
+    return 0 unless $t;
 
     my @ret;
     foreach (@unit_desc) {

@@ -1,16 +1,13 @@
 VERSION ADDED | VERSION TBD | TITLE
 
 -- NEXT --
-0.01    0.05    runs on mysql
 0.01    0.05    fix proposal - special comment with LOE - multiple can exist
 0.04    0.05    some crude installer & daemonizer (with logs etc)
-0.04    0.05    issue status: open, closed, underway
 0.04    0.05    issue editing w/preview
-0.04    0.05    Unicode support
-0.04    0.05    Create user logs in
 
 -- BACKLOG --
 
+0.04    0.10    mysql install guide
 0.04    0.10    front page explanation text
 0.04    0.10    front page ready to go solutions
 0.04    0.10    improve looks - how? Must set goal

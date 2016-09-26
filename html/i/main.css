@@ -44,3 +44,7 @@ input.num {
     border: 1px dotted gray;
     font-size: 0.7em;
 }
+
+.solution {
+    color: green;
+};

@@ -89,8 +89,10 @@ foreach my $extra( qw(created activity_id) ) {
 };
 @$comments = sort { $a->{user_id} <=> $b->{user_id} } @$comments;
 is_deeply( $comments, [
-    { user_id => 1, note => undef, user_name => "Foo", issue_id => 1, seconds => 1, time => "1s" },
-    { user_id => 2, note => undef, user_name => "Bar", issue_id => 1, seconds => 2, time => "2s" },
+    { user_id => 1, note => undef, user_name => "Foo", issue_id => 1,
+         seconds => 1, time => "1s", solve_time => 0, solve_time_s => undef },
+    { user_id => 2, note => undef, user_name => "Bar", issue_id => 1,
+         seconds => 2, time => "2s", solve_time => 0, solve_time_s => undef },
 ], "Comments as expected" );
 
 note "TESTING SEARCH";

@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0404;
+our $VERSION = 0.0405;
 
 use URI::Escape;
 use Data::Dumper;
@@ -11,7 +11,7 @@ use POSIX qw(strftime);
 use FindBin qw($Bin);
 use File::Basename qw(dirname);
 use lib "$Bin/../lib";
-use MVC::Neaf 0.0702;
+use MVC::Neaf 0.0704;
 use MVC::Neaf::Exception qw(neaf_err);
 use Potracheno::Model;
 
@@ -212,8 +212,9 @@ MVC::Neaf->route( addtime => sub {
     # TODO use form!!!!
     my $issue_id = $req->param( issue_id => qr/\d+/ );
     my $seconds  = $req->param( seconds => qr/.+/, 0 );
-    my $note     = $req->param( note => qr/.*\S.+/ );
+    my $note     = $req->param( note => qr/.*\S.+/s );
     my $status_id = $req->param( status_id => qr/\d+/, undef );
+    my $type     = $req->param( type => qr/fix/ );
 
     die 422 unless $issue_id;
     if (defined $status_id) {
@@ -222,7 +223,8 @@ MVC::Neaf->route( addtime => sub {
     };
 
     $model->log_activity( issue_id => $issue_id, user_id => $user->{user_id}
-        , time => $seconds, note => $note, status_id => $status_id);
+        , ($type eq 'fix' ? 'solve_time' : 'time') => $seconds
+        , note => $note, status_id => $status_id);
 
     $req->redirect( "/issue/$issue_id" );
 }, method => "POST" );

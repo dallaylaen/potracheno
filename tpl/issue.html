@@ -8,7 +8,10 @@ Posted on [% DATE(issue.created) %] by
 [% IF session.user_id %]
 <form action="/addtime" method="POST">
     <input type="hidden" name="issue_id" value="[% issue.issue_id %]">
-    Time wasted:
+    <select name="type">
+        <option value="">Time spent</option>
+        <option value="fix">Fix estimate</option>
+    </select>
     <input class="numeric" name="seconds">
     <select name="status_id">
         [% FOREACH item IN statuses %]
@@ -35,6 +38,9 @@ Posted on [% DATE(issue.created) %] by
     [% IF item.time %][% HTML(item.time) %] spent [% ELSE %]Added[% END %]
     by <a href="/user/[% item.user_id %]">[% HTML(item.user_name) %]</a>
     on [% DATE(item.created) %]<br>
+    [% IF item.solve_time %]
+        <b class="solution">Proposed fix in [% item.solve_time %]</b><br>
+    [% END %]
     [% IF item.note %]
         <pre class="descr">[% HTML(item.note) %]</pre>
     [% END %]
