@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0403;
+our $VERSION = 0.0404;
 
 use URI::Escape;
 use Data::Dumper;
@@ -152,7 +152,7 @@ MVC::Neaf->route( post => sub {
 
     # Switch to form?
     my $summary  = $req->param( summary => qr/\S.+\S/ );
-    my $body     = $req->param( body => qr/.*\S.+/ );
+    my $body     = $req->param( body => qr/.*\S.+/s );
 
     die 403 unless $user->{user_id};
     die 422 unless $summary and $body;
