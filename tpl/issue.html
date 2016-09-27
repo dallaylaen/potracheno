@@ -1,5 +1,5 @@
-Posted on [% DATE(issue.created) %] by
-<a href="/user/[% issue.user_id %]">[% HTML(issue.author) %]</a><br>
+<div class="aux"><i>Posted on [% DATE(issue.created) %] by
+<a href="/user/[% issue.user_id %]">[% HTML(issue.author) %]</a></i></div>
 <b>[% issue.time_spent || 'No time' %] wasted on this!</b>
 <span class="status">[[% HTML(issue.status) %]]</span><br>
 <pre class="descr">
@@ -34,15 +34,16 @@ Posted on [% DATE(issue.created) %] by
 <div class="error"><b>Please log in to be able to comment and track time</b></div>
 [% END %]
 [% FOREACH item IN comments %]
-<div class="comment" style="border: 1px dotted red">
+<div class="comment">
+    <i class="aux">
     [% IF item.time %][% HTML(item.time) %] spent [% ELSE %]Added[% END %]
     by <a href="/user/[% item.user_id %]">[% HTML(item.user_name) %]</a>
-    on [% DATE(item.created) %]<br>
+    on [% DATE(item.created) %]</i><br>
     [% IF item.solve_time %]
         <b class="solution">Proposed fix in [% item.solve_time %]</b><br>
     [% END %]
     [% IF item.note %]
-        <pre class="descr">[% HTML(item.note) %]</pre>
+        <pre class="note" [% IF item.solve_time %]class="solution"[% END %]>[% HTML(item.note) %]</pre>
     [% END %]
 </div>
 [% END %]

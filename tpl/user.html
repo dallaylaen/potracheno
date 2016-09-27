@@ -2,16 +2,18 @@
 
 
 [% FOREACH item IN comments %]
-<div class="comment" style="border: 1px dotted red">
+<div class="comment">
+    <div class="aux">
     [% IF item.time %]
         Spent [% HTML(item.time) %]
     [% ELSIF item.solve_time %]
-        Proposed a solution in [% HTML(item.solve_time) %]
+        <b class="solution">Proposed a solution
+        in [% HTML(item.solve_time) %]</b>
     [% ELSE %]
         Commented
     [% END %]
     on <a href="/issue/[% item.issue_id %]">issue [% item.issue_id %]</a>
-    on [% DATE(item.created) %]<br>
-    <pre>[% HTML(item.note) %]</pre>
+    on [% DATE(item.created) %]</div>
+    <pre [% IF item.solve_time %]class="solution"[% END %]>[% HTML(item.note) %]</pre>
 </div>
 [% END %]
