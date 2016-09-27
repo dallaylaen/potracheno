@@ -19,20 +19,45 @@ that slow down and demotivate the team.
 
 # INSTALLATION
 
+On a Unix system:
+
     git clone <this repository>
+
+    ./bin/install.pl --doit
+
     plackup cgi/app.psgi
 
-Much better guide TBD.
+The `install.pl` command will:
+
+* check for missing dependencies;
+
+* create a `local` directory;
+
+* install latest `MVC::Neaf` from github *locally*,
+unless such library is already available;
+
+* create a default configuration file at local/potracheno.cfg,
+unless it's already there;
+
+* create an empty SQLite DB from template in `sql` directory,
+unless a previous config was detected, or database already exists.
+
+No setup is currently available for Windows, though it is planned.
+Generally the sequence is as above.
+`perl bin\\install.pl --doit --readonly` command will only check for
+dependencies, and test database availability.
 
 # DEPENDENCIES
 
-https://github.com/dallaylaen/perl-mvc-neaf
-DBI
-DBD::SQLite
+* https://github.com/dallaylaen/perl-mvc-neaf (currently not on CPAN)
+
+* DBI
+
+* DBD::SQLite
 
 # BUGS
 
-Lots of them.
+Lots of them. This product is still under heavy development, see TODO.
 
 # COPYRIGHT AND LICENSE
 
