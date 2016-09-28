@@ -2,14 +2,16 @@ VERSION ADDED | VERSION TBD | TITLE
 
 -- NEXT --
 0.01    0.05    fix proposal - special comment with LOE - multiple can exist
-0.04    0.05    some crude installer & daemonizer (with logs etc)
-0.04    0.05    crude issue editing
+0.04    0.05    some crude installer
+0.04    0.05    AUX daemonize
+0.04    0.05    REP Report showing ready-to-go solutions
+0.04    0.05    CSS Consistent color scheme
 
 -- BACKLOG --
 
+0.04    0.06    crude issue editing
 0.04    0.10    REF Add update_any, insert_any
 0.04    0.10    APP Issue edit & post w/preview
-0.04    0.10    REP Report showing ready-to-go solutions
 0.04    0.10    REP Comment search
 0.04    0.10    mysql install guide
 0.04    0.10    front page explanation text
