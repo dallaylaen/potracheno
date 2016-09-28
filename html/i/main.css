@@ -1,5 +1,6 @@
-.foot {
-    background-color: #a0a0a0;
+body {
+    background-color: #f0f0f0;
+    color: black;
 }
 
 h1 {
@@ -12,25 +13,42 @@ textarea {
 }
 
 .descr {
-    background-color: #f0ffff;
+    margin: 0.5em;
+    padding: 0.5em;
+    border: 1px dotted blue;
+    background-color: white;
+}
+.note {
+    background-color: white;
+}
+.post {
+    margin: 0.5em;
+    padding: 0.5em;
     border: 1px dotted blue;
 }
 
-.note {
-    background-color: #f0ffff;
+.time {
+    color: blue;
+}
+
+.comment {
+    margin: 0.5em;
+    padding: 0.5em;
     border: 1px dotted blue;
+    background-color: white;
+}
+
+pre {
+    border-left: 10px solid gray;
+    padding-left: 10px;
 }
 
 input {
-    height: 1.3em;
-    border: 1px dotted gray;
-    font-size: 1em;
+    height: 1.2em;
 }
 
 a.menu {
-    height: 1.3em;
     border: 1px dotted gray;
-    background-color: #f0f0f0;
     display: inline-block;
 }
 
@@ -44,15 +62,16 @@ input.num {
 
 .status {
     display: inline-block;
-    background-color: #f0f0f0;
-    color: green;
-    border: 1px dotted gray;
-    font-size: 0.7em;
+    background-color: blue;
+    color: white;
+    padding-left: 0.3em;
+    padding-right: 0.3em;
 }
 
 .solution {
     color: green;
 }
+
 pre.solution {
     border: 1px solid green;
     color: black;
@@ -63,7 +82,3 @@ pre.solution {
     font-size: 0.9em;
 }
 
-.comment {
-    margin: 0.5em;
-    border: 1px dotted blue;
-}

@@ -1,10 +1,17 @@
+<div class="descr">
 <div class="aux"><i>Posted on [% DATE(issue.created) %] by
 <a href="/user/[% issue.user_id %]">[% HTML(issue.author) %]</a></i></div>
-<b>[% issue.time_spent || 'No time' %] wasted on this!</b>
-<span class="status">[[% HTML(issue.status) %]]</span><br>
-<pre class="descr">
+[% IF issue.time_spent %]
+<b class="status">[% issue.time_spent %]</b> spent on this.
+[% ELSE %]
+No time wasted here...</b>
+[% END %]
+<b class="status">[% HTML(issue.status) %]</b><br>
+<pre>
 [% HTML(issue.body) %]
 </pre>
+</div>
+<div class="post">
 [% IF session.user_id %]
 <form action="/addtime" method="POST">
     <input type="hidden" name="issue_id" value="[% issue.issue_id %]">
@@ -33,10 +40,11 @@
 [% ELSE %]
 <div class="error"><b>Please log in to be able to comment and track time</b></div>
 [% END %]
+</div>
 [% FOREACH item IN comments %]
 <div class="comment">
     <i class="aux">
-    [% IF item.time %][% HTML(item.time) %] spent [% ELSE %]Added[% END %]
+    [% IF item.time %]<span class="status">[% HTML(item.time) %]</span> spent [% ELSE %]Added[% END %]
     by <a href="/user/[% item.user_id %]">[% HTML(item.user_name) %]</a>
     on [% DATE(item.created) %]</i><br>
     [% IF item.solve_time %]
