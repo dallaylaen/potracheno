@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0404;
+our $VERSION = 0.0405;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -431,6 +431,49 @@ sub time2human {
     };
 
     return @ret ? join " ", @ret : '0';
+};
+
+my $sql_rep = <<'SQL';
+SELECT
+    i.issue_id                AS issue_id,
+    i.summary                 AS summary,
+    i.body                    AS body,
+    i.user_id                 AS author_id,
+    u.name                    AS author_name,
+    i.created                 AS created,
+    i.status_id               AS status_id,
+    MAX(a.created)            AS last_modified,
+    SUM(a.seconds)            AS time_spent_s,
+    COUNT(distinct a.user_id) AS participants,
+    MAX(a.fix_estimate)       AS has_solution
+FROM issue i JOIN activity a USING( issue_id )
+    JOIN user u ON i.user_id = u.user_id
+WHERE 1 = 1 %s
+GROUP BY a.issue_id
+HAVING 1 = 1 %s
+ORDER BY %s
+SQL
+
+sub report {
+    my ($self, %opt) = @_;
+
+    my $where  = '';
+    my $having = '';
+    my $order  = 'created DESC';
+    my @param;
+
+    my $sql = sprintf( $sql_rep, $where, $having, $order );
+    my $sth = $self->dbh->prepare( $sql );
+    $sth->execute(@param);
+
+    my @report;
+    while (my $row = $sth->fetchrow_hashref) {
+        $row->{time_spent} = $self->time2human( $row->{time_spent_s} );
+        $row->{status} = $self->get_status( $row->{status_id} );
+        push @report, $row;
+    };
+
+    return \@report;
 };
 
 my @tables = qw(user issue activity);

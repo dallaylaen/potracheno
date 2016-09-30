@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0405;
+our $VERSION = 0.0406;
 
 use URI::Escape;
 use Data::Dumper;
@@ -242,6 +242,17 @@ MVC::Neaf->route( user => sub {
         title => "$data->{name} - user details",
         user => $data,
         comments => $comments,
+    };
+});
+
+MVC::Neaf->route( report => sub {
+    my $req = shift;
+
+    my $data = $model->report;
+
+    return {
+        -template => 'report.html',
+        table_data => $data,
     };
 });
 
