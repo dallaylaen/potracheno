@@ -25,7 +25,7 @@ CREATE TABLE activity (
 );
 
 CREATE TABLE sess (
-    sess_id varchar(22) PRIMARY KEY,
+    sess_id varchar(43) PRIMARY KEY,
     user_id INTEGER NOT NULL,
     created INT -- unix time
 );

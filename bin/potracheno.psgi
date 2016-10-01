@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0406;
+our $VERSION = 0.0407;
 
 use URI::Escape;
 use Data::Dumper;
@@ -11,8 +11,8 @@ use POSIX qw(strftime);
 use FindBin qw($Bin);
 use File::Basename qw(dirname);
 use lib "$Bin/../lib";
-use MVC::Neaf 0.0704;
-use MVC::Neaf::Exception qw(neaf_err);
+use MVC::Neaf 0.09;
+use MVC::Neaf qw(neaf_err);
 use Potracheno::Model;
 
 my $conf = {

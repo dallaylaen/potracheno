@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0405;
+our $VERSION = 0.0406;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -385,7 +385,7 @@ sub save_session {
         $sth_ins->execute($id, $data->{user_id}, time);
     };
     # ignore insert errors
-    die $@ if $@ and $@ !~ /unique/i;
+    die $@ if $@ and $@ !~ /unique|Duplicate/i;
 
     my $sth = $self->dbh->prepare($sql_sess_upd);
     $sth->execute( $data->{user_id}, $id );

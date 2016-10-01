@@ -29,7 +29,7 @@ CREATE TABLE activity (
 
 DROP TABLE IF EXISTS sess;
 CREATE TABLE sess (
-    sess_id varchar(22) PRIMARY KEY,
+    sess_id varchar(43) PRIMARY KEY,
     user_id INTEGER NOT NULL,
     created INT -- unix time
 ) DEFAULT CHARSET=utf8;
