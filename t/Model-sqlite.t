@@ -95,10 +95,24 @@ is_deeply( $comments, [
          seconds => 2, time => "2s", solve_time => 0, solve_time_s => undef },
 ], "Comments as expected" );
 
-note "TESTING SEARCH";
+diag "SMOKE-TESTING SEARCH";
 
 my $results = $model->search( terms => [ "expl" ] );
 
 note explain $results;
+is (ref $results, 'ARRAY', "Got array");
+is (scalar @$results, 1, "Got 1 element");
+is (scalar (grep { ref $_ ne 'HASH' } @$results), 0
+    , "All results in array are hashes");
+
+diag "SMOKE-TESTING REPORT";
+
+my $rep = $model->report;
+is (ref $rep, 'ARRAY', "Got array");
+is (scalar @$rep, 1, "Got 1 element");
+is (scalar (grep { ref $_ ne 'HASH' } @$rep)
+    , 0, "All results in array are hashes");
+
+note explain $rep;
 
 done_testing;
