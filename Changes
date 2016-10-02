@@ -1,3 +1,13 @@
+Revision history for the POotracheno time tracker project.
+
+0.05    Sun Oct 02 2016
+        REP Add issue report
+        APP Add issue statuses
+        APP Add solution proposals
+        MOD Add mysql DB schema
+        CSS Improve looks to some extent
+        TST Add DB readiness test script (check-db.t)
+        BUG Numerous bugs fixed, even more added
 
 0.04    Sun Sep 25 2016
         TPL Don't show forms to anon user

@@ -1,23 +1,19 @@
 VERSION ADDED | VERSION TBD | TITLE
 
 -- NEXT --
-0.01    0.05    fix proposal - special comment with LOE - multiple can exist
-0.04    0.05    some crude installer
-0.04    0.05    AUX daemonize
-0.04    0.05    REP Report showing ready-to-go solutions
-0.04    0.05    CSS Consistent color scheme
+0.04    0.06    BUG report WHERE fails for has_solution, fix it
+0.04    0.06    APP Issue edit & post w/preview
+0.04    0.06    REF Add update_any, insert_any
+0.04    0.06    REP Comment search
+0.04    0.06    REP Another report showing ready-to-go solutions
+0.04    0.06    REP search pagination
 
 -- BACKLOG --
-
-0.04    0.06    crude issue editing
-0.04    0.10    REF Add update_any, insert_any
-0.04    0.10    APP Issue edit & post w/preview
-0.04    0.10    REP Comment search
+0.04    0.10    AUX daemonize
 0.04    0.10    mysql install guide
 0.04    0.10    front page explanation text
 0.04    0.30    front page ready to go solutions
 0.04    0.10    improve looks - how? Must set goal
-0.04    0.10    search pagination
 0.01    0.10    markdown support
 0.01    0.10    highlight links
 0.04    0.10    CSS Better design wanted
@@ -36,4 +32,4 @@ VERSION ADDED | VERSION TBD | TITLE
 0.04    0.30    TST Add tpl broken test
 
 THINK MORE
-0.01    0.20    DBIx::Class? Other orm?
+0.01    0.20    DBIx::Class? DBIx::Struct? Other orm?

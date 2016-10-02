@@ -17,6 +17,18 @@ it tracks time spent *working around it*.
 This is supposed to help track down the exact tech debt instances
 that slow down and demotivate the team.
 
+Features:
+
+* users, issues, comments, and time tracking
+
+* report showing issues with various properties
+
+* issue search
+
+* DB migration script; MySQL, sqlite support
+
+Not really much here.
+
 # INSTALLATION
 
 On a Unix system:
