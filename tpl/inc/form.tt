@@ -1,0 +1,8 @@
+[% BLOCK select %]
+[% # params: name=, pairs=, chosen= %]
+<select name="[% name | html %]">
+    [% FOREACH item IN pairs %]
+    <option value="[% item.0 | html %]"[% IF chosen == item.0%] selected[% END %]>[% item.size > 1 ? item.1 : item.0 | html %]</option>
+    [% END %]
+</select>
+[% END %]

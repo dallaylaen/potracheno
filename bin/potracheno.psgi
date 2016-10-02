@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0407;
+our $VERSION = 0.0408;
 
 use URI::Escape;
 use Data::Dumper;
@@ -13,6 +13,7 @@ use File::Basename qw(dirname);
 use lib "$Bin/../lib";
 use MVC::Neaf 0.09;
 use MVC::Neaf qw(neaf_err);
+use MVC::Neaf::X::Form;
 use Potracheno::Model;
 
 my $conf = {
@@ -245,14 +246,25 @@ MVC::Neaf->route( user => sub {
     };
 });
 
+my $val_report = MVC::Neaf::X::Form->new({
+    order_by     => '\w+',
+    order_dir    => 'ASC|DESC',
+});
 MVC::Neaf->route( report => sub {
     my $req = shift;
 
-    my $data = $model->report;
+    my $form = $req->form( $val_report );
+
+    my $data = [];
+    $data = $model->report( %{ $form->data } )
+        if $form->is_valid;
 
     return {
         -template => 'report.html',
+        title => "Issue report",
         table_data => $data,
+        order_options => $model->report_order_options,
+        form => $form,
     };
 });
 

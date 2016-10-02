@@ -1,3 +1,15 @@
+[% PROCESS inc/form.tt %]
+
+<form method="GET">
+    <div>
+    Sort by:
+    [% PROCESS select name="order_by" pairs=order_options chosen=form.raw.order_by %]
+    [% PROCESS select name="order_dir" pairs=[["DESC", "down"], ["ASC", "up"]]
+    chosen=form.raw.order_dir %]
+    <input type="submit" value="Get report">
+    </div>
+</form>
+
 [% FOREACH item IN table_data %]
 <div class="descr">
     <span class="status">[% item.status %]</span>

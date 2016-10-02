@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0406;
+our $VERSION = 0.0407;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -454,15 +454,35 @@ HAVING 1 = 1 %s
 ORDER BY %s
 SQL
 
+sub report_order_options {
+    return _pairs(
+         issue_id       => "id",
+         summary        => "Summary",
+         author_name    => "Author",
+         created        => "Creation date",
+         status_id      => "Status",
+         last_modified  => "Modification date",
+         time_spent_s   => "Time spent",
+         participants   => "Number of backers",
+         has_solution   => "Solution availability",
+    );
+};
+
 sub report {
     my ($self, %opt) = @_;
 
-    my $where  = '';
-    my $having = '';
+    my @where;
+    my @having;
     my $order  = 'created DESC';
     my @param;
 
-    my $sql = sprintf( $sql_rep, $where, $having, $order );
+    if ($opt{order_by} and $opt{order_dir}) {
+        $order = "$opt{order_by} $opt{order_dir}";
+    };
+
+    my $sql = sprintf( $sql_rep
+        , (join ' AND ', '', @where), (join ' AND ', '', @having), $order );
+    warn "DEBUG report: sql = $sql";
     my $sth = $self->dbh->prepare( $sql );
     $sth->execute(@param);
 
@@ -474,6 +494,14 @@ sub report {
     };
 
     return \@report;
+};
+
+sub _pairs {
+    my @ret;
+    while (@_) {
+        push @ret, [shift, shift];
+    };
+    return \@ret;
 };
 
 my @tables = qw(user issue activity);
