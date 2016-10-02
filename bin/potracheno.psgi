@@ -2,19 +2,20 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.05;
+our $VERSION = 0.0501;
 
 use URI::Escape;
 use Data::Dumper;
 use POSIX qw(strftime);
 
-use FindBin qw($Bin);
 use File::Basename qw(dirname);
-use lib "$Bin/../lib";
+use lib dirname(__FILE__)."/../lib";
 use MVC::Neaf 0.09;
 use MVC::Neaf qw(neaf_err);
 use MVC::Neaf::X::Form;
 use Potracheno::Model;
+
+my $Bin = dirname(__FILE__); # FindBin doesn't seem to work well under plackup
 
 my $conf = {
     db => {
