@@ -7,11 +7,17 @@ body {
 
 h1 {
     text-align: center;
+    color: #900000;
 }
 
 textarea {
     width: 80%;
     height: 10em;
+}
+
+.narrowed {
+    margin-left: 7%;
+    margin-right: 7%;
 }
 
 .descr {
@@ -53,8 +59,17 @@ input {
 }
 
 a.menu {
-    border: 1px dotted gray;
+    border: 2px solid #900000;
+    color: #900000;
+    font-weight: bold;
+    text-decoration: none;
+    padding-left: 1em;
+    padding-right: 1em;
     display: inline-block;
+}
+a.menu:hover {
+    background-color: #900000;
+    color: white;
 }
 
 input.num {
