@@ -1,6 +1,8 @@
 body {
     background-color: #f0f0f0;
     color: black;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
 }
 
 h1 {
@@ -13,8 +15,9 @@ textarea {
 }
 
 .descr {
-    margin: 0.5em;
     padding: 0.5em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
     border: 1px dotted blue;
     background-color: white;
 }
@@ -22,8 +25,9 @@ textarea {
     background-color: white;
 }
 .post {
-    margin: 0.5em;
     padding: 0.5em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
     border: 1px dotted blue;
 }
 
@@ -32,8 +36,9 @@ textarea {
 }
 
 .comment {
-    margin: 0.5em;
     padding: 0.5em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
     border: 1px dotted blue;
     background-color: white;
 }
