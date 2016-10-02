@@ -1,0 +1,20 @@
+[% BLOCK select %]
+[% # params: name=, pairs=, noopt= %]
+<select name="[% name | html %]">
+    [% IF noopt %]
+    <option value=''>[% noopt | html %]</option>
+    [% END %]
+    [% FOREACH item IN pairs %]
+    <option value="[% item.0 | html %]"[% IF item.0 == form.raw.$name %] selected[% END %]>[% item.size > 1 ? item.1 : item.0 | html %]</option>
+    [% END %]
+</select>
+[% END %]
+[% BLOCK input %]
+[% # params: name= width= %]
+<input name="[% name | html %]" value="[% form.raw.$name | html %]"
+    [%- IF form.error.$name %] class="error"[% END %]
+    [% IF width %] size="[% width %]"[% END %]>
+[% END %]
+[% BLOCK checkbox %]
+<input name="[% name | html %]" type="checkbox"[% IF form.raw.$name %] checked[% END %]>
+[% END %]

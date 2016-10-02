@@ -2,10 +2,11 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0407;
+our $VERSION = 0.0408;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
+use Time::Local qw(timelocal);
 
 use parent qw(MVC::Neaf::X::Session);
 use Potracheno::Config;
@@ -478,6 +479,26 @@ sub report {
 
     if ($opt{order_by} and $opt{order_dir}) {
         $order = "$opt{order_by} $opt{order_dir}";
+    };
+
+    if ($opt{date_from}) {
+        $opt{date_from} =~ /(\d+)\D+(\d+)\D+(\d+)/ or die "Bad date format";
+        my $t = timelocal(0,0,0,$3,$2-1,$1);
+        push @where, "a.created >= ?";
+        push @param, $t;
+    };
+    if ($opt{date_to}) {
+        $opt{date_to} =~ /(\d+)\D+(\d+)\D+(\d+)/ or die "Bad date format";
+        my $t = timelocal(59,59,23,$3,$2-1,$1);
+        push @where, "a.created <= ?";
+        push @param, $t;
+    };
+    if (defined $opt{status}) {
+        push @where, "NOT " x !!$opt{status_not} . "i.status_id = ?";
+        push @param, $opt{status};
+    };
+    if (defined $opt{has_solution}) {
+        push @having, "NOT " x !$opt{has_solution} . "has_solution = 0";
     };
 
     my $sql = sprintf( $sql_rep
