@@ -27,17 +27,17 @@
 - version-bump ALL except 0.0x (didn't change since last release)
 
 % vim -p Changes TODO README.md
-- :r !git log --oneline | head -n 20
+- :r !git log --oneline | head -n 30
 - remove completed, add new, sort by target version
 - catch up with features
 
-% git commit -a -m "^_^ Version 0.05 released NOCODE"
+% git commit -a -m "^_^ Version 0.06 released NOCODE"
 
 % git checkout master
 
-% git merge
+% git merge devel
 
-% git tag v.0.05 -m "Version 0.05 released"
+% git tag v.0.05 -m "Version 0.06 released"
 
 % git push && git push --tags
 
