@@ -5,15 +5,15 @@
 <div class="comment">
     <div class="aux">
     [% IF item.time %]
-        Spent [% HTML(item.time) %]
+        Spent [% item.time | html %]
     [% ELSIF item.solve_time %]
         <b class="solution">Proposed a solution
-        in [% HTML(item.solve_time) %]</b>
+        in [% item.solve_time | html %]</b>
     [% ELSE %]
         Commented
     [% END %]
     on <a href="/issue/[% item.issue_id %]">issue [% item.issue_id %]</a>
     on [% DATE(item.created) %]</div>
-    <pre [% IF item.solve_time %]class="solution"[% END %]>[% HTML(item.note) %]</pre>
+    <pre [% IF item.solve_time %]class="solution"[% END %]>[% item.note | html %]</pre>
 </div>
 [% END %]

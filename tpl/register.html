@@ -1,12 +1,12 @@
 [% SET id = session.user_id %]
 <form method="POST">
     [% IF wrong %]
-        <span style="color: red">[% HTML(wrong) %]</span><br>
+        <span style="color: red">[% wrong | html %]</span><br>
     [% END %]
     [% IF id %]
     Current password: <input name="oldpass" type="password"><br>
     [% ELSE %]
-    Username: <input name="user" value="[% HTML(user) %]"><br>
+    Username: <input name="user" value="[% user | html %]"><br>
     [% END %]
     Password: <input name="pass" type="password"><br>
     Password: <input name="pass2" type="password"><br>

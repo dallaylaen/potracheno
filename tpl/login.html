@@ -1,9 +1,9 @@
 <form method="POST">
     [% IF wrong %]
-        <span style="color: red">[% HTML(wrong) %]</span><br>
+        <span style="color: red">[% wrong | html %]</span><br>
     [% END %]
-    <imput type="hidden" name="return_to" value="[% HTML(return_to) %]">
-    Username: <input name="name" value="[% HTML(name) %]"><br>
+    <imput type="hidden" name="return_to" value="[% return_to | html %]">
+    Username: <input name="name" value="[% name | html %]"><br>
     Password: <input name="pass" type="password"><br>
     <input type="submit" value="Log in!">
 </form>

@@ -1,9 +1,9 @@
 [% IF session.user_id %]
 <form method="POST">
     Summary*: <br>
-    <input name="summary" value="[% HTML(summary) %]"><br>
+    <input name="summary" value="[% summary | html %]"><br>
     Details*: <br>
-    <textarea name="body">[% HTML(body) %]</textarea><br>
+    <textarea name="body">[% body | html %]</textarea><br>
     <input type="submit" value="Submit!">
 </form>
 [% ELSE %]

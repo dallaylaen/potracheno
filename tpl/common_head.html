@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>[% HTML(title) %] - Potracheno v.[% version %]</title>
+    <title>[% title | html %] - Potracheno v.[% version %]</title>
     <link rel="stylesheet" type="text/css" href="/i/main.css">
 </head>
 <body>
@@ -11,7 +11,7 @@
     </td>
     <td>
         <form method="GET" action="/search" class="search">
-            <input name="q" value="[% HTML(q) %]">
+            <input name="q" value="[% q | html %]">
             <input type="submit" value="Search">
         </form>
     </td>
@@ -19,7 +19,7 @@
         <div class="session" aling="right">
         [% IF session.user_id %]
             <form method="POST" action="/logout">
-            <b>Welcome, <a class="menu" href="/user/[% session.user_id %]">[% HTML(session.user_name) %]</a>!</b>
+            <b>Welcome, <a class="menu" href="/user/[% session.user_id %]">[% session.user_name | html %]</a>!</b>
             <a class="menu" href="/edit_user">Edit</a>|
             <input type="submit" value="Log out"></form>
         [% ELSE %]
@@ -29,7 +29,7 @@
     </td>
 </tr>
 <tr>
-<td colspan="2" valign="bottom"><h1>[% HTML(title) %]</h1>
+<td colspan="2" valign="bottom"><h1>[% title | html %]</h1>
     <a class="menu" href="/post">Main page</a>
     <a class="menu" href="/post">Add new obstacle</a>
     <a class="menu" href="/report">Browse issues</a>

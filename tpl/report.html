@@ -26,9 +26,9 @@
 <div class="descr">
     <span class="status">[% item.status %]</span>
     <a href="/issue/[% item.issue_id %]">Issue [% item.issue_id %]</a>
-    posted by <a href="/user/[% item.author_id %]">[% HTML(item.author_name) %]</a>
+    posted by <a href="/user/[% item.author_id %]">[% item.author_name | html %]</a>
     on [% DATE( item.created ) %].<br>
-    "[% HTML( item.summary ) %]"<br>
+    "[%  item.summary  | html %]"<br>
     <span class="time">[% item.time_spent %]</span> spent on this
     by [% item.participants %] participants.<br>
     [% IF item.has_solution %]
