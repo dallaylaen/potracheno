@@ -11,7 +11,8 @@ my $str = Potracheno::Model->time2human( $t );
 note "1Msec = $str";
 
 is (Potracheno::Model->human2time( $str ), $t, "Round trip");
-is (Potracheno::Model->human2time(0.25), 15*60, "Default hours");
+is (Potracheno::Model->human2time("0.25h"), 15*60, "Default hours");
+is (Potracheno::Model->human2time("1"), 0, "No units = no time");
 is (Potracheno::Model->human2time("I wasted 0.25 minutes"), 15
     , "Reads minutes ok");
 

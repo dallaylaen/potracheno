@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.05;
+our $VERSION = 0.0501;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -217,6 +217,8 @@ sub log_activity {
     $opt{fix_estimate} = $self->human2time( $opt{solve_time} ) || undef;
     my $status         = $opt{status_id};
 
+    return unless $opt{seconds} || $opt{fix_estimate} || $status || $opt{note};
+
     if (defined $status) {
         $self->{status}{ $status }
             or $self->my_croak("Illegal status_id $status");
@@ -402,7 +404,7 @@ my %time_unit = (
     y => 60*60*24*365,
 );
 my $time_unit_re = join "|", reverse sort keys %time_unit;
-$time_unit_re = qr/(?:$time_unit_re|)/;
+$time_unit_re = qr/(?:$time_unit_re)/;
 my $num_re = qr/(?:\d+(?:\.\d+)?)/; # no minus, no sophisticated stuff
 
 sub human2time {
@@ -447,7 +449,7 @@ SELECT
     SUM(a.seconds)            AS time_spent_s,
     COUNT(distinct a.user_id) AS participants,
     MAX(a.fix_estimate)       AS has_solution
-FROM issue i JOIN activity a USING( issue_id )
+FROM issue i LEFT JOIN activity a USING( issue_id )
     JOIN user u ON i.user_id = u.user_id
 WHERE 1 = 1 %s
 GROUP BY a.issue_id
