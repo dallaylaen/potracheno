@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0501;
+our $VERSION = 0.0502;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -500,7 +500,11 @@ sub report {
         push @param, $opt{status};
     };
     if (defined $opt{has_solution}) {
-        push @having, "NOT " x !$opt{has_solution} . "has_solution = 0";
+        # TODO invent better SQL here, maybe make sure solution_time is NEVER 0
+        # or a separate join (with cheapest sulve estimate) THINK MORE
+        push @having, $opt{has_solution}
+            ? "has_solution > 0"
+            : "(has_solution IS NULL OR has_solution = 0)";
     };
 
     my $sql = sprintf( $sql_rep
