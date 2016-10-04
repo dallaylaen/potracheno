@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0501;
+our $VERSION = 0.0502;
 
 use URI::Escape;
 use Data::Dumper;
@@ -37,8 +37,7 @@ MVC::Neaf->load_view( TT => TT =>
     EVAL_PERL => 1,
 )->render({ -template => \"\n\ntest\n\n" });
 
-MVC::Neaf->set_default( HTML => \&HTML, URI => \&URI, DATE => \&DATE
-    , copyright_by => "Lodin", version => "$VERSION/".Potracheno::Model->VERSION );
+MVC::Neaf->set_default( DATE => \&DATE, version => "$VERSION/".Potracheno::Model->VERSION );
 
 MVC::Neaf->set_session_handler( engine => $model, view_as => 'session' );
 
@@ -293,17 +292,7 @@ my %replace = qw( & &amp; < &gt; > &gt; " &qout; );
 my $bad_chars = join "", map { quotemeta $_ } keys %replace;
 $bad_chars = qr/([$bad_chars])/;
 
-sub HTML {
-    my $str = shift;
-    $str =~ s/$bad_chars/$replace{$1}/g;
-    return $str;
-};
-
-sub URI {
-    my $str = shift;
-    return uri_escape_utf8($str);
-};
-
+# TODO move to model OR view
 sub DATE {
     my $time = shift;
     return strftime("%Y-%m-%d %H:%M:%S", localtime($time));
