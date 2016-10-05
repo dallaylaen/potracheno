@@ -2,11 +2,12 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0502;
+our $VERSION = 0.0503;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
 use Time::Local qw(timelocal);
+use Data::Dumper;
 
 use parent qw(MVC::Neaf::X::Session);
 use Potracheno::Config;
@@ -315,8 +316,20 @@ sub get_comments {
 };
 
 my $sql_search_art = <<"SQL";
-SELECT issue_id, 0 AS comment_id, body, summary, status_id, created
+SELECT issue_id, 0 AS activity_id, body, summary, status_id, created
 FROM issue WHERE
+SQL
+
+my $sql_search_comm = <<"SQL";
+SELECT
+    i.issue_id      AS issue_id,
+    a.activity_id   AS activity_id,
+    a.note          AS body,
+    i.summary       AS summary,
+    i.status_id     AS status_id,
+    i.created       AS created
+FROM issue i JOIN activity a USING(issue_id)
+WHERE a.note IS NOT NULL AND
 SQL
 
 sub search {
@@ -325,7 +338,11 @@ sub search {
     my $terms = $opt{terms};
     return [] unless $terms and ref $terms eq 'ARRAY' and @$terms;
 
-    my @terms_sql = map { my $x = $_; $x =~ tr/*?\\'/%___/; "%$x%" } @$terms;
+    # only search 5 terms using SQL, check the rest via perl
+    my @terms_trunc = sort { length $b <=> length $a } @$terms;
+    $#terms_trunc = 4 if $#terms_trunc > 4;
+
+    my @terms_sql = map { my $x = $_; $x =~ tr/*?\\'/%___/; "%$x%" } @terms_trunc;
     my @terms_re  = map {
         my $x = $_; $x =~ tr/?/./; $x =~ s/\*/.*/g; $x =~ s/\\/\\\\/g; $x
     } @$terms;
@@ -334,14 +351,22 @@ sub search {
 
     my $where = join ' AND '
         , map { "(body LIKE '$_' OR summary LIKE '$_')" } @terms_sql;
+    my $where2 = join ' AND '
+        , map { "(a.note LIKE '$_' OR i.summary LIKE '$_')" } @terms_sql;
 
     my $order = "ORDER BY created DESC"; # TODO $opt{sort}
 
-    my $sth = $self->{dbh}->prepare( "$sql_search_art $where $order" );
+    my $sth = $self->{dbh}->prepare(
+        "SELECT * FROM (
+            $sql_search_art $where UNION $sql_search_comm $where2
+        ) AS temp $order"
+    );
     $sth->execute;
 
+    my %seen;
     my @result;
     FETCH: while ( my $row = $sth->fetchrow_hashref ) {
+        $seen{ $row->{issue_id} }++ and next;
         my @snip;
         foreach my $t( @terms_re ) {
             $row->{summary} =~ /(.{0,40})($t)(.{0,40})/i

@@ -57,6 +57,9 @@ is ($user->{name}, "Foo", "Input round trip(3)" );
 
 note explain $user;
 
+$model->add_user( "Commenter", "secret" );
+$model->add_user( "Solver", "secret" );
+
 note "TESTING ARTICLE";
 
 my $id = $model->add_issue( body => "explanation", summary => "summary"
@@ -75,6 +78,10 @@ note "TESTING TIME";
 
 $model->log_activity( issue_id => $art->{issue_id}, user_id => 1, time => "1s" );
 $model->log_activity( issue_id => $art->{issue_id}, user_id => 2, time => "2s" );
+$model->log_activity( issue_id => $art->{issue_id}, user_id => 3, note => "comment" );
+$model->log_activity( issue_id => $art->{issue_id}, user_id => 3 );
+    # this should appear nowhere
+$model->log_activity( issue_id => $art->{issue_id}, user_id => 4, note => "solution", solve_time => "1h" );
 
 $art = $model->get_issue( id => $id );
 is ($art->{time_spent}, "3s", "3 time spent");
@@ -87,12 +94,18 @@ foreach my $extra( qw(created activity_id) ) {
             or die "Bad format of $extra, must be natural number";
     };
 };
-@$comments = sort { $a->{user_id} <=> $b->{user_id} } @$comments;
+@$comments = sort {
+    $a->{user_id} <=> $b->{user_id}
+} @$comments;
 is_deeply( $comments, [
     { user_id => 1, note => undef, user_name => "Foo", issue_id => 1,
          seconds => 1, time => "1s", solve_time => 0, solve_time_s => undef },
     { user_id => 2, note => undef, user_name => "Bar", issue_id => 1,
          seconds => 2, time => "2s", solve_time => 0, solve_time_s => undef },
+    { user_id => 3, note => "comment", user_name => "Commenter", issue_id => 1,
+         seconds => undef, time => "0", solve_time => 0, solve_time_s => undef },
+    { user_id => 4, note => "solution", user_name => "Solver", issue_id => 1,
+         seconds => undef, time => "0", solve_time => "1h", solve_time_s => 60*60 },
 ], "Comments as expected" );
 
 diag "SMOKE-TESTING SEARCH";

@@ -1,6 +1,3 @@
-
-
-
 [% FOREACH item IN comments %]
 <div class="comment">
     <div class="aux">
@@ -12,7 +9,7 @@
     [% ELSE %]
         Commented
     [% END %]
-    on <a href="/issue/[% item.issue_id %]">issue [% item.issue_id %]</a>
+    on <a href="/issue/[% item.issue_id %]#a[% item.activity_id %]">issue [% item.issue_id %]</a>
     on [% DATE(item.created) %]</div>
     <pre [% IF item.solve_time %]class="solution"[% END %]>[% item.note | html %]</pre>
 </div>

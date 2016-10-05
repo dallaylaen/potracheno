@@ -1,7 +1,7 @@
 <ol>
 [% FOREACH item IN results %]
     <li>
-        <a href="/issue/[% item.issue_id %]#[% item.comment_id %]">
+        <a href="/issue/[% item.issue_id %]#a[% item.activity_id %]">
             [%- item.issue_id %] - [%  item.summary  | html -%]</a>
             <span class="status">[[% item.status | html %]]</span>
         <br>

@@ -1,7 +1,6 @@
 VERSION ADDED | VERSION TBD | TITLE
 
 -- NEXT --
-0.04    0.06    BUG report WHERE fails for has_solution, fix it
 0.04    0.06    APP Issue edit & post w/preview
 0.04    0.06    REF Add update_any, insert_any
 0.04    0.06    REP Comment search
@@ -17,6 +16,7 @@ VERSION ADDED | VERSION TBD | TITLE
 0.01    0.10    markdown support
 0.01    0.10    highlight links
 0.04    0.10    CSS Better design wanted
+0.05    0.10    APP Admin interface
 0.01    0.20    some js
 0.01    0.20    isuue & comment editing - versioned
 0.01    0.20    tags/projects
