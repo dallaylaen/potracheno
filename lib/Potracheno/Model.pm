@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0504;
+our $VERSION = 0.0505;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -218,6 +218,10 @@ sub log_activity {
     $opt{fix_estimate} = $self->human2time( $opt{solve_time} ) || undef;
     my $status         = $opt{status_id};
 
+    # Skip empty comments
+    delete $opt{note}
+        unless defined $opt{note} and length $opt{note};
+
     return unless $opt{seconds} || $opt{fix_estimate} || $status || $opt{note};
 
     if (defined $status) {
@@ -284,6 +288,10 @@ sub get_comments {
         defined $opt{$_} or next;
         $where .= " AND $_ = ?";
         push @arg, $opt{$_};
+    };
+
+    if ($opt{text_only}) {
+        $where .= " AND t.note IS NOT NULL";
     };
     my $sort = '';
     if ($opt{sort}) {

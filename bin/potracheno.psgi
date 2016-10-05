@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0504;
+our $VERSION = 0.0505;
 
 use URI::Escape;
 use Data::Dumper;
@@ -166,13 +166,15 @@ MVC::Neaf->route( issue => sub {
     my $req = shift;
 
     my $id = $req->path_info =~ /(\d+)/ ? $1 : $req->param ( id => '\d+' );
+    my $show_all = $req->param(all => 1);
     die 422 unless $id;
 
     my $data = $model->get_issue( id => $id );
     die 404 unless $data->{issue_id};
     warn Dumper($data);
 
-    my $comments = $model->get_comments( issue_id => $id, sort => '+created' );
+    my $comments = $model->get_comments(
+        issue_id => $id, sort => '+created', text_only => !$show_all );
 
     return {
         -template => "issue.html",

@@ -24,8 +24,8 @@ echo "Checking files: $FILES"
 # check selected files
 for i in $FILES; do
 	echo "$i"
-	perl -Ilib -Ilib/perl5 -wc "$i" || fail "$i" - "Syntax error"
-	perl -Mwarnings=FATAL,all -Mstrict -Ilib -Ilib/perl5 -w "$i" || fail "$i" - Strict 
+	perl -Ilib -Ilocal/lib -wc "$i" || fail "$i" - "Syntax error"
+	perl -Mwarnings=FATAL,all -Mstrict -Ilib -Ilocal/lib -w "$i" || fail "$i" - Strict 
 	perl -wne '/\s\n/ and exit 1' "$i" || fail "$i" - "Spaces at EOL"
 	perlcritic "$i" || fail "$i" - "Perl critic"
 

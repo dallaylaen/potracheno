@@ -41,6 +41,11 @@ No time wasted here...</b>
 <div class="error"><b>Please log in to be able to comment and track time</b></div>
 [% END %]
 </div>
+<div>
+    <a name="history">
+    <a class="menu" href="/issue/[% issue.issue_id %]#history">Comments only</a>
+    <a class="menu" href="/issue/[% issue.issue_id %]?all=1#history">All history</a>
+</div>
 [% FOREACH item IN comments %]
 <div class="comment">
     <a name="a[% item.activity_id %]">

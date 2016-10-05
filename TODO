@@ -10,18 +10,17 @@ VERSION ADDED | VERSION TBD | TITLE
 -- BACKLOG --
 0.04    0.10    AUX daemonize
 0.04    0.10    mysql install guide
-0.04    0.10    front page explanation text
 0.04    0.30    front page ready to go solutions
 0.04    0.10    improve looks - how? Must set goal
 0.01    0.10    markdown support
 0.01    0.10    highlight links
-0.04    0.10    CSS Better design wanted
 0.05    0.10    APP Admin interface
 0.01    0.20    some js
-0.01    0.20    isuue & comment editing - versioned
+0.01    0.20    issue & comment editing - versioned
 0.01    0.20    tags/projects
 0.01    0.20    reports - time spent this month etc
 0.01    0.20    TST script to check tpl
+0.05    0.20    APP Comment replies
 0.04    0.30    use search engine, sql too slow
 0.04    0.30    watch issues, notifications
 0.01    0.30    seamless install.pl (win included)
