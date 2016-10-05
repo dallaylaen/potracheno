@@ -2,14 +2,14 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0503;
+our $VERSION = 0.0504;
 
 use URI::Escape;
 use Data::Dumper;
 use POSIX qw(strftime);
 
 use File::Basename qw(dirname);
-use lib dirname(__FILE__)."/../lib";
+use lib dirname(__FILE__)."/../lib", dirname(__FILE__)."/../local/lib";
 use MVC::Neaf 0.09;
 use MVC::Neaf qw(neaf_err);
 use MVC::Neaf::X::Form;

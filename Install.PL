@@ -135,7 +135,7 @@ sub install_neaf {
         unless -d $neaf_local;
     $? and die "Failed to clone MVC::Neaf to $neaf_local";
 
-    system prove => "-I$neaf_local/lib" => "$neaf_local/t";
+    system prove => "-I$neaf_local/lib" => -r => "$neaf_local/t";
     $? and die "Failed to build & test MVC::Neaf in $neaf_local";
 
     mkdir "$root/local/lib";
@@ -148,7 +148,7 @@ sub install_neaf {
 
 sub run_tests {
     my $root = shift;
-    system prove => "-I$root/lib" => "$root/t";
+    system prove => "-I$root/lib" => "-I$root/local/lib" => -r => "$root/t";
     $? and die "Tests fail";
 };
 

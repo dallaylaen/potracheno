@@ -1,2 +1,2 @@
 test:
-	prove -Ilib t
+	prove -Ilib -Ilocal/lib t

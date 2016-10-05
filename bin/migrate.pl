@@ -6,7 +6,7 @@ use JSON::XS;
 use Getopt::Long;
 
 use FindBin qw($Bin);
-use lib "$Bin/../lib";
+use lib "$Bin/../lib", "$Bin/../local/lib";
 use Potracheno::Model;
 
 my $root = "$Bin/..";

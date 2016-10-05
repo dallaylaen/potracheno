@@ -36,6 +36,6 @@ done
 
 check_fail
 
-prove -Ilib -r t || fail "tests fail"
+prove -Ilib -Ilocal/lib -r t || fail "tests fail"
 
 check_fail
