@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0503;
+our $VERSION = 0.0504;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -473,7 +473,8 @@ SELECT
     MAX(a.created)            AS last_modified,
     SUM(a.seconds)            AS time_spent_s,
     COUNT(distinct a.user_id) AS participants,
-    MAX(a.fix_estimate)       AS has_solution
+    COUNT(a.activity_id)      AS activity_count,
+    SUM(a.fix_estimate)       AS has_solution
 FROM issue i LEFT JOIN activity a USING( issue_id )
     JOIN user u ON i.user_id = u.user_id
 WHERE 1 = 1 %s
@@ -520,6 +521,10 @@ sub report {
         push @where, "a.created <= ?";
         push @param, $t;
     };
+    if ($opt{date_to} || $opt{date_from}) {
+        push @having, "activity_count > 0";
+    };
+
     if (defined $opt{status}) {
         push @where, "NOT " x !!$opt{status_not} . "i.status_id = ?";
         push @param, $opt{status};
