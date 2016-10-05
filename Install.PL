@@ -5,44 +5,53 @@ use warnings;
 use Getopt::Long;
 
 use FindBin qw($Bin);
-use File::Basename qw(basename dirname);
-use lib qq($Bin/../lib);
+use lib "$Bin/lib", "$Bin/local/lib";
 
 my $neaf_home = 'https://github.com/dallaylaen/perl-mvc-neaf.git';
 
-my $doit;
-my $readonly;
+my $check;
+my $write;
 GetOptions(
-    "doit"      => \$doit,
-    "readonly"  => \$readonly,
+    "install"   => \$write,
+    "check"     => \$check,
     "help"      => \&usage,
 ) or die "Bad usage, see $0 --help";
 
 sub usage {
     print <<"USAGE"; exit 0;
-Usage: $0 [options] --doit
-Will check prerequisites, try install local copy of MVC::Neaf,
-and do some extra checks. Options may include:
-    --readonly - don't create files/directories
+Usage:
+    $0 [options] --check     # check dependencies & prerequisites
+    $0 [options] --install   # also create files & directories
+The following checks are performed:
+ *     check CPAN dependencies
+ *     check/create ./local
+ * (w) install MVC::Neaf into local/, if absent
+ *     run tests from t/
+ * (w) create local/potracheno.cfg and local/potracheno.sqlite, if absent
+ *     check that DB in potracheno.cfg is suitable for running
+Only local directory is affected.
 USAGE
 };
 
-if ($doit) {
-    setup(dirname($Bin), $readonly);
+if ($check || $write) {
+    setup($Bin, $write);
+} else {
+    usage();
 };
 
 sub setup {
-    my ($root, $readonly) = @_;
+    my ($root, $write) = @_;
     check_deps();
 
-    mkdir "$root/local" unless $readonly;
+    mkdir "$root/local" if $write;
     die "Cannot access local directory at $root/local"
         unless -d "$root/local";
 
-    if ($readonly) {
-        require MVC::Neaf;
+    if ($write) {
+        install_neaf( $root, "$root/local/perl-mvc-neaf", $neaf_home );
     } else {
-        check_neaf( $root, "$root/local/perl-mvc-neaf", $neaf_home );
+        # Don't install, just check
+        require MVC::Neaf;
     };
     run_tests( $root );
 
@@ -50,7 +59,7 @@ sub setup {
 
     if( !-f $conf ) {
         die "Config not found at $conf"
-            if $readonly;
+            if !$write;
         create_config( $conf );
 
         my $sqlite = "$root/local/potracheno.sqlite";
@@ -66,7 +75,7 @@ sub setup {
 
 sub check_deps {
     my @modlist = qw(
-        Carp
+        Carp CGI
         Data::Dumper DBI DBD::SQLite Digest::MD5
         Encode Errno
         File::Basename File::Find File::Temp FindBin
@@ -115,7 +124,7 @@ sub check_db {
     $? and die "DB check failed, adjust config or set up db";
 };
 
-sub check_neaf {
+sub install_neaf {
     my ($root, $neaf_local, $neaf_home) = @_;
 
     # already there - nothing to do

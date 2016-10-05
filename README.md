@@ -21,11 +21,21 @@ Features:
 
 * users, issues, comments, and time tracking
 
+* solution proposals with time estimate
+
 * report showing issues with various properties
 
 * issue search
 
 * DB migration script; MySQL, sqlite support
+
+Planned:
+
+* Markdown
+
+* Versioned editing of comments & issues
+
+* Ready to go solution report
 
 Not really much here.
 
@@ -35,11 +45,11 @@ On a Unix system:
 
     git clone <this repository>
 
-    ./bin/install.pl --doit
+    perl Install.PL --install
 
     plackup cgi/app.psgi
 
-The `install.pl` command will:
+The `Install.PL` command will:
 
 * check for missing dependencies;
 
@@ -55,9 +65,8 @@ unless it's already there;
 unless a previous config was detected, or database already exists.
 
 No setup is currently available for Windows, though it is planned.
-Generally the sequence is as above.
-`perl bin\\install.pl --doit --readonly` command will only check for
-dependencies, and test database availability.
+Generally the sequence is as described above.
+`perl Install.PL --check` command will assist by checking dependencies.
 
 # DEPENDENCIES
 
