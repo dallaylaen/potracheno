@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0505;
+our $VERSION = 0.0506;
 
 use URI::Escape;
 use Data::Dumper;
@@ -136,30 +136,28 @@ MVC::Neaf->route( edit_user => sub {
     };
 });
 
-# fetch usr
-# model.add issue
-# returnto view
+# post new issue - validator
+my $val_post = MVC::Neaf::X::Form->new({
+    summary => [ required => qr/\S.+\S/ ],
+    body    => [ required => qr/.*\S.+/s ],
+});
 MVC::Neaf->route( post => sub {
     my $req = shift;
 
-    my $user     = $req->session;
+    my $user = $req->session;
+    my $form = $req->form( $val_post );
+    $user->{user_id} or $form->error( user => "Please log in to post issues" );
 
-    if ( $req->method ne 'POST' ) {
-        return {
-            -template => "post.html",
-            title => "Submit new issue",
-        };
+    if ( $req->method eq 'POST' and $form->is_valid ) {
+        my $id = $model->add_issue( user => $user, %{ $form->data });
+        $req->redirect( "/issue/$id" );
     };
 
-    # Switch to form?
-    my $summary  = $req->param( summary => qr/\S.+\S/ );
-    my $body     = $req->param( body => qr/.*\S.+/s );
-
-    die 403 unless $user->{user_id};
-    die 422 unless $summary and $body;
-
-    my $id = $model->add_issue( user => $user, summary => $summary, body => $body );
-    $req->redirect( "/issue/$id" );
+    return {
+        -template => "post.html",
+        title     => "Submit new issue",
+        form      => $form,
+    };
 } );
 
 MVC::Neaf->route( issue => sub {
