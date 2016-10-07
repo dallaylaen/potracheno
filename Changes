@@ -1,5 +1,11 @@
 Revision history for the POotracheno time tracker project.
 
+0.06    Sat Oct 08 2016
+        CSS Redesign with bootstrap (by Poizon) 
+        APP Comments added to search
+        BUG Fix FindBin incompatibility under plackup
+        AUX Rename bin/install.pl => Install.PL, better help & options
+
 0.05    Sun Oct 02 2016
         REP Add issue report
         APP Add issue statuses

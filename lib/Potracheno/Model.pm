@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0505;
+our $VERSION = 0.06;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);

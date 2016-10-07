@@ -4,7 +4,7 @@
 - on branch devel
 - no extra files
 
-% prove -I lib t
+% prove -Ilib -Ilocal/lib t
 - no warnings
 
 % cover -t
@@ -32,13 +32,13 @@
 - remove completed, add new, sort by target version
 - catch up with features
 
-% git commit -a -m "^_^ Version 0.06 released NOCODE"
+% git commit -a -m "^_^ Version 0.07 released NOCODE"
 
 % git checkout master
 
 % git merge devel
 
-% git tag v.0.05 -m "Version 0.06 released"
+% git tag v.0.05 -m "Version 0.07 released"
 
 % git push && git push --tags
 
