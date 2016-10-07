@@ -1,16 +1,21 @@
-<div class="descr">
-<div class="aux"><i>Posted on [% DATE(issue.created) %] by
-<a href="/user/[% issue.user_id %]">[% issue.author | html %]</a></i></div>
-[% IF issue.time_spent %]
-<b class="status">[% issue.time_spent %]</b> spent on this.
-[% ELSE %]
-No time wasted here...</b>
-[% END %]
-<b class="status">[% issue.status | html %]</b><br>
-<pre>
-[% issue.body | html %]
-</pre>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Posted on [% DATE(issue.created) %] by
+    <a href="/user/[% issue.user_id %]">[% issue.author | html %]</a>
+</h3>
+  </div>
+  <div class="panel-body">
+    [% issue.body | html %]
+  </div>
+  <div class="panel-footer">[% IF issue.time_spent %]
+    <b>[% issue.time_spent %]</b> spent on this.
+    [% ELSE %]
+    No time wasted here...</b>
+    [% END %]
+    <b>[% issue.status | html %]</b></div>
 </div>
+<hr>
 <div class="post">
 [% IF session.user_id %]
 <form action="/addtime" method="POST">
@@ -38,27 +43,32 @@ No time wasted here...</b>
     <input type="submit" value="Add time/comment">
 </form>
 [% ELSE %]
-<div class="error"><b>Please log in to be able to comment and track time</b></div>
+<div class="alert alert-danger"><b>Please log in to be able to comment and track time</b></div>
 [% END %]
-</div>
-<div>
-    <a name="history">
-    <a class="menu" href="/issue/[% issue.issue_id %]#history">Comments only</a>
-    <a class="menu" href="/issue/[% issue.issue_id %]?all=1#history">All history</a>
 </div>
 [% FOREACH item IN comments %]
-<div class="comment">
-    <a name="a[% item.activity_id %]">
-    <a href="/issue/[% item.issue_id %]#a[% item.activity_id %]">#[% item.activity_id %]</a>
-    <i class="aux">
-    [% IF item.time %]<span class="status">[% item.time | html %]</span> spent [% ELSE %]Added[% END %]
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">
+    [% IF item.time %]<span class="status">[% item.time | html %]</span> spent 
+    [% ELSE %]Added
+    [% END %]
     by <a href="/user/[% item.user_id %]">[% item.user_name | html %]</a>
-    on [% DATE(item.created) %]</i><br>
+    on [% DATE(item.created) %]
     [% IF item.solve_time %]
-        <b class="solution">Proposed fix in [% item.solve_time %]</b><br>
+    Proposed fix in [% item.solve_time %]
     [% END %]
+    </h3>
+  </div>
+  <div class="panel-body">
     [% IF item.note %]
-        <pre class="note" [% IF item.solve_time %]class="solution"[% END %]>[% item.note | html %]</pre>
+        [% item.note | html %]
     [% END %]
+  </div>
+  [% IF item.solve_time %]
+  <div class="panel-footer">Proposed fix in [% item.solve_time %]</div>
+  [% END %]
 </div>
 [% END %]
+
+

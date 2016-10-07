@@ -1,41 +1,59 @@
 <html>
 <head>
     <title>[% title | html %] - Potracheno v.[% version %]</title>
-    <link rel="stylesheet" type="text/css" href="/i/main.css">
+    <link rel="stylesheet" type="text/css" href="/i/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/i/css/main.css">
 </head>
 <body>
-<table width="100%" cellspacing="0" cellpadding="1" border="0">
-<tr>
-    <td width="100" rowspan="2">
-        <a href="/"><img height="100" width="100" src="/i/logo.png"></a>
-    </td>
-    <td>
-        <form method="GET" action="/search" class="search">
-            <input name="q" value="[% q | html %]">
-            <input type="submit" value="Search">
-        </form>
-    </td>
-    <td align="right">
-        <div class="session" aling="right">
-        [% IF session.user_id %]
-            <form method="POST" action="/logout">
-            <b>Welcome, <a class="menu" href="/user/[% session.user_id %]">[% session.user_name | html %]</a>!</b>
-            <a class="menu" href="/edit_user">Edit</a>|
-            <input type="submit" value="Log out"></form>
-        [% ELSE %]
-            <a href="/login">login</a>|<a href="register">register</a>
+
+
+ <div class="container">
+      <div class="header clearfix">
+        <nav>
+          <ul class="nav nav-pills pull-right">
+            <li role="presentation" class="active"><a href="/">Main page</a></li>
+            <li role="presentation"><a href="/post">Add new obstacle</a></li>
+            <li role="presentation"><a href="/report">Browse issues</a></li>
+             <li>
+                <form class="navbar-form navbar-right" method="GET" action="/search">
+                <div class="form-group">
+                 <input type="text" class="form-control input-sm" placeholder="Search" name="q" value="[% q | html %]">
+                </div>
+                <button type="submit" class="btn btn-default btn-sm">Search</button>
+                </form>
+            </li>
+
+             [% IF session.user_id %]
+             <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                <span class="glyphicon glyphicon-user" aria-hidden="true"></span> <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="/user/[% session.user_id %]">My issue</a></li>
+                <li><a href="/edit_user">Settings</a></li>
+                <li><a href="/logout">Logout</a></li>
+              </ul>
+            </li>
+            [% ELSE %]
+            <li><a href="/login" title="Login"><span class="glyphicon glyphicon-log-in" aria-hidden="true"></span></a></li>
         [% END %]
-        </div>
-    </td>
-</tr>
-<tr>
-<td colspan="2" valign="bottom"><h1>[% title | html %]</h1>
-    <a class="menu" href="/">Main page</a>
-    <a class="menu" href="/post">Add new obstacle</a>
-    <a class="menu" href="/report">Browse issues</a>
-<div>
-</div>
-</td>
-</tr>
-<tr>
-<td colspan="3">
+          </ul>
+        </nav>
+        <h3 class="text-muted"><img height="50" width="50" src="/i/logo.png"></a></h3>
+      </div>
+
+      <div class="jumbotron">
+        <h1>[% title | html %]</h1>
+
+        <p class="lead">
+        [% IF session.user_id %]
+          Welcome, <a href="/user/[% session.user_id %]">[% session.user_name | html %]</a>!
+        [% ELSE %]
+            <p class="text-center"><a class="btn btn-lg btn-primary" href="/login" role="button">login</a> or 
+            <a class="btn btn-lg btn-success" href="/register" role="button">register</a></p>
+        [% END %]
+        </p>
+       
+      </div>
+
+
+    

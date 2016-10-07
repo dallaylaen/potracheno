@@ -1,6 +1,7 @@
 [% FOREACH item IN comments %]
-<div class="comment">
-    <div class="aux">
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">
     [% IF item.time %]
         Spent [% item.time | html %]
     [% ELSIF item.solve_time %]
@@ -9,8 +10,18 @@
     [% ELSE %]
         Commented
     [% END %]
-    on <a href="/issue/[% item.issue_id %]#a[% item.activity_id %]">issue [% item.issue_id %]</a>
-    on [% DATE(item.created) %]</div>
-    <pre [% IF item.solve_time %]class="solution"[% END %]>[% item.note | html %]</pre>
+    on <a href="/issue/[% item.issue_id %]">issue [% item.issue_id %]</a>
+    on [% DATE(item.created) %]
+    </h3>
+  </div>
+  <div class="panel-body">
+    [% IF item.note %]
+       [% item.note | html %]
+    [% END %]
+  </div>
+  [% IF item.solve_time %]
+  <div class="panel-footer">Proposed fix in [% item.solve_time %]</div>
+  [% END %]
 </div>
+
 [% END %]
