@@ -38,3 +38,9 @@ body {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
+
+textarea {
+    height: 8em;
+    width: 80%;
+    display: block;
+}
