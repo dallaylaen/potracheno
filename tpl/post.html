@@ -11,5 +11,5 @@
     <input type="submit" value="Submit!">
 </form>
 [% ELSE %]
-<div class="alert alert-danger" role="alert">Please log in to be able to post new issues</div>
+    [% INCLUDE login_required explain="Please log in to be able to post new issues" %]
 [% END %]

@@ -43,7 +43,7 @@
     <input type="submit" value="Add time/comment">
 </form>
 [% ELSE %]
-<div class="alert alert-danger"><b>Please log in to be able to comment and track time</b></div>
+    [% INCLUDE login_required explain="Please log in to be abe to comment or log time" %]
 [% END %]
 </div>
 
