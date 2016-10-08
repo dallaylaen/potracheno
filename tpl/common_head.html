@@ -44,14 +44,3 @@
 
        
       </div>
-[%- BLOCK login_required # explain="text" -%]
-    [% IF !session.user_id %]
-    <p class="lead">
-        [% IF explain %]
-        <p class="text-center">[% explain %]</p>
-        [% END %]
-        <p class="text-center"><a class="btn btn-lg btn-primary" href="/login" role="button">login</a> or 
-        <a class="btn btn-lg btn-success" href="/register" role="button">register</a></p>
-    </p>
-    [% END %]
-[%- END -%]

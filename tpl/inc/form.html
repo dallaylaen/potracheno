@@ -1,5 +1,4 @@
-[% BLOCK select %]
-[% # params: name=, pairs=, noopt= %]
+[%- BLOCK select # name=, pairs=, noopt= -%]
 <select name="[% name | html %]">
     [% IF noopt %]
     <option value=''>[% noopt | html %]</option>
@@ -8,13 +7,23 @@
     <option value="[% item.0 | html %]"[% IF item.0 == form.raw.$name %] selected[% END %]>[% item.size > 1 ? item.1 : item.0 | html %]</option>
     [% END %]
 </select>
-[% END %]
-[% BLOCK input %]
-[% # params: name= width= %]
+[%- END -%]
+[%- BLOCK input # name=, width= -%]
 <input name="[% name | html %]" value="[% form.raw.$name | html %]"
     [%- IF form.error.$name %] class="error"[% END %]
     [% IF width %] size="[% width %]"[% END %]>
 [% END %]
 [% BLOCK checkbox %]
 <input name="[% name | html %]" type="checkbox"[% IF form.raw.$name %] checked[% END %]>
-[% END %]
+[%- END -%]
+[%- BLOCK login_required # explain="text" -%]
+    [% IF !session.user_id %]
+    <p class="lead">
+        [% IF explain %]
+        <p class="text-center">[% explain %]</p>
+        [% END %]
+        <p class="text-center"><a class="btn btn-lg btn-primary" href="/login" role="button">login</a> or 
+        <a class="btn btn-lg btn-success" href="/register" role="button">register</a></p>
+    </p>
+    [% END %]
+[%- END -%]

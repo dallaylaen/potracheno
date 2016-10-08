@@ -1,3 +1,4 @@
+[% PROCESS inc/form.html %]
 [% IF session.user_id %]
 <form method="POST">
     <div class="[% IF form.error.summary %]error[% ELSE %]explain[% END %]">
