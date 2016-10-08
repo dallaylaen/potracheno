@@ -37,12 +37,14 @@ sub tpl_ok {
         DATE => sub {},
     };
 
-    if (!ok ($tt->process( $file, $data, \$output ), "Template correct") ) {
+    if (!ok ($tt->process( $file, $data, \$output ), "Template correct $file") ) {
         diag "Error in template $file: ".$tt->error;
         push @fail, $file;
         return 0;
     };
-    # TODO check html valid
+
+    # TODO check html validity
+
     return 1;
 };
 
