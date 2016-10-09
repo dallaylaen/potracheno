@@ -85,7 +85,7 @@ sub check_deps {
         LWP::UserAgent
         Plack::Request POSIX
         Scalar::Util Sys::Hostname
-        Template Test::More Time::HiRes
+        Template Test::More Text::Markdown Time::HiRes
         URI::Escape
         overload parent
     );

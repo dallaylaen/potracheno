@@ -2,11 +2,12 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0601;
+our $VERSION = 0.0602;
 
 use URI::Escape;
 use Data::Dumper;
 use POSIX qw(strftime);
+use Digest::MD5 qw(md5_base64);
 
 use File::Basename qw(dirname);
 use lib dirname(__FILE__)."/../lib", dirname(__FILE__)."/../local/lib";
@@ -140,6 +141,8 @@ MVC::Neaf->route( edit_user => sub {
 my $val_post = MVC::Neaf::X::Form->new({
     summary => [ required => qr/\S.+\S/ ],
     body    => [ required => qr/.*\S.+/s ],
+    sign    => '.+',
+    create  => '.+',
 });
 MVC::Neaf->route( post => sub {
     my $req = shift;
@@ -148,10 +151,28 @@ MVC::Neaf->route( post => sub {
     my $form = $req->form( $val_post );
     $user->{user_id} or $form->error( user => "Please log in to post issues" );
 
+    $form->data->{sign} ||= '';
+
+    my $sign = $form->is_valid
+        ? md5_base64( join "\n\n", $user->{user_id}, $form->data->{summary}
+            , $form->data->{body} )
+        : '';
+
+    warn Dumper($form->error);
+
+    if ($sign ne $form->data->{sign} || !$form->data->{create}) {
+        $form->error( preview_mode => 1 );
+        $form->raw->{sign} = $sign;
+    };
+
     if ( $req->method eq 'POST' and $form->is_valid ) {
         my $id = $model->add_issue( user => $user, %{ $form->data });
         $req->redirect( "/issue/$id" );
     };
+
+    $form->data->{user_id} = $user->{user_id};
+    $form->data->{author}  = $user->{name};
+    $form->data->{created} = time;
 
     return {
         -template => "post.html",

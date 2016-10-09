@@ -2,12 +2,13 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0601;
+our $VERSION = 0.0602;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
 use Time::Local qw(timelocal);
 use Data::Dumper;
+use Text::Markdown qw(markdown);
 
 use parent qw(MVC::Neaf::X::Session);
 use Potracheno::Config;
@@ -432,7 +433,15 @@ sub save_session {
 sub render_issue {
     my ($self, $data) = @_;
 
+    $data->{body} = $self->render_text( $data->{body} )
+        if defined $data->{body};
+
     return $data;
+};
+
+sub render_text {
+    my ($self, $text) = @_;
+    return markdown( $text );
 };
 
 my %time_unit = (

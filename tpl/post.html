@@ -13,7 +13,9 @@
     Details*: <br>
     </div>
     <textarea name="body">[% form.raw.body | html %]</textarea><br>
-    <input type="submit" value="Submit!">
+    <input type="submit" value="Preview">
+    <input type="hidden" name="sign" value="[% form.raw.sign | html %]">
+    [% IF form.raw.sign %]<input type="submit" name="create" value="Create">[% END %]
 </form>
 [% ELSE %]
     [% INCLUDE login_required explain="Please log in to be able to post new issues" %]

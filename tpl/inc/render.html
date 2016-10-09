@@ -6,7 +6,7 @@
 </h3>
   </div>
   <div class="panel-body">
-    <pre>[% issue.body | html %]</pre>
+    [% issue.body # no HTML protection - it's after markdown %]
   </div>
   <div class="panel-footer">[% IF issue.time_spent %]
     <b>[% issue.time_spent %]</b> spent on this.
