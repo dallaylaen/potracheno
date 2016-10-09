@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0602;
+our $VERSION = 0.0603;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -309,6 +309,8 @@ sub get_comments {
     while (my $data = $sth->fetchrow_hashref) {
         $data->{time} = $self->time2human($data->{seconds});
         $data->{solve_time} = $self->time2human($data->{solve_time_s});
+        $data->{note} = $self->render_text( $data->{note} )
+            if $opt{render};
         push @ret, $data;
     };
 
