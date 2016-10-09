@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0603;
+our $VERSION = 0.0604;
 
 use URI::Escape;
 use Data::Dumper;
@@ -64,6 +64,7 @@ MVC::Neaf->route( login => sub {
 
     return {
         -template => 'login.html',
+        title => 'Log in',
         wrong => $wrong,
         name => $name,
     };
@@ -301,6 +302,36 @@ MVC::Neaf->route( report => sub {
     };
 });
 
+MVC::Neaf->route( help => sub {
+    my $req = shift;
+
+    my ($topic) = $req->path_info =~ /(\w+)/;
+
+    if (!$topic) {
+        # TODO show listing
+        die 404;
+    };
+
+    my $file = "$Bin/../help/$topic.md";
+    my $fd;
+    if (!open $fd, "<", $file) {
+        # TODO tell 404 from actual error
+        die 404;
+    };
+
+    my $title = <$fd>;
+    local $/;
+    my $body = <$fd>;
+
+    $body = $model->render_text( $body );
+
+    return {
+        -template => "help.html",
+        title => "$title - Help",
+        body => $body,
+    };
+});
+
 MVC::Neaf->route( "/" => sub {
     my $req = shift;
 
@@ -308,8 +339,8 @@ MVC::Neaf->route( "/" => sub {
     die 404 if $req->path_info gt '/';
 
     return {
-        title => "Potracheno - wasted time tracker",
         -template => "main.html",
+        title => "Potracheno - wasted time tracker",
     };
 } );
 

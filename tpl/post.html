@@ -10,7 +10,7 @@
     </div>
     <input name="summary" value="[% form.raw.summary | html %]"><br>
     <div class="[% IF form.error.body %]error[% ELSE %]explain[% END %]">
-    Details*: <br>
+    Details (<a href="/help/markdown">markdown</a> supported)*: <br>
     </div>
     <textarea name="body">[% form.raw.body | html %]</textarea><br>
     <input type="submit" value="Preview">
