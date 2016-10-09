@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.06;
+our $VERSION = 0.0601;
 
 use URI::Escape;
 use Data::Dumper;
@@ -157,6 +157,7 @@ MVC::Neaf->route( post => sub {
         -template => "post.html",
         title     => "Submit new issue",
         form      => $form,
+        issue     => $model->render_issue($form->data),
     };
 } );
 
@@ -177,7 +178,7 @@ MVC::Neaf->route( issue => sub {
     return {
         -template => "issue.html",
         title => "#$data->{issue_id} - $data->{summary}",
-        issue => $data,
+        issue => $model->render_issue($data),
         comments => $comments,
         statuses => $model->get_status_pairs,
     };

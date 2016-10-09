@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.06;
+our $VERSION = 0.0601;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -425,6 +425,14 @@ sub save_session {
 
     my $sth = $self->dbh->prepare($sql_sess_upd);
     $sth->execute( $data->{user_id}, $id );
+};
+
+# Non-DB methods
+
+sub render_issue {
+    my ($self, $data) = @_;
+
+    return $data;
 };
 
 my %time_unit = (
