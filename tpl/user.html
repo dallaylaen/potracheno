@@ -1,27 +1,4 @@
+[% PROCESS inc/render.html %]
 [% FOREACH item IN comments %]
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <h3 class="panel-title">
-    [% IF item.time %]
-        Spent [% item.time | html %]
-    [% ELSIF item.solve_time %]
-        <b class="solution">Proposed a solution
-        in [% item.solve_time | html %]</b>
-    [% ELSE %]
-        Commented
-    [% END %]
-    on <a href="/issue/[% item.issue_id %]#a[% item.activity_id %]">issue [% item.issue_id %]</a>
-    on [% DATE(item.created) %]
-    </h3>
-  </div>
-  <div class="panel-body">
-    [% IF item.note %]
-       [% item.note | html %]
-    [% END %]
-  </div>
-  [% IF item.solve_time %]
-  <div class="panel-footer">Proposed fix in [% item.solve_time %]</div>
-  [% END %]
-</div>
-
+    [% INCLUDE render_comment %]
 [% END %]

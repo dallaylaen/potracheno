@@ -1,5 +1,9 @@
 [% PROCESS inc/form.html %]
+[% PROCESS inc/render.html %]
 [% IF session.user_id %]
+[% IF issue.body %]
+    [% INCLUDE render_issue %]
+[% END %]
 <form method="POST">
     <div class="[% IF form.error.summary %]error[% ELSE %]explain[% END %]">
     Summary*:
