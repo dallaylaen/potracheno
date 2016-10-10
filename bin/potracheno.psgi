@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0604;
+our $VERSION = 0.0605;
 
 use URI::Escape;
 use Data::Dumper;
@@ -144,6 +144,7 @@ my $val_post = MVC::Neaf::X::Form->new({
     body    => [ required => qr/.*\S.+/s ],
     sign    => '.+',
     create  => '.+',
+    issue_id => '\d+',
 });
 MVC::Neaf->route( post => sub {
     my $req = shift;
@@ -159,15 +160,13 @@ MVC::Neaf->route( post => sub {
             , $form->data->{body} )
         : '';
 
-    warn Dumper($form->error);
-
     if ($sign ne $form->data->{sign} || !$form->data->{create}) {
         $form->error( preview_mode => 1 );
         $form->raw->{sign} = $sign;
     };
 
     if ( $req->method eq 'POST' and $form->is_valid ) {
-        my $id = $model->add_issue( user => $user, %{ $form->data });
+        my $id = $model->save_issue( user => $user, issue => $form->data);
         $req->redirect( "/issue/$id" );
     };
 

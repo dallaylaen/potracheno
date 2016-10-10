@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0603;
+our $VERSION = 0.0604;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -25,7 +25,7 @@ sub new {
 
     my $self = bless \%opt, $class;
 
-    $self->{dbh} = $self->get_dbh( $self->{config}{db} );
+    $self->{dbh} ||= $self->get_dbh( $self->{config}{db} );
 
     return $self;
 };
@@ -161,7 +161,25 @@ sub make_pass {
     return join '#', $salt, md5_base64( join '#', $salt, $pass );
 };
 
-my $sql_art_ins = "INSERT INTO issue(summary,body,user_id,created) VALUES(?,?,?,?)";
+sub save_issue {
+    my ($self, %opt) = @_;
+
+    my %data;
+    $data{$_} = $opt{issue}{$_} for qw(issue_id body summary);
+    my $user_id = $opt{user_id} || $opt{user}{user_id};
+
+    # edit/create specials
+    if ($data{issue_id}) {
+        $self->log_activity(
+            user_id => $user_id, issue_id => $data{issue_id}, note => "Edited issue" );
+    } else {
+        $data{user_id} = $user_id;
+        $data{created} ||= time;
+    };
+
+    return $self->save_any( issue => issue_id => \%data );
+};
+
 my $sql_art_sel = <<"SQL";
     SELECT a.issue_id AS issue_id, a.body AS body, a.summary AS summary
         , a.status_id AS status_id
@@ -170,19 +188,6 @@ my $sql_art_sel = <<"SQL";
     FROM issue a JOIN user u ON a.user_id = u.user_id
     WHERE a.issue_id = ?;
 SQL
-sub add_issue {
-    my ($self, %opt) = @_;
-
-    my $t = time;
-
-    my $dbh = $self->{dbh};
-    my $sth = $dbh->prepare( $sql_art_ins );
-    $sth->execute( $opt{summary}, $opt{body}, $opt{user}{user_id}, $t );
-
-    my $id = $dbh->last_insert_id("", "", "issue", "issue_id");
-
-    return $id;
-};
 
 sub get_issue {
     my ($self, %opt) = @_;
@@ -588,6 +593,8 @@ sub _pairs {
     return \@ret;
 };
 
+# Backup procedures
+
 my @tables = qw(user issue activity);
 sub dump {
     my $self = shift;
@@ -614,19 +621,71 @@ sub restore {
     foreach my $t (@tables) {
         next unless $dump->{$t};
         foreach my $row( @{ $dump->{$t} } ) {
-            defined $row->{$_} or delete $row->{$_}
-                for keys %$row;
-            my @keys = sort keys %$row;
-            next unless @keys;
-            my @values = @$row{@keys};
-            my $into  = join ",", @keys;
-            my $quest = join ",", ("?") x @keys;
-            my $sth = $dbh->prepare_cached("INSERT INTO $t($into) VALUES ($quest)");
-            $sth->execute( @values );
+            $self->insert_any($t, undef, $row);
         };
     };
 
     $dbh->commit;
+};
+
+# in-place ORM - TODO use DBIx::Record?
+
+sub save_any {
+    my ($self, $table, $key, $data) = @_;
+
+    if( defined $data->{$key}) {
+        return $self->update_any($table, $key, $data);
+    } else {
+        return $self->insert_any($table, $key, $data);
+    };
+};
+
+sub insert_any {
+    my ($self, $table, $key, $data) = @_;
+
+    my (@keys, @values);
+    foreach (keys %$data) {
+        defined $data->{$_} or next;
+        push @keys, $_;
+        push @values, $data->{$_};
+    };
+    return unless @keys;
+    my $into = join ",", @keys;
+    my $quest = join ",", ("?") x @keys;
+
+    my $sth = $self->dbh->prepare_cached( "INSERT INTO $table($into) VALUES ($quest)");
+    $sth->execute( @values );
+
+    # if key unknown, just inform about successful insert
+    return 1 unless $key;
+
+    my $id = $data->{$key} || $self->dbh->last_insert_id("", "", $table, $key);
+    return $id;
+};
+
+sub update_any {
+    my ($self, $table, $key, $data) = @_;
+
+    my $id = $data->{$key};
+    die "Cannot update without id"
+        unless defined $id;
+
+    my (@keys, @values);
+    foreach (keys %$data) {
+        defined $data->{$_} or next;
+        $_ eq $key and next;
+        push @keys, "$_=?";
+        push @values, $data->{$_};
+    };
+    return unless @keys;
+
+    my $set = join ",", @keys;
+
+    my $sth = $self->dbh->prepare_cached(
+        "UPDATE $table SET $set WHERE $key = ?" );
+    $sth->execute( @values, $id );
+
+    return $id;
 };
 
 1;

@@ -62,7 +62,8 @@ $model->add_user( "Solver", "secret" );
 
 note "TESTING ARTICLE";
 
-my $id = $model->add_issue( body => "explanation", summary => "summary"
+my $id = $model->save_issue(
+    issue => { body => "explanation", summary => "summary" }
     , user => $user );
 
 my $art = $model->get_issue( id => $id );
@@ -107,6 +108,14 @@ is_deeply( $comments, [
     { user_id => 4, note => "solution", user_name => "Solver", issue_id => 1,
          seconds => undef, time => "0", solve_time => "1h", solve_time_s => 60*60 },
 ], "Comments as expected" );
+
+$art->{summary} .= "[solved]";
+$model->save_issue( issue => $art, user_id => 4 );
+
+$art = $model->get_issue( id => $id );
+
+is ($art->{author}, "Foo", "Author preserved by edit");
+is ($art->{summary}, "summary[solved]", "Summary was edited");
 
 diag "SMOKE-TESTING SEARCH";
 
