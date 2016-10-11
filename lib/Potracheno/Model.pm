@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0604;
+our $VERSION = 0.0605;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -175,6 +175,7 @@ sub save_issue {
     } else {
         $data{user_id} = $user_id;
         $data{created} ||= time;
+        $data{status_id} = 1 unless defined $data{status_id};
     };
 
     return $self->save_any( issue => issue_id => \%data );

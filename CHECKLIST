@@ -10,7 +10,11 @@
 % cover -t
 - must exceed 70%
 
-% plackup bin/potracheno.psgi
+% cd ../clean-potr
+
+% git pull
+
+% ./run.sh
 - http://localhost:5000/
 - can register
 - can log in
@@ -21,6 +25,8 @@
 - can view report
 - can search
 - can log out
+
+% cd -
 
 # got here - commit!
 

@@ -60,7 +60,7 @@ note explain $user;
 $model->add_user( "Commenter", "secret" );
 $model->add_user( "Solver", "secret" );
 
-note "TESTING ARTICLE";
+note "TESTING ISSUE";
 
 my $id = $model->save_issue(
     issue => { body => "explanation", summary => "summary" }
@@ -72,6 +72,7 @@ is ($art->{author}, "Foo", "Author as expected");
 is ($art->{body}, "explanation", "Round-trip - body");
 is ($art->{summary}, "summary", "Round-trip - summary");
 is ($art->{time_spent}, 0, "0 time spent");
+is ($art->{status}, "Open", "Default = open");
 
 note explain $art;
 
