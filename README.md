@@ -12,7 +12,7 @@ It became a local meme after being incorrectly used in
 Just like a normal ITS, Potracheno has issues, which in turn have comments and
 time tracking facility.
 However, instead of tracking time spent on *resolving* an issue,
-it tracks time spent *working around it*.
+it tracks time wasted *living with it*.
 
 This is supposed to help track down the exact tech debt instances
 that slow down and demotivate the team.
@@ -25,11 +25,11 @@ Features:
 
 * report showing issues with various properties
 
-* issue search
+* issue & comment search (SLQ-based, search engine planned)
+
+* markdown support for issues & comments, editing issues
 
 * DB migration script; MySQL, sqlite support
-
-* markdown support for issues & comments
 
 Planned:
 
@@ -37,7 +37,9 @@ Planned:
 
 * Ready to go solution report
 
-Not really much here.
+* Watching & notifications
+
+* Comment replies
 
 # INSTALLATION
 

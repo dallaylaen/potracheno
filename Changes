@@ -1,5 +1,14 @@
 Revision history for the POotracheno time tracker project.
 
+0.07    Tue Oct 11 2016
+        APP Add markdown, preview, and edit to issues
+        APP Add markdown to comments
+        UI  Add fancy 404 & 403 stubs
+        UI  Add some help
+        UI  Move login_or_register to where it's due
+        UI  Numerous UI fixes
+        TST Add template correctness test
+
 0.06    Sat Oct 08 2016
         CSS Redesign with bootstrap (by Poizon) 
         APP Comments added to search

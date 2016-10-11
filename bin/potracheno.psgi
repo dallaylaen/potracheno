@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0607;
+our $VERSION = 0.07;
 
 use URI::Escape;
 use Data::Dumper;
