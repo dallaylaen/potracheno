@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.07;
+our $VERSION = 0.0701;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -229,7 +229,7 @@ sub log_activity {
     delete $opt{note}
         unless defined $opt{note} and length $opt{note};
 
-    return unless $opt{seconds} || $opt{fix_estimate} || $status || $opt{note};
+    return unless $opt{seconds} || $opt{fix_estimate} || defined $status || $opt{note};
 
     if (defined $status) {
         $self->{status}{ $status }

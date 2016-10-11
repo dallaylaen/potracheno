@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.07;
+our $VERSION = 0.0701;
 
 use URI::Escape;
 use Data::Dumper;
@@ -267,10 +267,12 @@ MVC::Neaf->route( addtime => sub {
             or die 422;
     };
 
-    $model->log_activity( issue_id => $issue_id, user_id => $user->{user_id}
-        , ($type eq 'fix' ? 'solve_time' : 'time') => $seconds
-        , note => $note, status_id => $status_id)
-        if $seconds or $note or $status_id;
+    if ($seconds or $note or defined $status_id) {
+        warn "Time to update: sec=$seconds note=$note st=$status_id";
+        $model->log_activity( issue_id => $issue_id, user_id => $user->{user_id}
+            , ($type eq 'fix' ? 'solve_time' : 'time') => $seconds
+            , note => $note, status_id => $status_id);
+    };
 
     $req->redirect( "/issue/$issue_id" );
 }, method => "POST" );

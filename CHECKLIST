@@ -39,13 +39,13 @@
 - remove completed, add new, sort by target version
 - catch up with features
 
-% git commit -a -m "^_^ Version 0.07 released NOCODE"
+% git commit -a -m "^_^ Version 0.08 released NOCODE"
 
 % git checkout master
 
 % git merge devel
 
-% git tag v.0.05 -m "Version 0.07 released"
+% git tag v.0.08 -m "Version 0.08 released"
 
 % git push && git push --tags
 
