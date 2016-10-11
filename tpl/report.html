@@ -3,8 +3,8 @@
 <form method="GET">
     <div>
         Status: [% INCLUDE checkbox name="status_not" %] all but
-        [% INCLUDE select name="status" pairs=status_pairs noopt="-- Select status --" %]
-        [% INCLUDE select name="has_solution" pairs=
+        [% INCLUDE select name="status" pairs=status_pairs noopt="-- Select status --" selected=form.raw %]
+        [% INCLUDE select name="has_solution" selected=form.raw pairs=
             [['', '-- Select solution --'], [0, 'Without solution'], [1, 'Solution proposed']] %]
     </div>
     <div>
@@ -13,8 +13,8 @@
     </div>
     <div>
     Sort by:
-    [% PROCESS select name="order_by" pairs=order_options %]
-    [% PROCESS select name="order_dir" pairs=[["DESC", "down"], ["ASC", "up"]] %]
+    [% INCLUDE select name="order_by" selected=form.raw pairs=order_options %]
+    [% INCLUDE select name="order_dir" selected=form.raw pairs=[["DESC", "down"], ["ASC", "up"]] %]
     </div>
     <div>
     <input type="submit" value="Get report">

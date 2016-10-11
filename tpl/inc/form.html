@@ -1,10 +1,11 @@
-[%- BLOCK select # name=, pairs=, noopt= -%]
+[%- BLOCK select # name=, pairs=, noopt=, selected= -%]
+[% IF selected.keys; SET selected=selected.$name; END %]
 <select name="[% name | html %]">
     [% IF noopt %]
     <option value=''>[% noopt | html %]</option>
     [% END %]
     [% FOREACH item IN pairs %]
-    <option value="[% item.0 | html %]"[% IF item.0 == form.raw.$name %] selected[% END %]>[% item.size > 1 ? item.1 : item.0 | html %]</option>
+    <option value="[% item.0 | html %]"[% IF item.0 == selected %] selected[% END %]>[% item.size > 1 ? item.1 : item.0 | html %]</option>
     [% END %]
 </select>
 [%- END -%]
