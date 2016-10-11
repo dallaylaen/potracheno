@@ -29,9 +29,9 @@ Features:
 
 * DB migration script; MySQL, sqlite support
 
-Planned:
+* markdown support for issues & comments
 
-* Markdown
+Planned:
 
 * Versioned editing of comments & issues
 
@@ -67,6 +67,11 @@ unless a previous config was detected, or database already exists.
 No setup is currently available for Windows, though it is planned.
 Generally the sequence is as described above.
 `perl Install.PL --check` command will assist by checking dependencies.
+
+If **sqlite** which comes by default is not enough due to high load or other
+reasons, a **MySQL** DB scheme is also available in `sql/` directory, as well
+as a DB migration script (`bin/migrate --help`).
+Postgresql support is planned in the future. Patches welcome.
 
 # DEPENDENCIES
 
