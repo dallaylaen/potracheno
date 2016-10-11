@@ -1,4 +1,5 @@
 [% PROCESS inc/form.html %]
+[% PROCESS inc/render.html %]
 
 <form method="GET">
     <div>
@@ -23,16 +24,5 @@
 </form>
 
 [% FOREACH item IN table_data %]
-<div class="descr">
-    <span class="status">[% item.status %]</span>
-    <a href="/issue/[% item.issue_id %]">Issue [% item.issue_id %]</a>
-    posted by <a href="/user/[% item.author_id %]">[% item.author_name | html %]</a>
-    on [% DATE( item.created ) %].<br>
-    "[%  item.summary  | html %]"<br>
-    <span class="time">[% item.time_spent %]</span> spent on this
-    by [% item.participants %] participants.<br>
-    [% IF item.has_solution %]
-        <span class="solution">Solution proposed.</span><br>
-    [% END %]
-</div>
+    [% INCLUDE render_link %]
 [% END %]

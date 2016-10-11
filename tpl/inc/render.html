@@ -1,36 +1,33 @@
 [% BLOCK render_issue # issue={} %]
 <div class="panel panel-default">
   <div class="panel-heading">
-    <h3 class="panel-title">Posted on [% DATE(issue.created) %] by
-    <a href="/user/[% issue.user_id %]">[% issue.author | html %]</a>
-</h3>
+    Posted
+    on [% DATE(issue.created) -%]
+    [%- IF issue.user_id %] by <a href="/user/[% issue.user_id %]">[% issue.author | html %]</a>[% END %].
+    [% IF issue.time_spent %]Total <b class="time">[% issue.time_spent | html %]</b> spent.[% END %]
+    [% IF issue.status %]<span class="status">[% issue.status | html %]</span>[% END %]
+    [% IF issue.has_solution %]
+    <span class="solution">Solution proposed</span>
+    [% END %]
   </div>
   <div class="panel-body">
     [% issue.body # no HTML protection - it's after markdown %]
   </div>
-  <div class="panel-footer">[% IF issue.time_spent %]
-    <b>[% issue.time_spent %]</b> spent on this.
-    [% ELSE %]
-    No time wasted here...</b>
-    [% END %]
-    <b>[% issue.status | html %]</b></div>
 </div>
 [% END %]
 [% BLOCK render_comment # item={} %]
 <div class="panel panel-default">
   <a name="a[% item.activity_id %]">
   <div class="panel-heading">
-    <h3 class="panel-title">
     <a href="/issue/[% item.issue_id %]#a[% item.activity_id %]">#[% item.activity_id %]</a>
-    [% IF item.time %]<span class="status">[% item.time | html %]</span> spent 
+    [% IF item.time %]<span class="status">[% item.time | html %]</span> spent
     [% ELSE %]Added
     [% END %]
     by <a href="/user/[% item.user_id %]">[% item.user_name | html %]</a>
     on [% DATE(item.created) %]
     [% IF item.solve_time %]
-    Proposed fix in [% item.solve_time %]
+    <span class="solution">Proposed fix in [% item.solve_time %]</span>
     [% END %]
-    </h3>
   </div>
 
   [% IF item.note %]
@@ -38,8 +35,32 @@
             [% item.note %]
       </div>
   [% END %]
-  [% IF item.solve_time %]
-  <div class="panel-footer">Proposed fix in [% item.solve_time %]</div>
+</div>
+[% END %]
+[% BLOCK render_link # item= %]
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <div>
+        <a href="/issue/[% item.issue_id %]">#[% item.issue_id %] - [% item.summary | html %]</a>
+    </div>
+    <div>
+    Posted
+    on [% DATE(item.created) -%]
+    [%- IF item.author_id %] by <a href="/user/[% item.author_id %]">[% item.author_name | html %]</a>[% END %].
+    [% IF item.time_spent %]Total <b class="time">[% item.time_spent | html %]</b> spent.[% END %]
+    [% IF item.status %]<span class="status">[% item.status | html %]</span>[% END %]
+    [% IF item.has_solution %]
+    <span class="solution">Solution proposed</span>
+    [% END %]
+    </div>
+  </div>
+
+  [% IF item.snippets %]
+        <div class="panel-body">
+        [% FOREACH snip IN item.snippets %]
+            [% snip.0 | html %]<b>[% snip.1 | html %]</b>[% snip.2 | html %]...
+        [% END %]
+        </div>
   [% END %]
 </div>
 [% END %]

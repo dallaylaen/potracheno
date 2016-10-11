@@ -44,3 +44,21 @@ textarea {
     width: 80%;
     display: block;
 }
+
+.status {
+    background-color: #6688aa;
+    border-radius: 0.3em;
+    padding-right: 0.5em;
+    padding-left: 0.5em;
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+.solution {
+    background-color: #66aa88;
+    border-radius: 0.3em;
+    padding-right: 0.5em;
+    padding-left: 0.5em;
+    color: #FFFFFF;
+    font-weight: bold;
+}
