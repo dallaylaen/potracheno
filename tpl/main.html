@@ -1,3 +1,10 @@
+[% PROCESS inc/form.html %]
+[% IF session.user_id %]
+    <h2>Welcome, <a href="/user/[% session.user_id %]">[% session.user_name | html %]</a>!</h2>
+[% ELSE %]
+    [% INCLUDE login_required explain="Welcome, unknown user!"%]
+[% END %]
+
 <div class="row marketing">
 [% #TODO configurable explanation %]        
         <div class="col-lg-6">
