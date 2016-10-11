@@ -4,11 +4,12 @@
 [% IF issue.body %]
     [% INCLUDE render_issue %]
 [% END %]
-<form method="POST">
+<form method="POST"[% IF post_to %] action="[% post_to | html %]"[% END %]>
     <div class="[% IF form.error.summary %]error[% ELSE %]explain[% END %]">
     Summary*:
     </div>
     <input name="summary" value="[% form.raw.summary | html %]"><br>
+    <input type="hidden" name="issue_id" value="[% form.raw.issue_id | html %]">
     <div class="[% IF form.error.body %]error[% ELSE %]explain[% END %]">
     Details (<a href="/help/markdown">markdown</a> supported)*: <br>
     </div>

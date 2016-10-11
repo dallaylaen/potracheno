@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0605;
+our $VERSION = 0.0606;
 
 use URI::Escape;
 use Data::Dumper;
@@ -181,6 +181,27 @@ MVC::Neaf->route( post => sub {
         issue     => $model->render_issue($form->data),
     };
 } );
+
+MVC::Neaf->route ( edit_issue => sub {
+    my $req = shift;
+
+    my $user = $req->session->{user_id};
+    my $id = $req->param( id => '\d+' );
+
+    $user or die 403;
+    $id or die 404;
+
+    my $issue = $model->get_issue( id => $id );
+    my $form  = $val_post->validate( $issue );
+
+    return {
+        -template => 'post.html',
+        title     => 'Edit issue',
+        form      => $form,
+        issue     => $model->render_issue( $issue ),
+        post_to   => "/post",
+    };
+});
 
 MVC::Neaf->route( issue => sub {
     my $req = shift;

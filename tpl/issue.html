@@ -6,23 +6,11 @@
 [% IF session.user_id %]
 <form action="/addtime" method="POST">
     <input type="hidden" name="issue_id" value="[% issue.issue_id %]">
-    <select name="type">
-        <option value="">Time spent</option>
-        <option value="fix">Fix estimate</option>
-    </select>
+    [% INCLUDE select name="type" pairs=
+        [ ["", "Time spent"], ["fix", "Fix estimate" ] ] %]
     <input class="numeric" name="seconds">
-    <select name="status_id">
-        [% FOREACH item IN statuses %]
-        <option
-            [%- IF item.0 == issue.status_id -%]
-                selected value=""
-            [%- ELSE -%]
-                value="[% item.0 %]"
-            [%- END -%]>
-            [%- item.1 | html -%]
-        </option>
-        [% END %]
-    </select>
+    [% INCLUDE select name="status_id" pairs=statuses selected=issue.status_id %]
+    <a href="/edit_issue?id=[% issue.issue_id %]">Edit issue</a>
     <br>
     Comment (<a href="/help/markdown">markdown</a> supported):<br>
     <textarea name="note"></textarea><br>
