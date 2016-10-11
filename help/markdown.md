@@ -1,6 +1,6 @@
 Markdown
 
-Use markdown for issue descriptions & comments.
+## Use markdown for issue descriptions & comments.
 
 ##\#\# A headline
 
@@ -11,3 +11,10 @@ Use markdown for issue descriptions & comments.
 * \[link text\](http://www.example.com/link/uri) becomes a hyperlink.
 
 More features to follow.
+
+## Preview mode
+
+Please note that any form that offers preview will *not* allow to save
+its content if input was modified.
+Instead, a new preview page will be generated with "Preview" and "Save"
+buttons shown again.

@@ -2,7 +2,7 @@
 [% IF session.user_id %]
     <h2>Welcome, <a href="/user/[% session.user_id %]">[% session.user_name | html %]</a>!</h2>
 [% ELSE %]
-    [% INCLUDE login_required explain="Welcome, unknown user!"%]
+    [% INCLUDE login_required explain="Welcome, guest! To be able to post issues and comments, please"%]
 [% END %]
 
 <div class="row marketing">
