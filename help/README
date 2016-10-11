@@ -1,0 +1,10 @@
+To make a /help/foobar url, one must:
+
+* place a foobar.md file in this directory;
+* add a *topic* to the first line;
+* add a markdown-formatted body.
+
+Everything but the first line will be processed by markdown;
+first line is posted as the title and NOT handled by markdown.
+
+Sorry for the inconvenience...
