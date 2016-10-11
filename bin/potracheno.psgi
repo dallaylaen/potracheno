@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0606;
+our $VERSION = 0.0607;
 
 use URI::Escape;
 use Data::Dumper;
@@ -364,9 +364,8 @@ MVC::Neaf->route( "/" => sub {
     };
 } );
 
-my %replace = qw( & &amp; < &gt; > &gt; " &qout; );
-my $bad_chars = join "", map { quotemeta $_ } keys %replace;
-$bad_chars = qr/([$bad_chars])/;
+MVC::Neaf->error_template( 403 => { -template => '403.html', title => "403 Forbidden" } );
+MVC::Neaf->error_template( 404 => { -template => '404.html', title => "404 Not Found" } );
 
 # TODO move to model OR view
 sub DATE {
