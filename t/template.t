@@ -30,6 +30,8 @@ done_testing;
 sub tpl_ok {
     my $file = shift;
 
+    $file =~ s#.*/tpl/##;
+
     my $tt = Template->new(INCLUDE_PATH => $tpl, RELATIVE=>1, );
     my $output;
 
