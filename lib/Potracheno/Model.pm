@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0701;
+our $VERSION = 0.0702;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -225,9 +225,12 @@ sub log_activity {
     $opt{fix_estimate} = $self->human2time( $opt{solve_time} ) || undef;
     my $status         = $opt{status_id};
 
-    # Skip empty comments
-    delete $opt{note}
-        unless defined $opt{note} and length $opt{note};
+    # Skip empty comments, sanitize otherwise
+    if (defined $opt{note} and length $opt{note}) {
+        $opt{note} = $self->filter_text( $opt{note} )
+    } else {
+        delete $opt{note}
+    };
 
     return unless $opt{seconds} || $opt{fix_estimate} || defined $status || $opt{note};
 
@@ -236,7 +239,7 @@ sub log_activity {
             or $self->my_croak("Illegal status_id $status");
         my $sth_st = $self->dbh->prepare( $sql_issue_status );
         $sth_st->execute( $status, $opt{issue_id} );
-        $opt{note} = "Status changed to $self->{status}{ $status }"
+        $opt{note} = "Status changed to **$self->{status}{ $status }**"
             . ( defined $opt{note} ? "\n\n$opt{note}" : "");
     };
 
@@ -447,9 +450,19 @@ sub render_issue {
     return $data;
 };
 
+my %html_replace = qw(< &lt; > &gt; & &amp;);
+
+sub filter_text {
+    my ($self, $text) = @_;
+
+    $text =~ s#([<>&])#$html_replace{$1}#g;
+    return $text;
+};
+
 sub render_text {
     my ($self, $text) = @_;
-    return markdown( $text );
+
+    return markdown( $self->filter_text($text) );
 };
 
 my %time_unit = (
