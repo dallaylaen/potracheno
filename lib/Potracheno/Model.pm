@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0702;
+our $VERSION = 0.0703;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -524,7 +524,7 @@ SELECT
 FROM issue i LEFT JOIN activity a USING( issue_id )
     JOIN user u ON i.user_id = u.user_id
 WHERE 1 = 1 %s
-GROUP BY a.issue_id
+GROUP BY i.issue_id
 HAVING 1 = 1 %s
 ORDER BY %s
 SQL
