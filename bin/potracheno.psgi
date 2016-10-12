@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0701;
+our $VERSION = 0.0702;
 
 use URI::Escape;
 use Data::Dumper;
@@ -302,6 +302,8 @@ my $val_report = MVC::Neaf::X::Form->new({
     has_solution => '[01]',
     status       => '\d+',
     status_not   => '.+',
+    limit        => '\d+',
+    start        => '\d+',
 });
 MVC::Neaf->route( report => sub {
     my $req = shift;
@@ -311,16 +313,21 @@ MVC::Neaf->route( report => sub {
     $form->data->{status_not} = !!$form->data->{status_not};
 
     my $data = [];
-    $data = $model->report( %{ $form->data } )
-        if $form->is_valid;
+    my $stat;
+    if ($form->is_valid) {
+        $data = $model->report( %{ $form->data } );
+        $stat = $model->report( %{ $form->data }, count_only => 1,
+            limit => undef );
+    };
 
     return {
-        -template => 'report.html',
-        title => "Issue report",
-        table_data => $data,
+        -template     => 'report.html',
+        title         => "Issue report",
+        table_data    => $data,
+        stat          => $stat,
         order_options => $model->report_order_options,
-        status_pairs => $model->get_status_pairs,
-        form => $form,
+        status_pairs  => $model->get_status_pairs,
+        form          => $form,
     };
 });
 

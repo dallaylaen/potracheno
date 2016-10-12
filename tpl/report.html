@@ -16,12 +16,16 @@
     Sort by:
     [% INCLUDE select name="order_by" selected=form.raw pairs=order_options %]
     [% INCLUDE select name="order_dir" selected=form.raw pairs=[["DESC", "down"], ["ASC", "up"]] %]
+    [% INCLUDE select name="limit" selected=form.raw pairs=[[10,10], [20, 20], [50, 50]] noopt="Results per page" %]
     </div>
     <div>
     <input type="submit" value="Get report">
     <a href="/report">Reset form</a>
     </div>
 </form>
+[% IF stat %]
+    <h3>Found [% stat.n %] issues.</h3>
+[% END %]
 
 [% FOREACH item IN table_data %]
     [% INCLUDE render_link %]
