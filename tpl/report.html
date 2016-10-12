@@ -19,13 +19,23 @@
     [% INCLUDE select name="limit" selected=form.raw pairs=[[10,10], [20, 20], [50, 50]] noopt="Results per page" %]
     </div>
     <div>
-    <input type="submit" value="Get report">
+    <input type="submit" name="start_report" value="Get report">
     <a href="/report">Reset form</a>
     </div>
-</form>
 [% IF stat %]
     <h3>Found [% stat.n %] issues.</h3>
+    [% IF form.data.limit %]
+    [% SET start = form.data.start; SET limit = form.data.limit; %]
+        <div>
+        <input type="hidden" name="start" value="[% form.data.start %]">
+        [% IF start > 0 %]<input type="submit" name="prev" value="&lt;&lt;Prev">[% END %]
+        Page [% start  / limit + 1 | int %]
+        of   [% stat.n / limit + 1 | int %].
+        [% IF start + limit < stat.n %]<input type="submit" name="next" value="Next &gt;&gt;">[% END %]
+        </div>
+    [% END %]
 [% END %]
+</form>
 
 [% FOREACH item IN table_data %]
     [% INCLUDE render_link %]

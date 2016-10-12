@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0704;
+our $VERSION = 0.0705;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -567,17 +567,8 @@ sub report {
     my $order  = 'created DESC';
     my @param;
 
-    # ORDER OPTIONS
-    if ($opt{order_by} and $opt{order_dir}) {
-        $order = "$opt{order_by} $opt{order_dir}";
-    };
-    if ($opt{limit}) {
-        $opt{start} ||= 0;
-        $order .= " LIMIT ?, ?";
-        push @param, $opt{start}, $opt{limit};
-    };
-
     # ACTIVITY OPTIONS
+    # must go first or else we filter out silent issues
     foreach (@bound_activity) {
         if( defined $opt{"min_a_$_"} ) {
             push @where, "a.$_ >= ?";
@@ -641,6 +632,16 @@ sub report {
             push @having, "$_ <= ?";
             push @param, $opt{"max_$_"};
         };
+    };
+
+    # ORDER OPTIONS
+    if ($opt{order_by} and $opt{order_dir}) {
+        $order = "$opt{order_by} $opt{order_dir}";
+    };
+    if ($opt{limit}) {
+        $opt{start} ||= 0;
+        $order .= " LIMIT ?, ?";
+        push @param, $opt{start}, $opt{limit};
     };
 
     # MAKE SQL

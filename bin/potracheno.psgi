@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0702;
+our $VERSION = 0.0703;
 
 use URI::Escape;
 use Data::Dumper;
@@ -36,6 +36,9 @@ MVC::Neaf->load_view( TT => TT =>
     PRE_PROCESS  => "common_head.html",
     POST_PROCESS => "common_foot.html",
     EVAL_PERL => 1,
+    FILTERS => {
+        int => sub { return int $_[0] },
+    },
 )->render({ -template => \"\n\ntest\n\n" });
 
 MVC::Neaf->set_default( DATE => \&DATE, version => "$VERSION/".Potracheno::Model->VERSION );
@@ -304,6 +307,10 @@ my $val_report = MVC::Neaf::X::Form->new({
     status_not   => '.+',
     limit        => '\d+',
     start        => '\d+',
+    # navigation buttons
+    next         => '.+',
+    prev         => '.+',
+    start_report => '.+',
 });
 MVC::Neaf->route( report => sub {
     my $req = shift;
@@ -311,6 +318,19 @@ MVC::Neaf->route( report => sub {
     my $form = $req->form( $val_report );
 
     $form->data->{status_not} = !!$form->data->{status_not};
+
+    $form->data->{limit} ||= 0;
+    $form->data->{start} ||= 0;
+    if (delete $form->data->{next}) {
+        $form->data->{start}+=$form->data->{limit};
+        $form->raw->{start}+=$form->data->{limit};
+    };
+    if (delete $form->data->{prev}) {
+        $form->data->{start}-=$form->data->{limit};
+        $form->raw->{start}-=$form->data->{limit};
+    };
+    $form->data->{start} = 0
+        if $form->data->{start} < 0 or delete $form->data->{start_report};
 
     my $data = [];
     my $stat;

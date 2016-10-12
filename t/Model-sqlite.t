@@ -130,7 +130,7 @@ is (scalar (grep { ref $_ ne 'HASH' } @$results), 0
 
 diag "SMOKE-TESTING REPORT";
 
-my $rep = $model->report( has_solution => 1, max_i_created => time + 100000 );
+my $rep = $model->report( _min_time_spent_s => 1, has_solution => 1, max_i_created => time + 100000, limit => 100 );
 is (ref $rep, 'ARRAY', "Got array");
 is (scalar @$rep, 1, "Got 1 element");
 is (scalar (grep { ref $_ ne 'HASH' } @$rep)
