@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0703;
+our $VERSION = 0.0704;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -507,6 +507,36 @@ sub time2human {
     return @ret ? join " ", @ret : '0';
 };
 
+sub time2date {
+};
+
+sub date2time {
+    my ($self, $date) = @_;
+
+    $date =~ /(\d\d\d\d)\D+(\d\d?)\D+(\d\d?)(?:\D+(\d\d?):(\d\d?))?/
+        or $self->croak( "Wrong date format" );
+
+    return timelocal(0,$5||0,$4||0,$3,$2-1,$1);
+};
+
+sub report_order_options {
+    return _pairs(
+         issue_id       => "id",
+         summary        => "Summary",
+         author_name    => "Author",
+         created        => "Creation date",
+         status_id      => "Status",
+         last_modified  => "Modification date",
+         time_spent_s   => "Time spent",
+         participants   => "Number of backers",
+         has_solution   => "Solution availability",
+    );
+};
+
+my @bound_aggregate = qw(last_modified created participants time_spent_s activity_count);
+my @bound_issue    = qw(created);
+my @bound_activity = qw(created);
+
 my $sql_rep = <<'SQL';
 SELECT
     i.issue_id                AS issue_id,
@@ -529,20 +559,6 @@ HAVING 1 = 1 %s
 ORDER BY %s
 SQL
 
-sub report_order_options {
-    return _pairs(
-         issue_id       => "id",
-         summary        => "Summary",
-         author_name    => "Author",
-         created        => "Creation date",
-         status_id      => "Status",
-         last_modified  => "Modification date",
-         time_spent_s   => "Time spent",
-         participants   => "Number of backers",
-         has_solution   => "Solution availability",
-    );
-};
-
 sub report {
     my ($self, %opt) = @_;
 
@@ -551,10 +567,27 @@ sub report {
     my $order  = 'created DESC';
     my @param;
 
+    # ORDER OPTIONS
     if ($opt{order_by} and $opt{order_dir}) {
         $order = "$opt{order_by} $opt{order_dir}";
     };
+    if ($opt{limit}) {
+        $opt{start} ||= 0;
+        $order .= " LIMIT ?, ?";
+        push @param, $opt{start}, $opt{limit};
+    };
 
+    # ACTIVITY OPTIONS
+    foreach (@bound_activity) {
+        if( defined $opt{"min_a_$_"} ) {
+            push @where, "a.$_ >= ?";
+            push @param, $opt{"min_a_$_"};
+        };
+        if( defined $opt{"max_a_$_"} ) {
+            push @where, "a.$_ <= ?";
+            push @param, $opt{"max_a_$_"};
+        };
+    };
     if ($opt{date_from}) {
         $opt{date_from} =~ /(\d+)\D+(\d+)\D+(\d+)/ or die "Bad date format";
         my $t = timelocal(0,0,0,$3,$2-1,$1);
@@ -567,14 +600,29 @@ sub report {
         push @where, "a.created <= ?";
         push @param, $t;
     };
-    if ($opt{date_to} || $opt{date_from}) {
+    # If any bounds placed on activity, make sure issues w/o activity
+    # aren't selected
+    if (@where) {
         push @having, "activity_count > 0";
     };
 
+    # ISSUE OPTIONS
     if (defined $opt{status}) {
         push @where, "NOT " x !!$opt{status_not} . "i.status_id = ?";
         push @param, $opt{status};
     };
+    foreach (@bound_issue) {
+        if( defined $opt{"min_i_$_"} ) {
+            push @where, "i.$_ >= ?";
+            push @param, $opt{"min_i_$_"};
+        };
+        if( defined $opt{"max_i_$_"} ) {
+            push @where, "i.$_ <= ?";
+            push @param, $opt{"max_i_$_"};
+        };
+    };
+
+    # AGGREGATE OPTIONS
     if (defined $opt{has_solution}) {
         # TODO invent better SQL here, maybe make sure solution_time is NEVER 0
         # or a separate join (with cheapest sulve estimate) THINK MORE
@@ -583,11 +631,37 @@ sub report {
             : "(has_solution IS NULL OR has_solution = 0)";
     };
 
+    # TODO this doesn't work for reason unknown
+    foreach (@bound_aggregate) {
+        if( defined $opt{"min_$_"} ) {
+            push @having, "$_ >= ?";
+            push @param, $opt{"min_$_"};
+        };
+        if( defined $opt{"max_$_"} ) {
+            push @having, "$_ <= ?";
+            push @param, $opt{"max_$_"};
+        };
+    };
+
+    # MAKE SQL
     my $sql = sprintf( $sql_rep
         , (join ' AND ', '', @where), (join ' AND ', '', @having), $order );
-    warn "DEBUG report: sql = $sql";
+
+    if ($opt{count_only}) {
+        $sql = "SELECT count(*) AS n FROM ( $sql ) AS temp";
+    };
+    warn "DEBUG report: sql = $sql; params=[@param]";
+
+    # EXECUTE AND RETURN
     my $sth = $self->dbh->prepare( $sql );
     $sth->execute(@param);
+
+    if ($opt{count_only}) {
+        # return hash with count
+        my $data = $sth->fetchrow_hashref;
+        $sth->finish;
+        return $data;
+    };
 
     my @report;
     while (my $row = $sth->fetchrow_hashref) {
@@ -597,7 +671,7 @@ sub report {
     };
 
     return \@report;
-};
+}; # end sub report
 
 sub _pairs {
     my @ret;
