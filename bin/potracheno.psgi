@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0706;
+our $VERSION = 0.0707;
 
 use URI::Escape;
 use Data::Dumper;
@@ -37,8 +37,9 @@ MVC::Neaf->load_view( TT => TT =>
     POST_PROCESS => "common_foot.html",
     EVAL_PERL => 1,
     FILTERS => {
-        int  => sub { return int $_[0] },
-        time => sub { return $model->time2human($_[0]) },
+        int  =>    sub { return int $_[0] },
+        time =>    sub { return $model->time2human($_[0]) },
+        render =>  sub { return $model->render_text($_[0]) },
     },
 )->render({ -template => \"\n\ntest\n\n" });
 
@@ -219,8 +220,7 @@ MVC::Neaf->route( issue => sub {
     warn Dumper($data);
 
     my $comments = $model->get_comments(
-        issue_id => $id, sort => '+created', text_only => !$show_all
-        , render => 1 );
+        issue_id => $id, sort => '+created', text_only => !$show_all);
 
     return {
         -template => "issue.html",
@@ -289,7 +289,7 @@ MVC::Neaf->route( user => sub {
     die 404 unless $data->{user_id};
 
     my $comments = $model->get_comments(
-        user_id => $id, sort => '-created', render => 1);
+        user_id => $id, sort => '-created');
     return {
         -template => 'user.html',
         title => "$data->{name} - user details",
@@ -306,15 +306,15 @@ my $val_report = MVC::Neaf::X::Form->new({
     has_solution => '\d',
     status       => '\d+',
     status_not   => '.+',
-    limit        => '\d+',
-    start        => '\d+',
     ready        => '.+',
     pi_factor    => '\d+\.?\d*',
     min_time_spent_s => '.+',
     max_time_spent_s => '.+',
     min_estimate => '.+',
     max_estimate => '.+',
-    # navigation buttons
+    # pagination
+    limit        => '\d+',
+    start        => '\d+',
     next         => '.+',
     prev         => '.+',
     start_report => '.+',
@@ -358,6 +358,78 @@ MVC::Neaf->route( report => sub {
     };
 });
 
+MVC::Neaf->route( add_watch => sub {
+    my $req = shift;
+
+    die 403 if (!$req->session->{user_id});
+
+    my $issue = $req->param( issue_id => '\d+' );
+    die 422 if (!$issue);
+
+    my $del = $req->param( delete => '.+' );
+
+    if ($del) {
+        $model->del_watch( user_id => $req->session->{user_id}, issue_id => $issue );
+    } else {
+        $model->add_watch( user_id => $req->session->{user_id}, issue_id => $issue );
+    };
+
+    $req->redirect( "/issue/$issue" );
+}); # TODO method => 'POST'
+
+my $val_watch = MVC::Neaf::X::Form->new({
+    min_created => '\d\d\d\d-\d\d-\d\d',
+    max_created => '\d\d\d\d-\d\d-\d\d',
+    # pagination
+    limit       => '\d+',
+    start       => '\d+',
+    next         => '.+',
+    prev         => '.+',
+    start_report => '.+',
+});
+MVC::Neaf->route( watch => sub {
+    my $req = shift;
+
+    die 403 if (!$req->session->{user_id});
+
+    my $form = $req->form( $val_watch );
+
+    warn Dumper($req->dump);
+
+    # TODO pagination copy-paste from report
+    $form->data->{limit} ||= 0;
+    $form->data->{start} ||= 0;
+    if (delete $form->data->{next}) {
+        $form->data->{start}+=$form->data->{limit};
+        $form->raw->{start}+=$form->data->{limit};
+    };
+    if (delete $form->data->{prev}) {
+        $form->data->{start}-=$form->data->{limit};
+        $form->raw->{start}-=$form->data->{limit};
+    };
+    $form->data->{start} = 0
+        if $form->data->{start} < 0 or delete $form->data->{start_report};
+
+    my $result = [];
+    my $stat;
+    if ($form->is_valid) {
+        $result = $model->watch_activity(
+            order_by => "created", order_dir => 1,
+            %{ $form->data },
+            user_id => $req->session->{user_id}
+        );
+        $stat   = $model->watch_activity( %{ $form->data }, user_id => $req->session->{user_id}, count_only => 1 );
+    };
+
+    return {
+        -template => 'watch.html',
+        title => 'Activity stream',
+        form => $form,
+        table_data => $result,
+        stat => $stat,
+    };
+});
+
 MVC::Neaf->route( help => sub {
     my $req = shift;
 
@@ -378,8 +450,6 @@ MVC::Neaf->route( help => sub {
     my $title = <$fd>;
     local $/;
     my $body = <$fd>;
-
-    $body = $model->render_text( $body );
 
     return {
         -template => "help.html",

@@ -1,0 +1,29 @@
+[% PROCESS inc/form.html %]
+[% PROCESS inc/render.html %]
+
+<form method="GET">
+    <div>
+    [% INCLUDE between explain="Date range" name="created" width=10 %]
+    [% INCLUDE select name="limit" selected=form.raw
+    pairs=[[10,"10 per page"], [20, "20 per page"], [50, "50 per page"]]
+    noopt="All results" %]
+    <input type="submit" name="start_report" value="View activity">
+    </div>
+[% IF stat %]
+    <h3>Found [% stat.n %] items.</h3>
+    [% IF form.data.limit %]
+    [% SET start = form.data.start; SET limit = form.data.limit; %]
+        <div>
+        <input type="hidden" name="start" value="[% form.data.start %]">
+        [% IF start > 0 %]<input type="submit" name="prev" value="&lt;&lt;Prev">[% END %]
+        Page [% start  / limit + 1 | int %]
+        of   [% stat.n / limit + 1 | int %].
+        [% IF start + limit < stat.n %]<input type="submit" name="next" value="Next &gt;&gt;">[% END %]
+        </div>
+    [% END %]
+[% END %]
+</form>
+
+[% FOREACH item IN table_data %]
+    [% INCLUDE render_comment %]
+[% END %]

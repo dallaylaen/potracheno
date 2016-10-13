@@ -33,3 +33,11 @@ CREATE TABLE sess (
     user_id INTEGER NOT NULL,
     created INT -- unix time
 ) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS watch;
+CREATE TABLE watch (
+    watch_id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    user_id INTEGER NOT NULL,
+    issue_id INTEGER NOT NULL,
+    created INT -- unix time
+);

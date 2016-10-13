@@ -29,3 +29,10 @@ CREATE TABLE sess (
     user_id INTEGER NOT NULL,
     created INT -- unix time
 );
+
+CREATE TABLE watch (
+    watch_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INT NOT NULL,
+    issue_id INT NOT NULL,
+    created INT -- unix time
+);

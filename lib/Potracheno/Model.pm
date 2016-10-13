@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0709;
+our $VERSION = 0.0710;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -682,6 +682,110 @@ sub report {
 
     return \@report;
 }; # end sub report
+
+# WATCHES
+
+sub add_watch {
+    my ($self, %opt) = @_;
+
+    my @missing = grep { !$opt{$_} } qw(user_id issue_id);
+    $self->my_croak("missing  required parameters: @missing")
+        if @missing;
+
+    $opt{created} ||= time;
+
+    # TODO foolproof?
+    return $self->insert_any( watch => watch_id => \%opt );
+};
+
+sub del_watch {
+    my ($self, %opt) = @_;
+
+    my @missing = grep { !$opt{$_} } qw(user_id issue_id);
+    $self->my_croak("missing  required parameters: @missing")
+        if @missing;
+
+    my $sth = $self->dbh->prepare( "DELETE FROM watch WHERE user_id = ? AND issue_id = ?" );
+    $sth->execute( $opt{user_id}, $opt{issue_id} );
+};
+
+sub get_watch {
+};
+
+my $sql_watch = <<"SQL";
+    SELECT
+        a.activity_id   AS activity_id,
+        a.issue_id      AS issue_id,
+        a.user_id       AS user_id,
+        u.name          AS user_name,
+        a.seconds       AS seconds,
+        a.fix_estimate  AS solve_time_s,
+        a.note          AS note,
+        a.created       AS created
+    FROM watch w
+        JOIN activity a USING(issue_id)
+        JOIN user u ON a.user_id = u.user_id
+    WHERE %s
+SQL
+
+sub watch_activity {
+    my ($self, %opt) = @_;
+
+    $opt{user_id} or $self->my_croak("user_id missing");
+
+    my @where = ("w.user_id = ?");
+    my @param = ($opt{user_id});
+
+    if ($opt{min_created}) {
+        push @where, "a.created >= ?";
+        push @param, $self->date2time( $opt{min_created} );
+    };
+    if ($opt{max_created}) {
+        push @where, "a.created <= ?";
+        push @param, $self->date2time( $opt{max_created} );
+    };
+
+    my $sql = sprintf( $sql_watch, (join ' AND ', @where) );
+    return $self->_run_report( $sql, \@param, \%opt );
+};
+
+sub _run_report {
+    my ($self, $sql, $param, $opt) = @_;
+
+    if ($opt->{count_only}) {
+        $sql = "SELECT count(*) AS n FROM ( $sql ) AS temp_count";
+    } else {
+        if ($opt->{order_by}) {
+            $sql .= " ORDER BY $opt->{order_by} "
+                 .  ($opt->{order_dir} ? "DESC" : "ASC");
+        };
+    };
+
+    if ($opt->{limit}) {
+        $sql .= " LIMIT ?,?";
+        push @$param, $opt->{start} || 0, $opt->{limit};
+    };
+
+    my $caller = [ caller(0) ]->[3];
+    my $pkg    = ref $self || $self;
+
+    warn "DEBUG $pkg->$caller: SQL = $sql";
+    my $sth = $self->dbh->prepare( $sql );
+    $sth->execute( @$param );
+
+    if ($opt->{count_only}) {
+        my $data = $sth->fetchrow_hashref;
+        $sth->finish;
+        return $data;
+    };
+
+    my @res;
+    while (my $row = $sth->fetchrow_hashref) {
+        push @res, $row;
+    };
+    $sth->finish;
+    return \@res;
+};
 
 # BACKUP PROCEDURES
 
