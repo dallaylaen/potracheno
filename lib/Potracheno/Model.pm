@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0707;
+our $VERSION = 0.0708;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -481,8 +481,10 @@ my $num_re = qr/(?:\d+(?:\.\d+)?)/; # no minus, no sophisticated stuff
 sub human2time {
     my ($self, $str) = @_;
 
+    return unless defined $str;
+    return $1 if $str =~ /^(\d+)(\.\d*)?$/;
+
     my $t = 0;
-    return $t unless $str;
     while ( $str =~ /($num_re)\s*($time_unit_re)/g ) {
         $t += $1 * $time_unit{$2};
     };
@@ -513,6 +515,10 @@ sub time2date {
 sub date2time {
     my ($self, $date) = @_;
 
+    # seconds pass through
+    $date =~ /^(\d+)$/
+        and return $1;
+
     $date =~ /(\d\d\d\d)\D+(\d\d?)\D+(\d\d?)(?:\D+(\d\d?):(\d\d?))?/
         or $self->croak( "Wrong date format" );
 
@@ -535,9 +541,11 @@ sub report_order_options {
     );
 };
 
-my @bound_aggregate = qw(last_modified created participants time_spent_s activity_count);
+my @bound_aggregate = qw(last_modified created participants time_spent_s estimate activity_count);
 my @bound_issue    = qw(created);
 my @bound_activity = qw(created);
+my @report_options_time = qw(time_spent_s estimate);
+my @report_options_date = qw(i_created a_created);
 
 my $sql_rep = <<'SQL';
 SELECT
@@ -572,6 +580,11 @@ sub report {
     my $order  = 'created DESC';
     my @param;
 
+    exists $opt{$_} and $opt{$_} = $self->human2time( $opt{$_} )
+        foreach map { $_ => "min_$_" => "max_$_" } @report_options_time;
+    exists $opt{$_} and $opt{$_} = $self->date2time( $opt{$_} )
+        foreach map { $_ => "min_$_" => "max_$_" } @report_options_date;
+
     # ACTIVITY OPTIONS
     # must go first or else we filter out silent issues
     foreach (@bound_activity) {
@@ -583,18 +596,6 @@ sub report {
             push @where, "a.$_ <= ?";
             push @param, $opt{"max_a_$_"};
         };
-    };
-    if ($opt{date_from}) {
-        $opt{date_from} =~ /(\d+)\D+(\d+)\D+(\d+)/ or die "Bad date format";
-        my $t = timelocal(0,0,0,$3,$2-1,$1);
-        push @where, "a.created >= ?";
-        push @param, $t;
-    };
-    if ($opt{date_to}) {
-        $opt{date_to} =~ /(\d+)\D+(\d+)\D+(\d+)/ or die "Bad date format";
-        my $t = timelocal(59,59,23,$3,$2-1,$1);
-        push @where, "a.created <= ?";
-        push @param, $t;
     };
     # If any bounds placed on activity, make sure issues w/o activity
     # aren't selected

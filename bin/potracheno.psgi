@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0705;
+our $VERSION = 0.0706;
 
 use URI::Escape;
 use Data::Dumper;
@@ -260,7 +260,7 @@ MVC::Neaf->route( addtime => sub {
 
     # TODO use form!!!!
     my $issue_id = $req->param( issue_id => qr/\d+/ );
-    my $seconds  = $req->param( seconds => qr/.+/, 0 );
+    my $seconds  = $req->param( seconds => qr/.*[^\d.].*/, 0 );
     my $note     = $req->param( note => qr/.*\S.+/s );
     my $status_id = $req->param( status_id => qr/\d+/, undef );
     my $type     = $req->param( type => qr/fix/ );
@@ -301,8 +301,8 @@ MVC::Neaf->route( user => sub {
 my $val_report = MVC::Neaf::X::Form->new({
     order_by     => '\w+',
     order_dir    => 'ASC|DESC',
-    date_from    => '\d\d\d\d-\d\d-\d\d',
-    date_to      => '\d\d\d\d-\d\d-\d\d',
+    min_a_created    => '\d\d\d\d-\d\d-\d\d',
+    max_a_created    => '\d\d\d\d-\d\d-\d\d',
     has_solution => '\d',
     status       => '\d+',
     status_not   => '.+',
@@ -310,6 +310,10 @@ my $val_report = MVC::Neaf::X::Form->new({
     start        => '\d+',
     ready        => '.+',
     pi_factor    => '\d+\.?\d*',
+    min_time_spent_s => '.+',
+    max_time_spent_s => '.+',
+    min_estimate => '.+',
+    max_estimate => '.+',
     # navigation buttons
     next         => '.+',
     prev         => '.+',

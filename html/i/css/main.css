@@ -62,3 +62,8 @@ textarea {
     color: #FFFFFF;
     font-weight: bold;
 }
+
+.error {
+    border: solid red 1px;
+    color: red;
+}

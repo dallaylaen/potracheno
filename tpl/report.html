@@ -11,8 +11,13 @@
         (this only matters if "ready to go" selected)
     </div>
     <div>
-    Date range: [% INCLUDE input name="date_from" width=10 %] ..
-        [% INCLUDE input name="date_to" width=10 %]
+    [% INCLUDE between explain="Date range" name="a_created" width=10 %]
+    </div>
+    <div>
+    [% INCLUDE between explain="Time spent" name="time_spent_s" width=10 %]
+    </div>
+    <div>
+    [% INCLUDE between explain="Fix estimate" name="estimate" width=10 %]
     </div>
     <div>
     Sort by:
