@@ -43,6 +43,8 @@ my $model = Potracheno::Model->new(
     config_file => $config,
 );
 
+my $codec = JSON::XS->new;
+
 if ($todo eq "dump") {
     my $fd;
     if (defined $file and $file ne '-') {
@@ -59,7 +61,7 @@ if ($todo eq "dump") {
     foreach my $t( keys %$dump ) {
         warn "Dumping table $t into $file...\n";
         foreach my $row( @{ $dump->{$t} } ) {
-            print $fd "$t: ".encode_json($row)."\n"
+            print $fd "$t: ".$codec->encode($row)."\n"
                 or die "Failed to write to $file: $!";
         };
         warn "Done table $t\n";
