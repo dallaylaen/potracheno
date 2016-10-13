@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0704;
+our $VERSION = 0.0705;
 
 use URI::Escape;
 use Data::Dumper;
@@ -303,11 +303,13 @@ my $val_report = MVC::Neaf::X::Form->new({
     order_dir    => 'ASC|DESC',
     date_from    => '\d\d\d\d-\d\d-\d\d',
     date_to      => '\d\d\d\d-\d\d-\d\d',
-    has_solution => '[01]',
+    has_solution => '\d',
     status       => '\d+',
     status_not   => '.+',
     limit        => '\d+',
     start        => '\d+',
+    ready        => '.+',
+    pi_factor    => '\d+\.?\d*',
     # navigation buttons
     next         => '.+',
     prev         => '.+',

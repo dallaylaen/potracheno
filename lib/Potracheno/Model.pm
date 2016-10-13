@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0706;
+our $VERSION = 0.0707;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -523,15 +523,15 @@ sub date2time {
 
 sub report_order_options {
     return _pairs(
-         issue_id       => "id",
-         summary        => "Summary",
-         author_name    => "Author",
-         created        => "Creation date",
-         status_id      => "Status",
-         last_modified  => "Modification date",
-         time_spent_s   => "Time spent",
-         participants   => "Number of backers",
-         has_solution   => "Solution availability",
+        issue_id       => "id",
+        summary        => "Summary",
+        author_name    => "Author",
+        created        => "Creation date",
+        status_id      => "Status",
+        last_modified  => "Modification date",
+        time_spent_s   => "Time spent",
+        participants   => "Number of backers",
+        estimate       => "Solution estimate",
     );
 };
 
@@ -620,9 +620,14 @@ sub report {
 
     # AGGREGATE OPTIONS
     if (defined $opt{has_solution}) {
-        push @having, $opt{has_solution}
-            ? "has_solution > 0"
-            : "has_solution = 0";
+        if ($opt{has_solution} > 1) {
+            push @having, "estimate * ? < time_spent_s";
+            push @param, $opt{pi_factor} || 4*atan2 1,1;
+        } else {
+            push @having, $opt{has_solution}
+                ? "has_solution > 0"
+                : "has_solution = 0";
+        };
     };
 
     foreach (@bound_aggregate) {
