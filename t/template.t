@@ -9,10 +9,10 @@ use File::Basename qw(basename dirname);
 
 my $tpl = dirname(__FILE__)."/../tpl";
 
-my @files;
+my @files = @ARGV;
 my @fail;
 
-find( sub {
+@files or find( sub {
     -f $_
         and /\.html$/
         and push @files, $File::Find::name;
@@ -32,7 +32,15 @@ sub tpl_ok {
 
     $file =~ s#.*/tpl/##;
 
-    my $tt = Template->new(INCLUDE_PATH => $tpl, RELATIVE=>1, );
+    my $tt = Template->new(
+        INCLUDE_PATH => $tpl,
+        RELATIVE     => 1,
+        FILTERS      => {
+            int    => sub { 1 },
+            time   => sub { '1h' },
+            render => sub { 'text' },
+        },
+    );
     my $output;
 
     my $data = {
