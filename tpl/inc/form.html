@@ -10,7 +10,8 @@
 </select>
 [%- END -%]
 [%- BLOCK input # name=, width= -%]
-<input name="[% name | html %]" value="[% form.raw.$name | html %]"
+[% # UGLY HACK work around TT filters crashing unicode over undef %]
+<input name="[% name | html %]" value="[% form.raw.$name.length ? form.raw.$name : ''  | html %]"
     [%- IF form.error.$name %] class="error"[% END %]
     [% IF width %] size="[% width %]"[% END %]>
 [% END %]
