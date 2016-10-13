@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0703;
+our $VERSION = 0.0704;
 
 use URI::Escape;
 use Data::Dumper;
@@ -37,7 +37,8 @@ MVC::Neaf->load_view( TT => TT =>
     POST_PROCESS => "common_foot.html",
     EVAL_PERL => 1,
     FILTERS => {
-        int => sub { return int $_[0] },
+        int  => sub { return int $_[0] },
+        time => sub { return $model->time2human($_[0]) },
     },
 )->render({ -template => \"\n\ntest\n\n" });
 

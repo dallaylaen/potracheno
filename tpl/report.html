@@ -16,7 +16,9 @@
     Sort by:
     [% INCLUDE select name="order_by" selected=form.raw pairs=order_options %]
     [% INCLUDE select name="order_dir" selected=form.raw pairs=[["DESC", "down"], ["ASC", "up"]] %]
-    [% INCLUDE select name="limit" selected=form.raw pairs=[[10,10], [20, 20], [50, 50]] noopt="Results per page" %]
+    [% INCLUDE select name="limit" selected=form.raw
+    pairs=[[10,"10 per page"], [20, "20 per page"], [50, "50 per page"]]
+    noopt="All results" %]
     </div>
     <div>
     <input type="submit" name="start_report" value="Get report">

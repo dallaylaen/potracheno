@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0705;
+our $VERSION = 0.0706;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -484,7 +484,7 @@ sub human2time {
     my $t = 0;
     return $t unless $str;
     while ( $str =~ /($num_re)\s*($time_unit_re)/g ) {
-        $t += $1 * $time_unit{$2 || 'h'};
+        $t += $1 * $time_unit{$2};
     };
 
     return int($t);
@@ -519,6 +519,8 @@ sub date2time {
     return timelocal(0,$5||0,$4||0,$3,$2-1,$1);
 };
 
+# REPORT
+
 sub report_order_options {
     return _pairs(
          issue_id       => "id",
@@ -550,12 +552,15 @@ SELECT
     SUM(a.seconds)            AS time_spent_s,
     COUNT(distinct a.user_id) AS participants,
     COUNT(a.activity_id)      AS activity_count,
-    SUM(a.fix_estimate)       AS has_solution
-FROM issue i LEFT JOIN activity a USING( issue_id )
+    COUNT(s.activity_id)      AS has_solution,
+    MIN(s.fix_estimate)       AS estimate
+FROM issue i
     JOIN user u ON i.user_id = u.user_id
-WHERE 1 = 1 %s
+    LEFT JOIN activity a USING( issue_id )
+    LEFT JOIN activity s ON s.issue_id = i.issue_id AND s.fix_estimate > 0
+WHERE %s
 GROUP BY i.issue_id
-HAVING 1 = 1 %s
+HAVING %s
 ORDER BY %s
 SQL
 
@@ -615,14 +620,11 @@ sub report {
 
     # AGGREGATE OPTIONS
     if (defined $opt{has_solution}) {
-        # TODO invent better SQL here, maybe make sure solution_time is NEVER 0
-        # or a separate join (with cheapest sulve estimate) THINK MORE
         push @having, $opt{has_solution}
             ? "has_solution > 0"
-            : "(has_solution IS NULL OR has_solution = 0)";
+            : "has_solution = 0";
     };
 
-    # TODO this doesn't work for reason unknown
     foreach (@bound_aggregate) {
         if( defined $opt{"min_$_"} ) {
             push @having, "$_ >= ?";
@@ -646,7 +648,7 @@ sub report {
 
     # MAKE SQL
     my $sql = sprintf( $sql_rep
-        , (join ' AND ', '', @where), (join ' AND ', '', @having), $order );
+        , (join ' AND ', @where)||'1=1', (join ' AND ', @having)||'1=1', $order );
 
     if ($opt{count_only}) {
         $sql = "SELECT count(*) AS n FROM ( $sql ) AS temp";
@@ -674,15 +676,7 @@ sub report {
     return \@report;
 }; # end sub report
 
-sub _pairs {
-    my @ret;
-    while (@_) {
-        push @ret, [shift, shift];
-    };
-    return \@ret;
-};
-
-# Backup procedures
+# BACKUP PROCEDURES
 
 my @tables = qw(user issue activity);
 sub dump {
@@ -775,6 +769,16 @@ sub update_any {
     $sth->execute( @values, $id );
 
     return $id;
+};
+
+# AUXILIARY STUFF
+
+sub _pairs {
+    my @ret;
+    while (@_) {
+        push @ret, [shift, shift];
+    };
+    return \@ret;
 };
 
 1;

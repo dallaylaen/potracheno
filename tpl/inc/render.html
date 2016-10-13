@@ -50,7 +50,7 @@
     [% IF item.time_spent %]Total <b class="time">[% item.time_spent | html %]</b> spent.[% END %]
     [% IF item.status %]<span class="status">[% item.status | html %]</span>[% END %]
     [% IF item.has_solution %]
-    <span class="solution">Solution proposed</span>
+    <span class="solution">[% item.estimate | time %] to fix</span>
     [% END %]
     </div>
   </div>

@@ -2,7 +2,8 @@ VERSION ADDED | VERSION TBD | TITLE
 
 -- NEXT --
 0.04    0.08    REP Another report showing ready-to-go solutions
-0.06    0.08    UI markdown code blocks
+0.06    0.08    UI  markdown code blocks
+0.04    0.08    APP watch issues, notifications
 
 -- BACKLOG --
 0.04    0.10    AUX daemonize
@@ -15,8 +16,8 @@ VERSION ADDED | VERSION TBD | TITLE
 0.01    0.20    tags/projects
 0.01    0.20    reports - time spent this month etc
 0.05    0.20    APP Comment replies
+0.07    0.30    APP in-app messages
 0.04    0.30    use search engine, sql too slow
-0.04    0.30    watch issues, notifications
 0.01    0.30    seamless install.pl (win included)
 0.01    0.30    adjust time "price" for different team members
 0.01    0.30    comment pagination
