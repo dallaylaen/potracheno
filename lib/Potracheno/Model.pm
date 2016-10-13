@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0708;
+our $VERSION = 0.0709;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -632,12 +632,13 @@ sub report {
     };
 
     foreach (@bound_aggregate) {
+        # +0 is to work around a bug, see perldoc DBD::SQLite
         if( defined $opt{"min_$_"} ) {
-            push @having, "$_ >= ?";
+            push @having, "$_ >= ?+0";
             push @param, $opt{"min_$_"};
         };
         if( defined $opt{"max_$_"} ) {
-            push @having, "$_ <= ?";
+            push @having, "$_ <= ?+0";
             push @param, $opt{"max_$_"};
         };
     };
