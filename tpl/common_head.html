@@ -10,8 +10,11 @@
         <nav>
           <ul class="nav nav-pills pull-right">
             <li role="presentation"><a href="/">Main page</a></li>
-            <li role="presentation"><a href="/post">Add new obstacle</a></li>
-            <li role="presentation"><a href="/report">Browse issues</a></li>
+            <li role="presentation"><a href="/post">Add issue</a></li>
+[% IF session.user_id %]
+            <li role="presentation"><a href="/watch">My stream</a></li>
+[% END %]
+            <li role="presentation"><a href="/report">Browse</a></li>
             <li role="presentation"><a href="/help/general">Help</a></li>
              <li>
                 <form class="navbar-form navbar-right" method="GET" action="/search">
