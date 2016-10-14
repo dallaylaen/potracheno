@@ -2,10 +2,6 @@ VERSION ADDED | VERSION TBD | TITLE
 
 -- NEXT --
 0.06    0.08    UI  markdown code blocks
-0.07    0.08    REF rename css properly
-0.07    0.08    REF move head&foot to inc
-0.07    0.08    REF rename logo->potracheno
-0.07    0.08    BUG pagination 20 by default
 0.07    0.08    BUG search pagination
 
 -- BACKLOG --
