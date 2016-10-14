@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0708;
+our $VERSION = 0.0709;
 
 use URI::Escape;
 use Data::Dumper;
@@ -33,8 +33,8 @@ my $model = Potracheno::Model->new(
 
 MVC::Neaf->load_view( TT => TT =>
     INCLUDE_PATH => "$Bin/../tpl",
-    PRE_PROCESS  => "common_head.html",
-    POST_PROCESS => "common_foot.html",
+    PRE_PROCESS  => "inc/head.html",
+    POST_PROCESS => "inc/foot.html",
     EVAL_PERL => 1,
     FILTERS => {
         int  =>    sub { return int $_[0] },

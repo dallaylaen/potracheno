@@ -1,9 +1,12 @@
 VERSION ADDED | VERSION TBD | TITLE
 
 -- NEXT --
-0.04    0.08    REP Another report showing ready-to-go solutions
 0.06    0.08    UI  markdown code blocks
-0.04    0.08    APP watch issues, notifications
+0.07    0.08    REF rename css properly
+0.07    0.08    REF move head&foot to inc
+0.07    0.08    REF rename logo->potracheno
+0.07    0.08    BUG pagination 20 by default
+0.07    0.08    BUG search pagination
 
 -- BACKLOG --
 0.04    0.10    AUX daemonize
@@ -11,6 +14,7 @@ VERSION ADDED | VERSION TBD | TITLE
 0.01    0.10    highlight links
 0.05    0.10    APP Admin interface
 0.04    0.10    REP search & report pagination
+0.07    0.20    UI  js in report
 0.01    0.20    some js
 0.01    0.20    issue & comment editing - versioned
 0.01    0.20    tags/projects
