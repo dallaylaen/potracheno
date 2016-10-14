@@ -1,13 +1,17 @@
 [% PROCESS inc/form.html %]
 [% PROCESS inc/render.html %]
 [% INCLUDE render_issue %]
-[% IF session.user_id %]
 <form method="POST" action="/add_watch">
+    <span class="status">[% watch.1 %] watchers</span>
+[% IF session.user_id %]
     <input type="hidden" name="issue_id" value="[% issue.issue_id %]">
-    <input type="submit" value="Watch this issue">
+[% IF watch.0 %]
     <input type="submit" name="delete" value="Unwatch this issue">
-</form>
+[% ELSE %]
+    <input type="submit" value="Watch this issue">
 [% END %]
+[% END %]
+</form>
 <hr>
 <div class="post">
 [% IF session.user_id %]

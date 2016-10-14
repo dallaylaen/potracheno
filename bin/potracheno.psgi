@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0707;
+our $VERSION = 0.0708;
 
 use URI::Escape;
 use Data::Dumper;
@@ -55,6 +55,15 @@ MVC::Neaf->route( login => sub {
 
     my $name = $req->param( name => '\w+' );
     my $pass = $req->param( pass => '.+' );
+    my $return_to = $req->param( return_to => '/.*');
+
+    warn "name=$name, return_to=$return_to";
+
+    # If return_to not given, make up from referer
+    if (!$return_to and my $from = $req->referer) {
+        $return_to = $from =~ m#https?://[^/]+(/.*)# ? $1 : "/";
+    };
+
     my $data;
     my $wrong;
     if ($req->method eq 'POST' and $name and $pass) {
@@ -62,16 +71,17 @@ MVC::Neaf->route( login => sub {
         $wrong = "Login failed!";
     };
     if ($data) {
-        warn "LOGIN SUCCESSFUL!!!";
+        warn "USER LOGGED IN: $name";
         $req->save_session( $data );
-        $req->redirect( $req->param( return_to => '/.*', '/') );
+        $req->redirect( $return_to );
     };
 
     return {
         -template => 'login.html',
-        title => 'Log in',
-        wrong => $wrong,
-        name => $name,
+        title     => 'Log in',
+        wrong     => $wrong,
+        name      => $name,
+        return_to => $return_to,
     };
 } );
 
@@ -222,12 +232,16 @@ MVC::Neaf->route( issue => sub {
     my $comments = $model->get_comments(
         issue_id => $id, sort => '+created', text_only => !$show_all);
 
+    my $watch = $model->get_watch(
+        user_id => $req->session->{user_id}, issue_id => $id );
+
     return {
         -template => "issue.html",
-        title => "#$data->{issue_id} - $data->{summary}",
-        issue => $model->render_issue($data),
-        comments => $comments,
-        statuses => $model->get_status_pairs,
+        title     => "#$data->{issue_id} - $data->{summary}",
+        issue     => $model->render_issue($data),
+        comments  => $comments,
+        statuses  => $model->get_status_pairs,
+        watch     => $watch,
     };
 } );
 

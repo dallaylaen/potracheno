@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0710;
+our $VERSION = 0.0711;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -695,7 +695,8 @@ sub add_watch {
     $opt{created} ||= time;
 
     # TODO foolproof?
-    return $self->insert_any( watch => watch_id => \%opt );
+    return $self->insert_any( watch => watch_id => \%opt )
+        unless $self->get_watch( %opt )->[0];
 };
 
 sub del_watch {
@@ -709,7 +710,26 @@ sub del_watch {
     $sth->execute( $opt{user_id}, $opt{issue_id} );
 };
 
+my $sql_get_watch = <<"SQL";
+    SELECT count(distinct me.user_id), count(distinct us.user_id)
+    FROM watch us LEFT JOIN watch me
+    ON me.watch_id = us.watch_id AND me.user_id = ?
+    WHERE us.issue_id = ?
+SQL
+
 sub get_watch {
+    my ($self, %opt) = @_;
+
+    my @missing = grep { !$opt{$_} } qw(issue_id);
+    $self->my_croak("missing  required parameters: @missing")
+        if @missing;
+
+    my $sql = $opt{user_id} ? $sql_get_watch
+        : "SELECT 0, count(distinct user_id) FROM watch WHERE issue_id = ?";
+
+    my $sth = $self->dbh->prepare( $sql );
+    $sth->execute( $opt{user_id} ? $opt{user_id} : (), $opt{issue_id} );
+    return $sth->fetchrow_arrayref;
 };
 
 my $sql_watch = <<"SQL";
