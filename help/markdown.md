@@ -12,6 +12,8 @@ Markdown
 
 More features to follow.
 
+Use <*code*></*code*> tags around code samples.
+
 ## Preview mode
 
 Please note that any form that offers preview will *not* allow to save

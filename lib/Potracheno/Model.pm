@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0713;
+our $VERSION = 0.0714;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -236,7 +236,6 @@ sub log_activity {
 
     # Skip empty comments, sanitize otherwise
     if (defined $opt{note} and length $opt{note}) {
-        $opt{note} = $self->filter_text( $opt{note} )
     } else {
         delete $opt{note}
     };
@@ -482,7 +481,19 @@ sub filter_text {
 sub render_text {
     my ($self, $text) = @_;
 
-    return markdown( $self->filter_text($text) );
+    # cut text code blocks & markdown blocks
+    # process them separately
+    my @slice;
+    while ($text =~ s#^(.*?)<code>(.*?)</code>##gis) {
+        warn "FOUND CODE";
+        my ($md, $pre) = ($1, $2);
+        push @slice, markdown($self->filter_text($md));
+        push @slice, '<pre class="code">'.$self->filter_text($pre).'</pre>';
+    };
+    push @slice, markdown( $self->filter_text($text) );
+
+    # finally, combine all together
+    return join "\n", @slice;
 };
 
 my %time_unit = (
