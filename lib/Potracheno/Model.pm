@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0714;
+our $VERSION = 0.0715;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -847,7 +847,7 @@ sub _run_report {
 
 # BACKUP PROCEDURES
 
-my @tables = qw(user issue activity);
+my @tables = qw(user issue activity watch);
 sub dump {
     my $self = shift;
 
