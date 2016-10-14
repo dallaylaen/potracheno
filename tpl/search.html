@@ -1,4 +1,17 @@
 [% PROCESS inc/render.html %]
+[% PROCESS inc/form.html %]
+
+[% IF limit %]
+<form method="GET">
+    <input type="hidden" name="q" value="[% q | html %]">
+    <input type="hidden" name="start" value="[% next_start %]">
+    <input type="hidden" name="page" value="[% page + 1 %]">
+    <input type="hidden" name="seen" value="[% seen | html %]">
+    Page [% page %] of (unknown).
+    [% IF !last %]<input type="submit" value="Next&gt;&gt;">[% END %]
+</form>
+[% END %]
+
 [% FOREACH item IN results %]
     [% INCLUDE render_link %]
 [% END %]

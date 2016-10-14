@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0712;
+our $VERSION = 0.0713;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -28,6 +28,15 @@ sub new {
     $self->{dbh} ||= $self->get_dbh( $self->{config}{db} );
 
     return $self;
+};
+
+sub get_config {
+    my $self = shift;
+
+    return $self->{config} unless @_;
+    my $section = shift;
+    return $self->{config}{$section} unless @_;
+    return $self->{config}{$section}{ + shift };
 };
 
 sub dbh { return $_[0]->{dbh} };
@@ -380,8 +389,19 @@ sub search {
             $sql_search_art $where UNION $sql_search_comm $where2
         ) AS temp $order";
 
+    my $count;
+    if ($opt{limit}) {
+        $count = $opt{limit};
+        $opt{limit} *= 10;
+    };
+    my $start_next = $opt{limit} && $opt{start} || 0;
+
     my %seen;
+    $seen{$_}++ for split /\./, $opt{seen} || '';
+
     $opt{callback} = sub {
+        $start_next++ if defined $count;
+
         my $row = shift;
         $seen{ $row->{issue_id} }++ and return -1;
         my @snip;
@@ -393,9 +413,13 @@ sub search {
         };
         $row->{snippets} = \@snip;
         $row->{status} = $self->{status}{ $row->{status_id} };
+
+        $count-- or return 0 if defined $count;
         return 1;
     };
-    return $self->_run_report($sql, [], \%opt);
+    my $res = $self->_run_report($sql, [], \%opt);
+
+    return wantarray ? ($res, $start_next) : $res;
 };
 
 my $sql_sess_load = <<'SQL';
@@ -785,7 +809,7 @@ sub _run_report {
     my $caller = [ caller(0) ]->[3];
     my $pkg    = ref $self || $self;
 
-    warn "DEBUG $pkg->$caller: SQL = $sql";
+    warn "DEBUG $pkg->$caller: SQL = $sql; param=[@$param]";
     my $sth = $self->dbh->prepare( $sql );
     $sth->execute( @$param );
 
@@ -800,8 +824,9 @@ sub _run_report {
     while (my $row = $sth->fetchrow_hashref) {
         if ($code) {
             my $reply = $code->( $row );
-            $code or last;
-            $code < 0 and next;
+            warn "DEBUG check callback: $reply";
+            $reply or last;
+            $reply < 0 and next;
         };
         push @res, $row;
     };

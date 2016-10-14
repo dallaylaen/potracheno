@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0711;
+our $VERSION = 0.0712;
 
 use URI::Escape;
 use Data::Dumper;
@@ -248,21 +248,33 @@ MVC::Neaf->route( issue => sub {
     };
 } );
 
+my $search_limit = $model->get_config( search => "limit" ) || 10;
+
 MVC::Neaf->route( search => sub {
     my $req = shift;
 
-    my $q = $req->param(q => '.*');
-
+    my $q      = $req->param( q => '.*' );
+    my $page   = $req->param( page => '\d+' );
+    my $start  = $req->param( start => '\d+' );
+    my $seen   = $req->param( seen  => '[\d.]+' );
     my @term = $q =~ /([\w*?]+)/g;
 
-    my $result = $model->search(terms => \@term);
+    my ($result, $next_start) = $model->search(
+        terms => \@term, limit => $search_limit, start => $start);
+
+    $seen .= ".$_->{issue_id}" for @$result;
 
     return {
-        -template => 'search.html',
-        title => "Search results for @term",
-        results => $result,
-        q => $q,
-        terms => \@term,
+        -template  => 'search.html',
+        title      => "Search results for @term",
+        results    => $result,
+        q          => $q,
+        terms      => \@term,
+        page       => $page || 1,
+        next_start => $next_start,
+        limit      => 1,
+        seen       => $seen,
+        last       => (@$result < $search_limit),
     };
 } );
 
