@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0709;
+our $VERSION = 0.0710;
 
 use URI::Escape;
 use Data::Dumper;
@@ -47,8 +47,11 @@ MVC::Neaf->set_default( DATE => \&DATE, version => "$VERSION/".Potracheno::Model
 
 MVC::Neaf->set_session_handler( engine => $model, view_as => 'session' );
 
-MVC::Neaf->static( i => "$Bin/../html/i" );
 MVC::Neaf->static( 'favicon.ico' => "$Bin/../html/i/icon.png" );
+MVC::Neaf->static( fonts         => "$Bin/../html/fonts" );
+MVC::Neaf->static( css           => "$Bin/../html/css" );
+MVC::Neaf->static( i             => "$Bin/../html/i" );
+MVC::Neaf->static( js            => "$Bin/../html/js" );
 
 MVC::Neaf->route( login => sub {
     my $req = shift;
