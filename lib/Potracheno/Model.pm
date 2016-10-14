@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0711;
+our $VERSION = 0.0712;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -376,30 +376,26 @@ sub search {
 
     my $order = "ORDER BY created DESC"; # TODO $opt{sort}
 
-    my $sth = $self->{dbh}->prepare(
-        "SELECT * FROM (
+    my $sql = "SELECT * FROM (
             $sql_search_art $where UNION $sql_search_comm $where2
-        ) AS temp $order"
-    );
-    $sth->execute;
+        ) AS temp $order";
 
     my %seen;
-    my @result;
-    FETCH: while ( my $row = $sth->fetchrow_hashref ) {
-        $seen{ $row->{issue_id} }++ and next;
+    $opt{callback} = sub {
+        my $row = shift;
+        $seen{ $row->{issue_id} }++ and return -1;
         my @snip;
         foreach my $t( @terms_re ) {
             $row->{summary} =~ /(.{0,40})($t)(.{0,40})/i
                 or $row->{body} =~ /(.{0,40})($t)(.{0,40})/i
-                or next FETCH;
+                or return -1;
             push @snip, [ $1, $2, $3 ];
         };
         $row->{snippets} = \@snip;
         $row->{status} = $self->{status}{ $row->{status_id} };
-        push @result, $row;
+        return 1;
     };
-
-    return \@result;
+    return $self->_run_report($sql, [], \%opt);
 };
 
 my $sql_sess_load = <<'SQL';
@@ -800,7 +796,13 @@ sub _run_report {
     };
 
     my @res;
+    my $code = $opt->{callback};
     while (my $row = $sth->fetchrow_hashref) {
+        if ($code) {
+            my $reply = $code->( $row );
+            $code or last;
+            $code < 0 and next;
+        };
         push @res, $row;
     };
     $sth->finish;
