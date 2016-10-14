@@ -25,7 +25,8 @@ tracks time wasted *dealing with it*, aka
 Also unlike a normal ITS it has *solution proposals* which can be posted
 for any issue. Those are just special comments with a time estimate.
 
-## Usage
+## Usage scenario
+
 The intended usage is as follows.
 All the inconveniences of the project should be
 [posted here](/post), like:
@@ -45,3 +46,28 @@ As statistics [accumulate](/report/http://localhost:5000/report?status_not=on&st
 it may become clear which parts of the system should be
 rewritten, refactored, or otherwise improved on in the first place,
 and how much time is affordable to spend on that.
+
+## BUGS
+
+Lots of them. This product is still under heavy development.
+
+Bug reports are welcome at [https://github.com/dallaylaen/potracheno/issues/new]
+(https://github.com/dallaylaen/potracheno/issues/new).
+
+Contributions are welcome at [https://github.com/dallaylaen/potracheno]
+(https://github.com/dallaylaen/potracheno).
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2016 [Konstantin S. Uvarin](https://github.com/dallaylae).
+
+UI redesign (c) 2016 by [Pavel Kuptsov](https://github.com/poizon).
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of either: the GNU General Public License as published
+by the Free Software Foundation; or the Artistic License.
+
+See [http://dev.perl.org/licenses/](http://dev.perl.org/licenses/)
+for more information.
+ 
+
