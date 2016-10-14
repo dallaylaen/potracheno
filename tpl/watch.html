@@ -5,8 +5,8 @@
     <div>
     [% INCLUDE between explain="Date range" name="created" width=10 %]
     [% INCLUDE select name="limit" selected=form.raw
-    pairs=[[10,"10 per page"], [20, "20 per page"], [50, "50 per page"]]
-    noopt="All results" %]
+    pairs=[[10,"10 per page"], [20, "20 per page"], [50, "50 per page"],
+    [ 0, "All results" ]] %]
     <input type="submit" name="start_report" value="View activity">
     </div>
 [% IF stat %]

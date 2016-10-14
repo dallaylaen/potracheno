@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0710;
+our $VERSION = 0.0711;
 
 use URI::Escape;
 use Data::Dumper;
@@ -343,7 +343,11 @@ MVC::Neaf->route( report => sub {
 
     $form->data->{status_not} = !!$form->data->{status_not};
 
-    $form->data->{limit} ||= 0;
+    # TODO Use form->defaults when they appear
+    if (!defined $form->data->{limit}) {
+        $form->data->{limit} = 20;
+        $form->raw->{limit} = 20;
+    };
     $form->data->{start} ||= 0;
     if (delete $form->data->{next}) {
         $form->data->{start}+=$form->data->{limit};
@@ -411,10 +415,14 @@ MVC::Neaf->route( watch => sub {
 
     my $form = $req->form( $val_watch );
 
-    warn Dumper($req->dump);
+    warn Dumper($form);
 
     # TODO pagination copy-paste from report
-    $form->data->{limit} ||= 0;
+    # TODO Use form->defaults when they appear
+    if (!defined $form->data->{limit}) {
+        $form->data->{limit} = 20;
+        $form->raw->{limit} = 20;
+    };
     $form->data->{start} ||= 0;
     if (delete $form->data->{next}) {
         $form->data->{start}+=$form->data->{limit};
