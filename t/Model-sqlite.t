@@ -101,13 +101,13 @@ foreach my $extra( qw(created activity_id) ) {
 } @$comments;
 is_deeply( $comments, [
     { user_id => 1, note => undef, user_name => "Foo", issue_id => 1,
-         seconds => 1, solve_time_s => undef },
+         seconds => 1, fix_estimate => undef },
     { user_id => 2, note => undef, user_name => "Bar", issue_id => 1,
-         seconds => 2, solve_time_s => undef },
+         seconds => 2, fix_estimate => undef },
     { user_id => 3, note => "comment", user_name => "Commenter", issue_id => 1,
-         seconds => undef, solve_time_s => undef },
+         seconds => undef, fix_estimate => undef },
     { user_id => 4, note => "solution", user_name => "Solver", issue_id => 1,
-         seconds => undef, solve_time_s => 60*60 },
+         seconds => undef, fix_estimate => 60*60 },
 ], "Comments as expected" );
 
 $art->{summary} .= "[solved]";

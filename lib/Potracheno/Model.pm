@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0717;
+our $VERSION = 0.0718;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -291,7 +291,7 @@ my $sql_time_sel = "SELECT
     t.user_id AS user_id,
     u.name AS user_name,
     t.seconds AS seconds,
-    t.fix_estimate AS solve_time_s,
+    t.fix_estimate AS fix_estimate,
     t.note AS note,
     t.created AS created
 FROM activity t JOIN user u USING(user_id)
@@ -565,14 +565,14 @@ sub report_order_options {
         last_modified  => "Modification date",
         time_spent_s   => "Time spent",
         participants   => "Number of backers",
-        estimate       => "Solution estimate",
+        fix_estimate   => "Solution estimate",
     );
 };
 
-my @bound_aggregate = qw(last_modified created participants time_spent_s estimate activity_count);
+my @bound_aggregate = qw(last_modified created participants time_spent_s fix_estimate activity_count);
 my @bound_issue    = qw(created);
 my @bound_activity = qw(created);
-my @report_options_time = qw(time_spent_s estimate);
+my @report_options_time = qw(time_spent_s fix_estimate);
 my @report_options_date = qw(i_created a_created);
 
 my $sql_rep = <<'SQL';
@@ -589,7 +589,7 @@ SELECT
     COUNT(distinct a.user_id) AS participants,
     COUNT(a.activity_id)      AS activity_count,
     COUNT(s.activity_id)      AS has_solution,
-    MIN(s.fix_estimate)       AS estimate
+    MIN(s.fix_estimate)       AS fix_estimate
 FROM issue i
     JOIN user u ON i.user_id = u.user_id
     LEFT JOIN activity a USING( issue_id )
@@ -650,7 +650,7 @@ sub report {
     # AGGREGATE OPTIONS
     if (defined $opt{has_solution}) {
         if ($opt{has_solution} > 1) {
-            push @having, "estimate * ? < time_spent_s";
+            push @having, "fix_estimate * ? < time_spent_s";
             push @param, $opt{pi_factor} || 4*atan2 1,1;
         } else {
             push @having, $opt{has_solution}
@@ -766,7 +766,7 @@ my $sql_watch = <<"SQL";
         a.user_id       AS user_id,
         u.name          AS user_name,
         a.seconds       AS seconds,
-        a.fix_estimate  AS solve_time_s,
+        a.fix_estimate  AS fix_estimate,
         a.note          AS note,
         a.created       AS created
     FROM watch w

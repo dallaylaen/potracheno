@@ -25,8 +25,8 @@
     [% END %]
     by <a href="/user/[% item.user_id %]">[% item.user_name | html %]</a>
     on [% item.created | date %]
-    [% IF item.solve_time_s %]
-    <span class="solution">Proposed fix in [% item.solve_time_s | time %]</span>
+    [% IF item.fix_estimate %]
+    <span class="solution">Proposed fix in [% item.fix_estimate | time %]</span>
     [% END %]
   </div>
 
@@ -50,7 +50,7 @@
     [% IF item.time_spent_s %]<b class="status">[% item.time_spent_s | time %]</b> spent.[% END %]
     [% IF item.status %]<span class="status">[% item.status | html %]</span>[% END %]
     [% IF item.has_solution %]
-    <span class="solution">[% item.estimate | time %] to fix</span>
+    <span class="solution">[% item.fix_estimate | time %] to fix</span>
     [% END %]
     </div>
   </div>
