@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0715;
+our $VERSION = 0.0716;
 
 use URI::Escape;
 use Data::Dumper;
@@ -40,7 +40,7 @@ MVC::Neaf->load_view( TT => TT =>
     FILTERS => {
         int     => sub { return int $_[0] },
         time    => sub { return $model->time2human($_[0]) },
-        render  => sub { return $model->render_text($_[0]) },
+        render  => sub { warn "undef render" unless defined $_[0]; return $model->render_text($_[0]) },
         date    => \&DATE,
     },
 )->render({ -template => \"\n\ntest\n\n" });
@@ -340,8 +340,8 @@ my $val_report = MVC::Neaf::X::Form->new({
     status_not   => '.+',
     ready        => '.+',
     pi_factor    => '\d+\.?\d*',
-    min_time_spent_s => '.+',
-    max_time_spent_s => '.+',
+    min_time_spent => '.+',
+    max_time_spent => '.+',
     min_fix_estimate => '.+',
     max_fix_estimate => '.+',
     # pagination

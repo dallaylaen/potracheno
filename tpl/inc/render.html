@@ -46,8 +46,8 @@
     <div>
     Posted
     on [% item.created | date -%]
-    [%- IF item.author_id %] by <a href="/user/[% item.author_id %]">[% item.author_name | html %]</a>[% END %].
-    [% IF item.time_spent_s %]<b class="status">[% item.time_spent_s | time %]</b> spent.[% END %]
+    [%- IF item.author_name %] by <a href="/user/[% item.author_id %]">[% item.author_name | html %]</a>[% END %].
+    [% IF item.time_spent %]<b class="status">[% item.time_spent | time %]</b> spent.[% END %]
     [% IF item.status %]<span class="status">[% item.status | html %]</span>[% END %]
     [% IF item.has_solution %]
     <span class="solution">[% item.fix_estimate | time %] to fix</span>

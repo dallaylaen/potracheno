@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0718;
+our $VERSION = 0.0719;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -563,16 +563,16 @@ sub report_order_options {
         created        => "Creation date",
         status_id      => "Status",
         last_modified  => "Modification date",
-        time_spent_s   => "Time spent",
+        time_spent   => "Time spent",
         participants   => "Number of backers",
         fix_estimate   => "Solution estimate",
     );
 };
 
-my @bound_aggregate = qw(last_modified created participants time_spent_s fix_estimate activity_count);
+my @bound_aggregate = qw(last_modified created participants time_spent fix_estimate activity_count);
 my @bound_issue    = qw(created);
 my @bound_activity = qw(created);
-my @report_options_time = qw(time_spent_s fix_estimate);
+my @report_options_time = qw(time_spent fix_estimate);
 my @report_options_date = qw(i_created a_created);
 
 my $sql_rep = <<'SQL';
@@ -585,7 +585,7 @@ SELECT
     i.created                 AS created,
     i.status_id               AS status_id,
     MAX(a.created)            AS last_modified,
-    SUM(a.seconds)            AS time_spent_s,
+    SUM(a.seconds)            AS time_spent,
     COUNT(distinct a.user_id) AS participants,
     COUNT(a.activity_id)      AS activity_count,
     COUNT(s.activity_id)      AS has_solution,
@@ -650,7 +650,7 @@ sub report {
     # AGGREGATE OPTIONS
     if (defined $opt{has_solution}) {
         if ($opt{has_solution} > 1) {
-            push @having, "fix_estimate * ? < time_spent_s";
+            push @having, "fix_estimate * ? < time_spent";
             push @param, $opt{pi_factor} || 4*atan2 1,1;
         } else {
             push @having, $opt{has_solution}
