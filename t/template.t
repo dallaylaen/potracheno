@@ -39,6 +39,7 @@ sub tpl_ok {
             int    => sub { 1 },
             time   => sub { '1h' },
             render => sub { 'text' },
+            date   => sub { '1970-01-01' },
         },
     );
     my $output;

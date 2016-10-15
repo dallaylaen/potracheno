@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0715;
+our $VERSION = 0.0716;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -794,6 +794,9 @@ sub watch_activity {
     if ($opt{max_created}) {
         push @where, "a.created <= ?";
         push @param, $self->date2time( $opt{max_created} );
+    };
+    if (!$opt{all}) {
+        push @where, "note IS NOT NULL";
     };
 
     my $sql = sprintf( $sql_watch, (join ' AND ', @where) );

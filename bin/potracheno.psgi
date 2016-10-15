@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0712;
+our $VERSION = 0.0713;
 
 use URI::Escape;
 use Data::Dumper;
@@ -37,13 +37,14 @@ MVC::Neaf->load_view( TT => TT =>
     POST_PROCESS => "inc/foot.html",
     EVAL_PERL => 1,
     FILTERS => {
-        int  =>    sub { return int $_[0] },
-        time =>    sub { return $model->time2human($_[0]) },
-        render =>  sub { return $model->render_text($_[0]) },
+        int     => sub { return int $_[0] },
+        time    => sub { return $model->time2human($_[0]) },
+        render  => sub { return $model->render_text($_[0]) },
+        date    => \&DATE,
     },
 )->render({ -template => \"\n\ntest\n\n" });
 
-MVC::Neaf->set_default( DATE => \&DATE, version => "$VERSION/".Potracheno::Model->VERSION );
+MVC::Neaf->set_default( version => "$VERSION/".Potracheno::Model->VERSION );
 
 MVC::Neaf->set_session_handler( engine => $model, view_as => 'session' );
 
