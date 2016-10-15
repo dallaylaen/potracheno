@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0716;
+our $VERSION = 0.0717;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -209,7 +209,6 @@ sub get_issue {
     return unless $data;
 
     $data->{seconds_spent} = $self->get_time( issue_id => $opt{id} );
-    $data->{time_spent}    = $self->time2human( $data->{seconds_spent} );
     $data->{status}        = $self->{status}{ $data->{status_id} };
 
     return $data;
@@ -324,8 +323,6 @@ sub get_comments {
 
     my @ret;
     while (my $data = $sth->fetchrow_hashref) {
-        $data->{time} = $self->time2human($data->{seconds});
-        $data->{solve_time} = $self->time2human($data->{solve_time_s});
         $data->{note} = $self->render_text( $data->{note} )
             if $opt{render};
         push @ret, $data;
@@ -706,7 +703,6 @@ sub report {
 
     my @report;
     while (my $row = $sth->fetchrow_hashref) {
-        $row->{time_spent} = $self->time2human( $row->{time_spent_s} );
         $row->{status} = $self->get_status( $row->{status_id} );
         push @report, $row;
     };

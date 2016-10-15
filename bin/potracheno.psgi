@@ -2,12 +2,13 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0713;
+our $VERSION = 0.0714;
 
 use URI::Escape;
 use Data::Dumper;
 use POSIX qw(strftime);
 use Digest::MD5 qw(md5_base64);
+use Encode;
 
 use File::Basename qw(dirname);
 use lib dirname(__FILE__)."/../lib", dirname(__FILE__)."/../local/lib";
@@ -174,9 +175,10 @@ MVC::Neaf->route( post => sub {
 
     $form->data->{sign} ||= '';
 
+    # TODO form->hmac( "salt" )
     my $sign = $form->is_valid
-        ? md5_base64( join "\n\n", $user->{user_id}, $form->data->{summary}
-            , $form->data->{body} )
+        ? md5_base64( encode_utf8( join "\n\n", $user->{user_id}, $form->data->{summary}
+            , $form->data->{body} ) )
         : '';
 
     if ($sign ne $form->data->{sign} || !$form->data->{create}) {

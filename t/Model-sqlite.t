@@ -71,7 +71,7 @@ my $art = $model->get_issue( id => $id );
 is ($art->{author}, "Foo", "Author as expected");
 is ($art->{body}, "explanation", "Round-trip - body");
 is ($art->{summary}, "summary", "Round-trip - summary");
-is ($art->{time_spent}, 0, "0 time spent");
+is ($art->{seconds_spent}, 0, "0 time spent");
 is ($art->{status}, "Open", "Default = open");
 
 note explain $art;
@@ -86,7 +86,7 @@ $model->log_activity( issue_id => $art->{issue_id}, user_id => 3 );
 $model->log_activity( issue_id => $art->{issue_id}, user_id => 4, note => "solution", solve_time => "1h" );
 
 $art = $model->get_issue( id => $id );
-is ($art->{time_spent}, "3s", "3 time spent");
+is ($art->{seconds_spent}, "3", "3 time spent");
 
 my $comments = $model->get_comments;
 
@@ -101,13 +101,13 @@ foreach my $extra( qw(created activity_id) ) {
 } @$comments;
 is_deeply( $comments, [
     { user_id => 1, note => undef, user_name => "Foo", issue_id => 1,
-         seconds => 1, time => "1s", solve_time => 0, solve_time_s => undef },
+         seconds => 1, solve_time_s => undef },
     { user_id => 2, note => undef, user_name => "Bar", issue_id => 1,
-         seconds => 2, time => "2s", solve_time => 0, solve_time_s => undef },
+         seconds => 2, solve_time_s => undef },
     { user_id => 3, note => "comment", user_name => "Commenter", issue_id => 1,
-         seconds => undef, time => "0", solve_time => 0, solve_time_s => undef },
+         seconds => undef, solve_time_s => undef },
     { user_id => 4, note => "solution", user_name => "Solver", issue_id => 1,
-         seconds => undef, time => "0", solve_time => "1h", solve_time_s => 60*60 },
+         seconds => undef, solve_time_s => 60*60 },
 ], "Comments as expected" );
 
 $art->{summary} .= "[solved]";
