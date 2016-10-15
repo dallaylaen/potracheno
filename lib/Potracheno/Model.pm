@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0719;
+our $VERSION = 0.0720;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -809,11 +809,10 @@ sub _run_report {
             $sql .= " ORDER BY $opt->{order_by} "
                  .  ($opt->{order_dir} ? "DESC" : "ASC");
         };
-    };
-
-    if ($opt->{limit}) {
-        $sql .= " LIMIT ?,?";
-        push @$param, $opt->{start} || 0, $opt->{limit};
+        if ($opt->{limit}) {
+            $sql .= " LIMIT ?,?";
+            push @$param, $opt->{start} || 0, $opt->{limit};
+        };
     };
 
     my $caller = [ caller(0) ]->[3];

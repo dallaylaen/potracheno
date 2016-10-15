@@ -4,7 +4,7 @@
 <form method="GET">
     <div>
     [% INCLUDE between explain="Date range" name="created" width=10 %]
-    [% INCLUDE select name="all" pairs=[[0, "comments only"], [1, "comments+time"]] %]
+    [% INCLUDE select name="all" pairs=[[0, "comments only"], [1, "comments+time"]] selected=form.raw %]
     [% INCLUDE select name="limit" selected=form.raw
     pairs=[[10,"10 per page"], [20, "20 per page"], [50, "50 per page"],
     [ 0, "All results" ]] %]

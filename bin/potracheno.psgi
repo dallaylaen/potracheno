@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0717;
+our $VERSION = 0.0718;
 
 use URI::Escape;
 use Data::Dumper;
@@ -379,8 +379,7 @@ MVC::Neaf->route( report => sub {
     my $stat;
     if ($form->is_valid) {
         $data = $model->report( %{ $form->data } );
-        $stat = $model->report( %{ $form->data }, count_only => 1,
-            limit => undef );
+        $stat = $model->report( %{ $form->data }, count_only => 1 );
     };
 
     return {
@@ -455,9 +454,13 @@ MVC::Neaf->route( watch => sub {
         $result = $model->watch_activity(
             order_by => "created", order_dir => 1,
             %{ $form->data },
-            user_id => $req->session->{user_id}
+            user_id => $req->session->{user_id},
         );
-        $stat   = $model->watch_activity( %{ $form->data }, user_id => $req->session->{user_id}, count_only => 1 );
+        $stat   = $model->watch_activity(
+            %{ $form->data },
+            user_id => $req->session->{user_id},
+            count_only => 1,
+        );
     };
 
     return {
