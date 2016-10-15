@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0716;
+our $VERSION = 0.0717;
 
 use URI::Escape;
 use Data::Dumper;
@@ -414,11 +414,12 @@ MVC::Neaf->route( add_watch => sub {
 }); # TODO method => 'POST'
 
 my $val_watch = MVC::Neaf::X::Form->new({
-    min_created => '\d\d\d\d-\d\d-\d\d',
-    max_created => '\d\d\d\d-\d\d-\d\d',
+    min_created  => '\d\d\d\d-\d\d-\d\d',
+    max_created  => '\d\d\d\d-\d\d-\d\d',
+    all          => '.+',
     # pagination
-    limit       => '\d+',
-    start       => '\d+',
+    limit        => '\d+',
+    start        => '\d+',
     next         => '.+',
     prev         => '.+',
     start_report => '.+',
@@ -429,8 +430,6 @@ MVC::Neaf->route( watch => sub {
     die 403 if (!$req->session->{user_id});
 
     my $form = $req->form( $val_watch );
-
-    warn Dumper($form);
 
     # TODO pagination copy-paste from report
     # TODO Use form->defaults when they appear

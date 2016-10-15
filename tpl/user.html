@@ -1,4 +1,4 @@
 [% PROCESS inc/render.html %]
 [% FOREACH item IN comments %]
-    [% INCLUDE render_comment %]
+    [% INCLUDE render_comment show_issue=1 %]
 [% END %]
