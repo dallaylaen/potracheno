@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0719;
+our $VERSION = 0.0720;
 
 use URI::Escape;
 use Data::Dumper;
@@ -346,8 +346,8 @@ my $val_report = MVC::Neaf::X::Form->new({
     pi_factor    => '\d+\.?\d*',
     min_time_spent => '.+',
     max_time_spent => '.+',
-    min_fix_estimate => '.+',
-    max_fix_estimate => '.+',
+    min_best_estimate => '.+',
+    max_best_estimate => '.+',
     # pagination
     limit        => '\d+',
     start        => '\d+',

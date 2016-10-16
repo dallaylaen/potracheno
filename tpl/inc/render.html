@@ -57,7 +57,7 @@
     [% IF item.time_spent %]<b class="status">[% item.time_spent | time %]</b> spent.[% END %]
     [% IF item.status %]<span class="status">[% item.status | html %]</span>[% END %]
     [% IF item.has_solution %]
-    <span class="solution">[% item.fix_estimate | time %] to fix</span>
+    <span class="solution">[% item.best_estimate | time %] to fix</span>
     [% END %]
     </div>
   </div>
