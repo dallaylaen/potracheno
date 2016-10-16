@@ -7,16 +7,15 @@ issue tracking system ([ITS](https://en.wikipedia.org/wiki/Issue_tracking_system
 
 ##Naming
 
-*Potracheno* ("потрачено") is a Russian adjective with a meaning 
-close to *wasted* or *spent*. 
+*Potracheno* ("потрачено") is a Russian adjective with a meaning
+close to *wasted* or *spent*.
 It became a local meme after being incorrectly used
 in *Grand Theft Auto* death scene localization.
 
 ## Description
 
 Just like a normal ITS, *Potracheno* has tickets, which in turn have
-comments, statuses, and a time tracking facility. [Markdown](/help/markdown)
-is supported for both tickets and comments.
+comments, statuses, and a time tracking facility.
 
 However, instead of tracking time spent *fixing* an issue, it rather
 tracks time wasted *dealing with it*, aka
@@ -25,27 +24,63 @@ tracks time wasted *dealing with it*, aka
 Also unlike a normal ITS it has *solution proposals* which can be posted
 for any issue. Those are just special comments with a time estimate.
 
-## Usage scenario
+## Usage
 
-The intended usage is as follows.
-All the inconveniences of the project should be
-[posted here](/post), like:
+Whenever you *feel* that an issue with the product under development is slowing
+you down, post it here and log time spent because of it. Try and *measure*
+the real impact, and let solution estimates accumulate.
 
-* Poorly written code (each case separately);
-* Hard to use APIs;
-* Outdated libraries;
-* Sloppy or missing internal tools;
-* Slow or broken development/testing environment;
-* Missing or broken tests;
-* etc, etc, etc.
+### Posting an issue
 
-Then, as any developer encounters some of those beasts, he or she should
-log the time wasted instead of doing actual work.
+Use [Add issue](/post) link to post new issues.
 
-As statistics [accumulate](/report/http://localhost:5000/report?status_not=on&status=0&order_by=time_spent_s&order_dir=DESC),
-it may become clear which parts of the system should be
-rewritten, refactored, or otherwise improved on in the first place,
-and how much time is affordable to spend on that.
+Both summary and description are required. [Markdown](/help/markdown)
+is used for description.
+
+The button "save" will appear on preview page, however, it would generate
+a *new* preview instead of saving if any data in the form was changed.
+Same goes for editing an issue.
+
+### Logging time
+
+Post time as 1w 2d 3h 4m 5s. "I wasted 10 minutes on this" will also work.
+
+Post comments in markdown (no preview or edit, so be careful).
+Optionally you can change status of the issue.
+
+If neither time nor comment are filled and the status wasn't changed,
+nothing will happen.
+
+### Proposing solution
+
+Select "Fix estimate" instead of "time spent" and post a comment.
+Time (in the same format) is **required** this time.
+
+### Watching issues
+
+The "watch/unwatch" button adds issue to your favourites.
+
+Go to [My stream](/watch) to see ALL comments and solutions (but not time
+entries) on the issues you watch.
+
+No e-mail integration currently exists, so this is the only way for get feedback for now.
+
+### Generating report
+
+Go to [Browse](/report) to get report on recent issues.
+
+In "solution ready to go" mode (see --select solution-- dropdown),
+only issues having wasted time count exceeding minimal fix estimate
+by a factor of Pi are shown.
+Pi value can be adjusted if needed. Default is of course equal to 3.1415....
+
+### Issue search
+
+Although search string is present at the top, it barely works.
+Please wait for Sphinx support to be added, or
+[send patches](https://github.com/dallaylaen/potracheno).
+
+Search is known to break unicode under MySQL. No fix exists yet.
 
 ## BUGS
 
@@ -59,7 +94,7 @@ Contributions are welcome at [https://github.com/dallaylaen/potracheno]
 
 ## COPYRIGHT AND LICENSE
 
-Copyright 2016 [Konstantin S. Uvarin](https://github.com/dallaylae).
+Copyright (c) 2016 [Konstantin S. Uvarin](https://github.com/dallaylaen).
 
 UI redesign (c) 2016 by [Pavel Kuptsov](https://github.com/poizon).
 
@@ -69,5 +104,5 @@ by the Free Software Foundation; or the Artistic License.
 
 See [http://dev.perl.org/licenses/](http://dev.perl.org/licenses/)
 for more information.
- 
+
 
