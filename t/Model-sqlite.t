@@ -146,4 +146,18 @@ is ($rep->{n}, 1, "1 item in count");
 
 note explain $rep;
 
+note "SMOKE TESTING WATCH";
+
+$model->add_watch( user_id => 1, issue_id => 1);
+$model->add_watch( user_id => 2, issue_id => 1);
+
+is_deeply( $model->get_watch( user_id => 1, issue_id => 1 ), [1,2], "Get watch");
+
+my $feed = $model->watch_activity( user_id => 1 );
+
+is (ref $feed, 'ARRAY', 'Array returned');
+is (scalar (grep { ref $_ ne 'HASH' } @$feed)
+    , 0, "All results in array are hashes");
+is (scalar @$feed, 3, "3 comments in feed");
+
 done_testing;
