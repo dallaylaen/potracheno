@@ -7,6 +7,7 @@ VERSION ADDED | VERSION TBD | TITLE
 0.07    0.10    REF rename urls (watch => follow/feed, report => browse ...)
 0.07    0.10    APP autowatch posted or commented issues
 0.04    0.10    AUX daemonize, pidfile, healthcheck
+0.07    0.10    REF Rename closed status to a true value
 0.05    0.20    APP Admin interface
 0.07    0.20    BUG Search breaks UTF8 under mysql
 0.07    0.20    AUX Run on windows

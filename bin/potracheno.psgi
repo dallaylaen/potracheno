@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0718;
+our $VERSION = 0.0719;
 
 use URI::Escape;
 use Data::Dumper;
@@ -188,6 +188,7 @@ MVC::Neaf->route( post => sub {
 
     if ( $req->method eq 'POST' and $form->is_valid ) {
         my $id = $model->save_issue( user => $user, issue => $form->data);
+        $model->add_watch(user_id => $user->{user_id}, issue_id => $id);
         $req->redirect( "/issue/$id" );
     };
 
@@ -308,6 +309,9 @@ MVC::Neaf->route( addtime => sub {
         $model->log_activity( issue_id => $issue_id, user_id => $user->{user_id}
             , ($type eq 'fix' ? 'solve_time' : 'time') => $seconds
             , note => $note, status_id => $status_id);
+        if ( $note or defined $status_id) {
+            $model->add_watch(user_id => $user->{user_id}, issue_id => $issue_id);
+        };
     };
 
     $req->redirect( "/issue/$issue_id" );
