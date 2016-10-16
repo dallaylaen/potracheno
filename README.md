@@ -19,27 +19,29 @@ that slow down and demotivate the team.
 
 Features:
 
-* users, issues, comments, and time tracking
+* users, issues, comments, and time tracking (like in a normal ITS);
 
-* solution proposals with time estimate
+* markdown support (with *<*code*>*...*<*/code*>*)
+for issues & comments, editing issues;
 
-* report showing issues with various properties
+* solution proposals with time estimate;
 
-* issue & comment search (SLQ-based, search engine planned)
+* report showing issues with various properties;
 
-* markdown support for issues & comments, editing issues
+* report showing solutions that take less time then
+wasted on corresponding issues;
 
-* DB migration script; MySQL, sqlite support
+* watching issues & in-app activity stream;
+
+* issue & comment search (SLQ-based, search engine planned);
+
+* DB migration script; MySQL, sqlite support.
 
 Planned:
 
-* Versioned editing of comments & issues
+* versioned editing of comments & issues;
 
-* Ready to go solution report
-
-* Watching & notifications
-
-* Comment replies
+* comment replies.
 
 # INSTALLATION
 

@@ -1,5 +1,13 @@
 Revision history for the POotracheno time tracker project.
 
+0.08    Mon Oct 17 2016
+        APP Add watched issues + in-app activity stream
+        APP Add report showing ready to go solutions
+        APP Add report & search pagination
+        UI  Add <code> blocks to markdown
+        DOC Make help actually describe UI and what to expect from it
+        BUG A lot of bug fixes.
+
 0.07    Tue Oct 11 2016
         APP Add markdown, preview, and edit to issues
         APP Add markdown to comments
@@ -41,5 +49,5 @@ Revision history for the POotracheno time tracker project.
         APP Add local sqlite, add time_spent
         MOD sqlite-based model with tests
 
-0.01    Sep Smth 2016
+0.01    Mon Sep 19 2016
         Crude in-memory version started out
