@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.08;
+our $VERSION = 0.0801;
 
 use URI::Escape;
 use Data::Dumper;
@@ -16,6 +16,10 @@ use MVC::Neaf 0.09;
 use MVC::Neaf qw(neaf_err);
 use MVC::Neaf::X::Form;
 use Potracheno::Model;
+
+$SIG{__WARN__} = sub {
+    print STDERR join " ", DATE(time), "[$$]", $_[0];
+};
 
 my $Bin = dirname(__FILE__); # FindBin doesn't seem to work well under plackup
 
