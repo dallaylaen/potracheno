@@ -41,8 +41,11 @@ body {
 
 textarea {
     height: 8em;
-    width: 80%;
+}
+
+.wide {
     display: block;
+    width: 80%;
 }
 
 .status {
