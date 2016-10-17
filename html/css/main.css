@@ -70,3 +70,8 @@ textarea {
     border: solid red 1px;
     color: red;
 }
+
+.quote {
+    border-left: solid 0.5em #6688aa;
+}
+

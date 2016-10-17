@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.08;
+our $VERSION = 0.0801;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -475,23 +475,45 @@ sub filter_text {
     return $text;
 };
 
+=head2 render_text
+
+Apply safety procedures as well as markdown rendering.
+
+=cut
+
+my $render_tags = qr(code|quote|plain);
+
 sub render_text {
     my ($self, $text) = @_;
 
     # cut text code blocks & markdown blocks
     # process them separately
     my @slice;
-    while ($text =~ s#^(.*?)<code>(.*?)</code>##gis) {
-        warn "FOUND CODE";
-        my ($md, $pre) = ($1, $2);
-        push @slice, markdown($self->filter_text($md));
-        push @slice, '<pre class="code">'.$self->filter_text($pre).'</pre>';
+    while ($text =~ s#^(.*?)<($render_tags)>(.*?)</\2>##gis) {
+        my ($md, $tag, $special) = ($1, $2, $3);
+        push @slice, $self->_md( $md );
+
+        if (lc $tag eq 'code') {
+            push @slice, '<pre class="code">'.$self->filter_text($special).'</pre>';
+        } elsif (lc $tag eq 'quote') {
+            push @slice, '<div class="quote">'.$self->_md( $special ).'</div>';
+        } elsif (lc $tag eq 'plain') {
+            push @slice, '<span class="plain">'.$self->filter_text( $special ).'</span>';
+        };
     };
-    push @slice, markdown( $self->filter_text($text) );
+    push @slice, $self->_md( $text );
 
     # finally, combine all together
     return join "\n", @slice;
 };
+
+sub _md {
+    my ($self, $text) = @_;
+
+    $text =~ s/#(\d+)/[#$1](\/issue\/$1)/g;
+    $text = $self->filter_text($text);
+    return markdown( $text );
+}
 
 my %time_unit = (
     s => 1,
