@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0803;
+our $VERSION = 0.0804;
 
 use URI::Escape;
 use Data::Dumper;
@@ -391,7 +391,7 @@ MVC::Neaf->route( browse => sub {
     };
 
     return {
-        -template     => 'report.html',
+        -template     => 'browse.html',
         title         => "Browse issues",
         table_data    => $data,
         stat          => $stat,
@@ -420,7 +420,7 @@ MVC::Neaf->route( add_watch => sub {
     $req->redirect( "/issue/$issue" );
 }); # TODO method => 'POST'
 
-my $val_watch = MVC::Neaf::X::Form->new({
+my $val_feed = MVC::Neaf::X::Form->new({
     min_created  => '\d\d\d\d-\d\d-\d\d',
     max_created  => '\d\d\d\d-\d\d-\d\d',
     all          => '.+',
@@ -431,12 +431,12 @@ my $val_watch = MVC::Neaf::X::Form->new({
     prev         => '.+',
     start_scratch => '.+',
 });
-MVC::Neaf->route( watch => sub {
+MVC::Neaf->route( feed => sub {
     my $req = shift;
 
     die 403 if (!$req->session->{user_id});
 
-    my $form = $req->form( $val_watch );
+    my $form = $req->form( $val_feed );
 
     # TODO pagination copy-paste from report
     # TODO Use form->defaults when they appear
@@ -459,12 +459,12 @@ MVC::Neaf->route( watch => sub {
     my $result = [];
     my $stat;
     if ($form->is_valid) {
-        $result = $model->watch_activity(
+        $result = $model->watch_feed(
             order_by => "created", order_dir => 1,
             %{ $form->data },
             user_id => $req->session->{user_id},
         );
-        $stat   = $model->watch_activity(
+        $stat   = $model->watch_feed(
             %{ $form->data },
             user_id => $req->session->{user_id},
             count_only => 1,
@@ -472,7 +472,7 @@ MVC::Neaf->route( watch => sub {
     };
 
     return {
-        -template => 'watch.html',
+        -template => 'feed.html',
         title => 'Activity stream',
         form => $form,
         table_data => $result,

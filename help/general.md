@@ -60,16 +60,17 @@ Time (in the same format) is **required** this time.
 
 The "watch/unwatch" button adds issue to your favourites.
 
-Go to [My stream](/watch) to see ALL comments and solutions (but not time
+Go to [My feed](/feed) to see ALL comments and solutions (but not time
 entries) on the issues you watch.
 
-No e-mail integration currently exists, so this is the only way for get feedback for now.
+No e-mail integration currently exists, so this is the only way
+to get feedback for now.
 
 ### Browsing issues
 
 Go to [Browse](/browse) to get report on recent issues.
 
-A form with a lot of criteria allows to select various issue groups.
+A form with a lot of criteria allows to select issue type you want.
 
 In **solution ready to go** mode (see *--select solution--* dropdown),
 only issues having wasted time count exceeding minimal fix estimate

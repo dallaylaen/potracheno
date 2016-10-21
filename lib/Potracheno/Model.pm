@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0802;
+our $VERSION = 0.0803;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -413,7 +413,7 @@ sub search {
         $count-- or return 0 if defined $count;
         return 1;
     };
-    my $res = $self->_run_report($sql, [], \%opt);
+    my $res = $self->_run_query($sql, [], \%opt);
 
     return wantarray ? ($res, $start_next) : $res;
 };
@@ -711,7 +711,7 @@ sub browse {
         $sql = "SELECT count(*) AS n FROM ( $sql ) AS temp";
     };
     warn "DEBUG browse: sql = $sql; params=[@param]";
-    # TODO use _run_report!!!!
+    # TODO use _run_query!!!!
 
     # EXECUTE AND RETURN
     my $sth = $self->dbh->prepare( $sql );
@@ -782,7 +782,7 @@ sub get_watch {
     return $sth->fetchrow_arrayref;
 };
 
-my $sql_watch = <<"SQL";
+my $sql_watch_feed = <<"SQL";
     SELECT
         a.activity_id   AS activity_id,
         a.issue_id      AS issue_id,
@@ -798,7 +798,7 @@ my $sql_watch = <<"SQL";
     WHERE %s
 SQL
 
-sub watch_activity {
+sub watch_feed {
     my ($self, %opt) = @_;
 
     $opt{user_id} or $self->my_croak("user_id missing");
@@ -818,11 +818,11 @@ sub watch_activity {
         push @where, "note IS NOT NULL";
     };
 
-    my $sql = sprintf( $sql_watch, (join ' AND ', @where) );
-    return $self->_run_report( $sql, \@param, \%opt );
+    my $sql = sprintf( $sql_watch_feed, (join ' AND ', @where) );
+    return $self->_run_query( $sql, \@param, \%opt );
 };
 
-sub _run_report {
+sub _run_query {
     my ($self, $sql, $param, $opt) = @_;
 
     if ($opt->{count_only}) {

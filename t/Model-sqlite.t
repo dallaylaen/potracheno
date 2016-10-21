@@ -153,7 +153,7 @@ $model->add_watch( user_id => 2, issue_id => 1);
 
 is_deeply( $model->get_watch( user_id => 1, issue_id => 1 ), [1,2], "Get watch");
 
-my $feed = $model->watch_activity( user_id => 1 );
+my $feed = $model->watch_feed( user_id => 1 );
 
 is (ref $feed, 'ARRAY', 'Array returned');
 is (scalar (grep { ref $_ ne 'HASH' } @$feed)
