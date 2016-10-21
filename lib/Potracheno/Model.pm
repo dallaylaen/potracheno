@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0801;
+our $VERSION = 0.0802;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -577,7 +577,7 @@ sub date2time {
 
 # REPORT
 
-sub report_order_options {
+sub browse_order_options {
     return _pairs(
         issue_id       => "id",
         summary        => "Summary",
@@ -622,7 +622,7 @@ HAVING %s
 ORDER BY %s
 SQL
 
-sub report {
+sub browse {
     my ($self, %opt) = @_;
 
     my @where;
@@ -710,7 +710,8 @@ sub report {
     if ($opt{count_only}) {
         $sql = "SELECT count(*) AS n FROM ( $sql ) AS temp";
     };
-    warn "DEBUG report: sql = $sql; params=[@param]";
+    warn "DEBUG browse: sql = $sql; params=[@param]";
+    # TODO use _run_report!!!!
 
     # EXECUTE AND RETURN
     my $sth = $self->dbh->prepare( $sql );
@@ -730,7 +731,7 @@ sub report {
     };
 
     return \@report;
-}; # end sub report
+}; # end sub browse
 
 # WATCHES
 

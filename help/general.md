@@ -65,11 +65,13 @@ entries) on the issues you watch.
 
 No e-mail integration currently exists, so this is the only way for get feedback for now.
 
-### Generating report
+### Browsing issues
 
-Go to [Browse](/report) to get report on recent issues.
+Go to [Browse](/browse) to get report on recent issues.
 
-In "solution ready to go" mode (see --select solution-- dropdown),
+A form with a lot of criteria allows to select various issue groups.
+
+In **solution ready to go** mode (see *--select solution--* dropdown),
 only issues having wasted time count exceeding minimal fix estimate
 by a factor of Pi are shown.
 Pi value can be adjusted if needed. Default is of course equal to 3.1415....

@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0801;
+our $VERSION = 0.0802;
 
 use URI::Escape;
 use Data::Dumper;
@@ -338,7 +338,7 @@ MVC::Neaf->route( user => sub {
     };
 });
 
-my $val_report = MVC::Neaf::X::Form->new({
+my $val_browse = MVC::Neaf::X::Form->new({
     order_by     => '\w+',
     order_dir    => 'ASC|DESC',
     min_a_created    => '\d\d\d\d-\d\d-\d\d',
@@ -359,10 +359,10 @@ my $val_report = MVC::Neaf::X::Form->new({
     prev         => '.+',
     start_report => '.+',
 });
-MVC::Neaf->route( report => sub {
+MVC::Neaf->route( browse => sub {
     my $req = shift;
 
-    my $form = $req->form( $val_report );
+    my $form = $req->form( $val_browse );
 
     $form->data->{status_not} = !!$form->data->{status_not};
 
@@ -386,16 +386,16 @@ MVC::Neaf->route( report => sub {
     my $data = [];
     my $stat;
     if ($form->is_valid) {
-        $data = $model->report( %{ $form->data } );
-        $stat = $model->report( %{ $form->data }, count_only => 1 );
+        $data = $model->browse( %{ $form->data } );
+        $stat = $model->browse( %{ $form->data }, count_only => 1 );
     };
 
     return {
         -template     => 'report.html',
-        title         => "Issue report",
+        title         => "Browse issues",
         table_data    => $data,
         stat          => $stat,
-        order_options => $model->report_order_options,
+        order_options => $model->browse_order_options,
         status_pairs  => $model->get_status_pairs,
         form          => $form,
     };
