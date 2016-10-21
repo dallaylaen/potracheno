@@ -57,9 +57,9 @@ sub start {
         setsid();
         open STDIN, "<", "/dev/null"
             or die "Failed to redirect STDIN: $!";
-        open STDOUT, ">", $conf->{error_log}
+        open STDOUT, ">>", $conf->{error_log}
             or die "Failed to redirect STDOUT: $!";
-        open STDERR, ">", $conf->{error_log}
+        open STDERR, ">>", $conf->{error_log}
             or die "Failed to redirect STDERR: $!";
 
         exec $server => '--listen' => ":$conf->{port}"
