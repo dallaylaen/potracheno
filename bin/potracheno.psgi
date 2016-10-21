@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0802;
+our $VERSION = 0.0803;
 
 use URI::Escape;
 use Data::Dumper;
@@ -357,7 +357,7 @@ my $val_browse = MVC::Neaf::X::Form->new({
     start        => '\d+',
     next         => '.+',
     prev         => '.+',
-    start_report => '.+',
+    start_scratch => '.+',
 });
 MVC::Neaf->route( browse => sub {
     my $req = shift;
@@ -381,7 +381,7 @@ MVC::Neaf->route( browse => sub {
         $form->raw->{start}-=$form->data->{limit};
     };
     $form->data->{start} = 0
-        if $form->data->{start} < 0 or delete $form->data->{start_report};
+        if $form->data->{start} < 0 or delete $form->data->{start_scratch};
 
     my $data = [];
     my $stat;
@@ -429,7 +429,7 @@ my $val_watch = MVC::Neaf::X::Form->new({
     start        => '\d+',
     next         => '.+',
     prev         => '.+',
-    start_report => '.+',
+    start_scratch => '.+',
 });
 MVC::Neaf->route( watch => sub {
     my $req = shift;
@@ -454,7 +454,7 @@ MVC::Neaf->route( watch => sub {
         $form->raw->{start}-=$form->data->{limit};
     };
     $form->data->{start} = 0
-        if $form->data->{start} < 0 or delete $form->data->{start_report};
+        if $form->data->{start} < 0 or delete $form->data->{start_scratch};
 
     my $result = [];
     my $stat;

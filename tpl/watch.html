@@ -8,7 +8,7 @@
     [% INCLUDE select name="limit" selected=form.raw
     pairs=[[10,"10 per page"], [20, "20 per page"], [50, "50 per page"],
     [ 0, "All results" ]] %]
-    <input type="submit" name="start_report" value="View activity">
+    <input type="submit" name="start_scratch" value="View activity">
     </div>
 [% IF stat %]
     <h3>Found [% stat.n %] items.</h3>
