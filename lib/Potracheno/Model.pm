@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0804;
+our $VERSION = 0.0805;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -618,10 +618,10 @@ FROM issue i
     JOIN user u ON i.user_id = u.user_id
     LEFT JOIN activity a USING( issue_id )
     LEFT JOIN activity s ON s.issue_id = i.issue_id AND s.fix_estimate > 0
+    %s
 WHERE %s
 GROUP BY i.issue_id
 HAVING %s
-ORDER BY %s
 SQL
 
 sub browse {
@@ -629,13 +629,23 @@ sub browse {
 
     my @where;
     my @having;
-    my $order  = 'created DESC';
     my @param;
+    my @extra;
 
     exists $opt{$_} and $opt{$_} = $self->human2time( $opt{$_} )
         foreach map { $_ => "min_$_" => "max_$_" } @report_options_time;
     exists $opt{$_} and $opt{$_} = $self->date2time( $opt{$_} )
         foreach map { $_ => "min_$_" => "max_$_" } @report_options_date;
+    $opt{order_by}  ||= 'created';
+    $opt{order_dir}   = 1 unless defined $opt{order_dir};
+
+    # EXTRA TABLES
+    if ($opt{tag}) {
+        my $tag = $self->fetch_tags( tags => [$opt{tag}] );
+        return [] unless keys %$tag;
+        push @extra, "JOIN issue_tag t ON i.issue_id = t.issue_id AND t.tag_id = ?";
+        push @param, [keys %$tag]->[0]; # we know there's 1 key only
+    };
 
     # ACTIVITY OPTIONS
     # must go first or else we filter out silent issues
@@ -695,44 +705,13 @@ sub browse {
         };
     };
 
-    # ORDER OPTIONS
-    if ($opt{order_by} and $opt{order_dir}) {
-        $order = "$opt{order_by} $opt{order_dir}";
-    };
-    if ($opt{limit}) {
-        $opt{start} ||= 0;
-        $order .= " LIMIT ?, ?";
-        push @param, $opt{start}, $opt{limit};
-    };
-
     # MAKE SQL
     my $sql = sprintf( $sql_rep
-        , (join ' AND ', @where)||'1=1', (join ' AND ', @having)||'1=1', $order );
+        , (join "\n", @extra)
+        , (join ' AND ', @where)||'1=1'
+        , (join ' AND ', @having)||'1=1');
 
-    if ($opt{count_only}) {
-        $sql = "SELECT count(*) AS n FROM ( $sql ) AS temp";
-    };
-    warn "DEBUG browse: sql = $sql; params=[@param]";
-    # TODO use _run_query!!!!
-
-    # EXECUTE AND RETURN
-    my $sth = $self->dbh->prepare( $sql );
-    $sth->execute(@param);
-
-    if ($opt{count_only}) {
-        # return hash with count
-        my $data = $sth->fetchrow_hashref;
-        $sth->finish;
-        return $data;
-    };
-
-    my @report;
-    while (my $row = $sth->fetchrow_hashref) {
-        $row->{status} = $self->get_status( $row->{status_id} );
-        push @report, $row;
-    };
-
-    return \@report;
+    return $self->_run_query( $sql, \@param, \%opt );
 }; # end sub browse
 
 # WATCHES
@@ -824,9 +803,12 @@ sub watch_feed {
     return $self->_run_query( $sql, \@param, \%opt );
 };
 
-sub fetch_tags {
-    my ($self, $tags) = @_;
+# TAGS
 
+sub fetch_tags {
+    my ($self, %opt) = @_;
+
+    my $tags = $opt{tags};
     return {} unless $tags and @$tags;
 
     # uniq
@@ -848,9 +830,11 @@ sub fetch_tags {
         delete $seen{$row[1]};
     };
 
-    foreach ( keys %seen ) {
-        my $id = $self->insert_any( tag => tag_id => { name => $_ } );
-        $id_tag{$id} = $_;
+    if ($opt{create}) {
+        foreach ( keys %seen ) {
+            my $id = $self->insert_any( tag => tag_id => { name => $_ } );
+            $id_tag{$id} = $_;
+        };
     };
 
     return \%id_tag;
@@ -862,7 +846,7 @@ sub tag_issue {
     my $issue = $opt{issue_id}
         or $self->my_croak("issue_id is required");
 
-    my $tags = $self->fetch_tags( $opt{tags} );
+    my $tags = $self->fetch_tags( tags => $opt{tags}, create => 1 );
 
     my $del = $self->dbh->prepare( "DELETE FROM issue_tag WHERE issue_id = ?" );
     $del->execute( $issue );
@@ -955,7 +939,8 @@ sub _run_query {
         };
     };
 
-    my $caller = [ caller(0) ]->[3];
+    my $caller = [ caller(1) ]->[3];
+    $caller    =~ s/.*:://;
     my $pkg    = ref $self || $self;
 
     warn "DEBUG $pkg->$caller: SQL = $sql; param=[@$param]";

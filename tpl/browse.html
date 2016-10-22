@@ -22,7 +22,7 @@
     <div>
     Sort by:
     [% INCLUDE select name="order_by" selected=form.raw pairs=order_options %]
-    [% INCLUDE select name="order_dir" selected=form.raw pairs=[["DESC", "down"], ["ASC", "up"]] %]
+    [% INCLUDE select name="order_dir" selected=form.raw pairs=[["1", "down"], ["0", "up"]] %]
     [% INCLUDE select name="limit" selected=form.raw
     pairs=[[10, "10 per page"], [20, "20 per page"], [50, "50 per page"], [0, "All results"]] %]
     </div>

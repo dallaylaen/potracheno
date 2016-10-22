@@ -16,7 +16,7 @@
     [% IF issue.tags_alpha.size %]
     <div class="panel-footer">
         [% FOREACH tag IN issue.tags_alpha %]
-            <span class="issue-tag">[% tag | html %]</span>
+            <span class="issue-tag"><a href="/browse/tag/[% tag | html %]">[% tag | html %]</a></span>
         [% END %]
     </div>
     [% END %]

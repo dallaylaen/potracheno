@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0805;
+our $VERSION = 0.0806;
 
 use URI::Escape;
 use Data::Dumper;
@@ -345,7 +345,7 @@ MVC::Neaf->route( user => sub {
 
 my $val_browse = MVC::Neaf::X::Form->new({
     order_by     => '\w+',
-    order_dir    => 'ASC|DESC',
+    order_dir    => '.*',
     min_a_created    => '\d\d\d\d-\d\d-\d\d',
     max_a_created    => '\d\d\d\d-\d\d-\d\d',
     has_solution => '\d',
@@ -368,7 +368,24 @@ MVC::Neaf->route( browse => sub {
     my $req = shift;
 
     my $form = $req->form( $val_browse );
+    return _do_browse( $form );
+});
 
+MVC::Neaf->route( browse => tag => sub {
+    my $req = shift;
+
+    my $form = $req->form( $val_browse );
+    my $tag = $req->path_info;
+    $tag =~ s#^/+##;
+    $tag =~ /^$re_tag$/ or die 404;
+
+    $form->data( tag => $tag );
+
+    return _do_browse( $form );
+});
+
+sub _do_browse {
+    my ($form) = @_;
     $form->data->{status_not} = !!$form->data->{status_not};
 
     # TODO Use form->defaults when they appear
@@ -404,7 +421,7 @@ MVC::Neaf->route( browse => sub {
         status_pairs  => $model->get_status_pairs,
         form          => $form,
     };
-});
+};
 
 MVC::Neaf->route( add_watch => sub {
     my $req = shift;
