@@ -160,4 +160,11 @@ is (scalar (grep { ref $_ ne 'HASH' } @$feed)
     , 0, "All results in array are hashes");
 is (scalar @$feed, 3, "3 comments in feed");
 
+note "SMOKE TESTING TAGS";
+
+$model->tag_issue( issue_id => 1, tags => [ "r2d2", "c3po" ] );
+my $tags = $model->get_tags( issue_id => 1 );
+
+is_deeply( [sort values %$tags], [ "c3po", "r2d2" ], "Tags round trip" );
+
 done_testing;

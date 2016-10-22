@@ -41,3 +41,19 @@ CREATE TABLE watch (
     issue_id INTEGER NOT NULL,
     created INT -- unix time
 );
+
+DROP TABLE IF EXISTS tag;
+CREATE TABLE tag (
+    tag_id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    name varchar(20) NOT NULL,
+    descr varchar(4096),
+    created INT -- unix time
+);
+
+DROP TABLE IF EXISTS issue_tag;
+CREATE TABLE issue_tag (
+    issue_tag_id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    issue_id INTEGER NOT NULL,
+    tag_id INTEGER NOT NULL,
+    created INT -- unix time
+);

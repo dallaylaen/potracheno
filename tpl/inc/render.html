@@ -1,18 +1,25 @@
 [% BLOCK render_issue # issue={} %]
 <div class="panel panel-default">
-  <div class="panel-heading">
-    Posted
-    on [% issue.created | date -%]
-    [%- IF issue.user_id %] by <a href="/user/[% issue.user_id %]">[% issue.author | html %]</a>[% END %].
-    [% IF issue.seconds_spent %]<b class="status">[% issue.seconds_spent | time %]</b> spent.[% END %]
-    [% IF issue.status %]<span class="status">[% issue.status | html %]</span>[% END %]
-    [% IF issue.has_solution %]
-    <span class="solution">Solution proposed</span>
+    <div class="panel-heading">
+         Posted
+         on [% issue.created | date -%]
+         [%- IF issue.user_id %] by <a href="/user/[% issue.user_id %]">[% issue.author | html %]</a>[% END %].
+         [% IF issue.seconds_spent %]<b class="status">[% issue.seconds_spent | time %]</b> spent.[% END %]
+         [% IF issue.status %]<span class="status">[% issue.status | html %]</span>[% END %]
+         [% IF issue.has_solution %]
+             <span class="solution">Solution proposed</span>
+         [% END %]
+    </div>
+    <div class="panel-body">
+         [% issue.body # no HTML protection - it's after markdown %]
+    </div>
+    [% IF issue.tags_alpha.size %]
+    <div class="panel-footer">
+        [% FOREACH tag IN issue.tags_alpha %]
+            <span class="issue-tag">[% tag | html %]</span>
+        [% END %]
+    </div>
     [% END %]
-  </div>
-  <div class="panel-body">
-    [% issue.body # no HTML protection - it's after markdown %]
-  </div>
 </div>
 [% END %]
 [% BLOCK render_comment # item={}, show_issue=1 %]

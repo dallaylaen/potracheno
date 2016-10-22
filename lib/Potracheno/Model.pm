@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0803;
+our $VERSION = 0.0804;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -210,6 +210,8 @@ sub get_issue {
 
     $data->{seconds_spent} = $self->get_time( issue_id => $opt{id} );
     $data->{status}        = $self->{status}{ $data->{status_id} };
+    $data->{tags}          = $self->get_tags( issue_id => $opt{id} );
+    $data->{tags_alpha}    = [ sort values %{ $data->{tags} } ];
 
     return $data;
 };
@@ -822,6 +824,121 @@ sub watch_feed {
     return $self->_run_query( $sql, \@param, \%opt );
 };
 
+sub fetch_tags {
+    my ($self, $tags) = @_;
+
+    return {} unless $tags and @$tags;
+
+    # uniq
+    my %seen;
+    $seen{$_}++ for @$tags;
+    @$tags = keys %seen;
+
+    # create select
+    my $in = join ",", ("?") x @$tags;
+    my $sql_sel = "SELECT tag_id, name FROM tag WHERE name IN ($in)";
+
+    my %id_tag;
+
+    # load known
+    my $sth = $self->dbh->prepare( $sql_sel );
+    $sth->execute( @$tags );
+    while (my @row = $sth->fetchrow_array) {
+        $id_tag{$row[0]} = $row[1];
+        delete $seen{$row[1]};
+    };
+
+    foreach ( keys %seen ) {
+        my $id = $self->insert_any( tag => tag_id => { name => $_ } );
+        $id_tag{$id} = $_;
+    };
+
+    return \%id_tag;
+};
+
+sub tag_issue {
+    my ($self, %opt) = @_;
+
+    my $issue = $opt{issue_id}
+        or $self->my_croak("issue_id is required");
+
+    my $tags = $self->fetch_tags( $opt{tags} );
+
+    my $del = $self->dbh->prepare( "DELETE FROM issue_tag WHERE issue_id = ?" );
+    $del->execute( $issue );
+
+    foreach (keys %$tags) {
+        $self->insert_any( issue_tag => issue_tag_id =>
+            { issue_id => $issue, tag_id => $_ } );
+    };
+
+    return $self;
+};
+
+my $sql_sel_tag = <<"SQL";
+    SELECT t.tag_id, t.name
+    FROM issue_tag i JOIN tag t USING(tag_id)
+    WHERE issue_id = ?
+SQL
+
+sub get_tags {
+    my ($self, %opt) = @_;
+
+    my $issue = $opt{issue_id}
+        or $self->my_croak("issue_id is required");
+
+    my $sth = $self->dbh->prepare( $sql_sel_tag );
+    $sth->execute( $issue );
+
+    my %id_tag;
+    while (my @row = $sth->fetchrow_array) {
+        $id_tag{$row[0]} = $row[1];
+    };
+
+    return \%id_tag;
+};
+
+# BACKUP PROCEDURES
+
+my @tables = qw(user issue activity watch);
+sub dump {
+    my $self = shift;
+
+    my %dump;
+    my $dbh = $self->dbh;
+    foreach my $t (@tables) {
+        my $sth = $dbh->prepare( "SELECT * FROM $t" );
+        $sth->execute;
+        while (my $row = $sth->fetchrow_hashref) {
+            push @{ $dump{$t} }, $row;
+        };
+    };
+
+    return \%dump;
+};
+
+sub restore {
+    my ($self, $dump) = @_;
+
+    my $dbh = $self->dbh;
+    $dbh->begin_work;
+    local $SIG{__DIE__} = sub { $dbh->rollback };
+    foreach my $t (@tables) {
+        next unless $dump->{$t};
+        foreach my $row( @{ $dump->{$t} } ) {
+            $self->insert_any($t, undef, $row);
+        };
+    };
+
+    $dbh->commit;
+};
+
+# IN-PLACE ORM - TODO use DBIx::Record?
+
+# input: SQL with (?), parameter list,
+#    options = { count_only 0|1, orber_by, order_dir 0|1, limit, start }
+# output: if count_only given, hashref { n = count }
+# else array of hashrefs with sorting & limits applied.
 sub _run_query {
     my ($self, $sql, $param, $opt) = @_;
 
@@ -866,43 +983,6 @@ sub _run_query {
     return \@res;
 };
 
-# BACKUP PROCEDURES
-
-my @tables = qw(user issue activity watch);
-sub dump {
-    my $self = shift;
-
-    my %dump;
-    my $dbh = $self->dbh;
-    foreach my $t (@tables) {
-        my $sth = $dbh->prepare( "SELECT * FROM $t" );
-        $sth->execute;
-        while (my $row = $sth->fetchrow_hashref) {
-            push @{ $dump{$t} }, $row;
-        };
-    };
-
-    return \%dump;
-};
-
-sub restore {
-    my ($self, $dump) = @_;
-
-    my $dbh = $self->dbh;
-    $dbh->begin_work;
-    local $SIG{__DIE__} = sub { $dbh->rollback };
-    foreach my $t (@tables) {
-        next unless $dump->{$t};
-        foreach my $row( @{ $dump->{$t} } ) {
-            $self->insert_any($t, undef, $row);
-        };
-    };
-
-    $dbh->commit;
-};
-
-# in-place ORM - TODO use DBIx::Record?
-
 sub save_any {
     my ($self, $table, $key, $data) = @_;
 
@@ -923,6 +1003,12 @@ sub insert_any {
         push @values, $data->{$_};
     };
     return unless @keys;
+
+    # TODO should use sql default instead?
+    if (!defined $data->{created}) {
+        push @keys, "created";
+        push @values, time;
+    };
     my $into = join ",", @keys;
     my $quest = join ",", ("?") x @keys;
 

@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0804;
+our $VERSION = 0.0805;
 
 use URI::Escape;
 use Data::Dumper;
@@ -163,12 +163,14 @@ MVC::Neaf->route( edit_user => sub {
 });
 
 # post new issue - validator
+my $re_tag = qr(\w+(?:-\w+)*);
 my $val_post = MVC::Neaf::X::Form->new({
-    summary => [ required => qr/\S.+\S/ ],
-    body    => [ required => qr/.*\S.+/s ],
-    sign    => '.+',
-    create  => '.+',
-    issue_id => '\d+',
+    summary   => [ required => qr/\S.+\S/ ],
+    body      => [ required => qr/.*\S.+/s ],
+    sign      => '.+',
+    create    => '.+',
+    issue_id  => '\d+',
+    tags_str  => qr/(?:\s*$re_tag\s*)*/,
 });
 MVC::Neaf->route( post => sub {
     my $req = shift;
@@ -182,17 +184,20 @@ MVC::Neaf->route( post => sub {
     # TODO form->hmac( "salt" )
     my $sign = $form->is_valid
         ? md5_base64( encode_utf8( join "\n\n", $user->{user_id}, $form->data->{summary}
-            , $form->data->{body} ) )
+            , $form->data->{body}, $form->data->{tags_str} ) )
         : '';
 
     if ($sign ne $form->data->{sign} || !$form->data->{create}) {
         $form->error( preview_mode => 1 );
         $form->raw->{sign} = $sign;
     };
+    $form->data->{tags_alpha} = [ map { lc } $form->data->{tags_str} =~ /(\S+)/g ];
 
     if ( $req->method eq 'POST' and $form->is_valid ) {
         my $id = $model->save_issue( user => $user, issue => $form->data);
         $model->add_watch(user_id => $user->{user_id}, issue_id => $id);
+
+        $model->tag_issue(issue_id => $id, tags => $form->data->{tags_alpha} );
         $req->redirect( "/issue/$id" );
     };
 

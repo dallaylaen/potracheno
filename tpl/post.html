@@ -4,16 +4,17 @@
 [% IF issue.body %]
     [% INCLUDE render_issue %]
 [% END %]
+[% SET form.raw.tags_str = form.raw.tags_str || issue.tags_alpha.join(" ") %]
 <form method="POST"[% IF post_to %] action="[% post_to | html %]"[% END %]>
-    <span class="[% IF form.error.summary %]error[% ELSE %]explain[% END %]">
-    Summary*:
-    </span><br>
+    [% INCLUDE form_explain name="summary" explain="Summary*:" %]<br>
     <input name="summary" value="[% form.raw.summary | html %]" class="wide"><br>
     <input type="hidden" name="issue_id" value="[% form.raw.issue_id | html %]">
-    <span class="[% IF form.error.body %]error[% ELSE %]explain[% END %]">
-    Details (<a href="/help/markdown">markdown</a> supported)*:
-    </span><br>
+    [% INCLUDE form_explain name="summary"
+        explain='Details (<a href="/help/markdown">markdown</a> supported)*:' %]
+    <br>
     <textarea name="body" class="wide">[% form.raw.body | html %]</textarea><br>
+    [% INCLUDE form_explain name="tags_str" explain="Issue tags (space-separated hyphen-delimited alphanumeric characters):" %]<br>
+    <input name="tags_str" class="wide" value="[% form.raw.tags_str %]">
     <input type="hidden" name="sign" value="[% form.raw.sign | html %]">
     <input type="submit" value="Preview">
     [% IF form.raw.sign %]<input type="submit" name="create" value="Save">[% END %]

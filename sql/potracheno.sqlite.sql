@@ -36,3 +36,17 @@ CREATE TABLE watch (
     issue_id INT NOT NULL,
     created INT -- unix time
 );
+
+CREATE TABLE tag (
+    tag_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name varchar(20) NOT NULL,
+    descr varchar(4096),
+    created INT -- unix time
+);
+
+CREATE TABLE issue_tag (
+    issue_tag_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    issue_id INTEGER NOT NULL,
+    tag_id INTEGER NOT NULL,
+    created INT -- unix time
+);
