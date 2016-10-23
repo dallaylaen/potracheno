@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0806;
+our $VERSION = 0.0807;
 
 use URI::Escape;
 use Data::Dumper;
@@ -382,6 +382,18 @@ MVC::Neaf->route( browse => tag => sub {
     $form->data( tag => $tag );
 
     return _do_browse( $form );
+});
+
+MVC::Neaf->route( tags => sub {
+    my $req = shift;
+
+    my $tag_info = $model->get_tag_stats; # TODO form
+
+    return {
+        -template  => 'tags.html',
+        title      => 'Tag statistics',
+        table_data => $tag_info,
+    };
 });
 
 sub _do_browse {

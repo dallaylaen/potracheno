@@ -78,4 +78,6 @@
   [% END %]
 </div>
 [% END %]
-
+[% BLOCK render_tag # item = %]
+    <span class="issue=tag">[% item.name | html %]</span>
+[% END %]
