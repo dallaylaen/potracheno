@@ -2,6 +2,10 @@
 [% PROCESS inc/form.html %]
 <form method="GET">
 <div>
+    [% INCLUDE form_explain name="tag_like" explain="Filter tags" %]
+    [% INCLUDE input name="tag_like" width=16 %]
+</div>
+<div>
     [% INCLUDE between explain="Date range" name="a_created" width=10 %]
 </div>
     [% INCLUDE form_pagination base_url="/stats" %]

@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0808;
+our $VERSION = 0.0809;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -932,6 +932,11 @@ sub get_tag_stats {
     $self->_prepare_time( \%opt );
     _select_activity( \@where, \@param, \%opt );
     _select_issue(    \@where, \@param, \%opt );
+
+    if (defined $opt{tag_like} and length $opt{tag_like}) {
+        push @where, "t.name LIKE ?";
+        push @param, "%$opt{tag_like}%";
+    };
 
     my $sql = sprintf( $sql_tag_stat
         , (join ' AND ', @where)||'1=1', (join ' AND ', @having) || '1=1' );

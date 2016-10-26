@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0810;
+our $VERSION = 0.0811;
 
 use URI::Escape;
 use Data::Dumper;
@@ -390,6 +390,7 @@ MVC::Neaf->route( browse => tag => sub {
 my $val_stats = MVC::Neaf::X::Form->new({
     min_a_created    => '\d\d\d\d-\d\d-\d\d',
     max_a_created    => '\d\d\d\d-\d\d-\d\d',
+    tag_like         => '[-\w]+',
     %pagination,
 });
 MVC::Neaf->route( stats => sub {
