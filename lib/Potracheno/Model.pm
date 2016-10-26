@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0807;
+our $VERSION = 0.0808;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -632,12 +632,10 @@ sub browse {
     my @param;
     my @extra;
 
-    exists $opt{$_} and $opt{$_} = $self->human2time( $opt{$_} )
-        foreach map { $_ => "min_$_" => "max_$_" } @report_options_time;
-    exists $opt{$_} and $opt{$_} = $self->date2time( $opt{$_} )
-        foreach map { $_ => "min_$_" => "max_$_" } @report_options_date;
     $opt{order_by}  ||= 'created';
     $opt{order_dir}   = 1 unless defined $opt{order_dir};
+
+    $self->_prepare_time( \%opt );
 
     # EXTRA TABLES
     if ($opt{tag}) {
@@ -649,16 +647,8 @@ sub browse {
 
     # ACTIVITY OPTIONS
     # must go first or else we filter out silent issues
-    foreach (@bound_activity) {
-        if( defined $opt{"min_a_$_"} ) {
-            push @where, "a.$_ >= ?";
-            push @param, $opt{"min_a_$_"};
-        };
-        if( defined $opt{"max_a_$_"} ) {
-            push @where, "a.$_ <= ?";
-            push @param, $opt{"max_a_$_"};
-        };
-    };
+    _select_activity( \@where, \@param, \%opt );
+
     # If any bounds placed on activity, make sure issues w/o activity
     # aren't selected
     if (@where) {
@@ -666,20 +656,7 @@ sub browse {
     };
 
     # ISSUE OPTIONS
-    if (defined $opt{status}) {
-        push @where, "NOT " x !!$opt{status_not} . "i.status_id = ?";
-        push @param, $opt{status};
-    };
-    foreach (@bound_issue) {
-        if( defined $opt{"min_i_$_"} ) {
-            push @where, "i.$_ >= ?";
-            push @param, $opt{"min_i_$_"};
-        };
-        if( defined $opt{"max_i_$_"} ) {
-            push @where, "i.$_ <= ?";
-            push @param, $opt{"max_i_$_"};
-        };
-    };
+    _select_issue ( \@where, \@param, \%opt );
 
     # AGGREGATE OPTIONS
     if (defined $opt{has_solution}) {
@@ -713,6 +690,51 @@ sub browse {
 
     return $self->_run_query( $sql, \@param, \%opt );
 }; # end sub browse
+
+
+# TODO do something about these!
+sub _prepare_time {
+    my ($self, $opt) = @_;
+
+    exists $$opt{$_} and $$opt{$_} = $self->human2time( $$opt{$_} )
+        foreach map { $_ => "min_$_" => "max_$_" } @report_options_time;
+    exists $$opt{$_} and $$opt{$_} = $self->date2time( $$opt{$_} )
+        foreach map { $_ => "min_$_" => "max_$_" } @report_options_date;
+};
+
+sub _select_activity {
+    my ($where, $param, $opt) = @_;
+
+    foreach (@bound_activity) {
+        if( defined $opt->{"min_a_$_"} ) {
+            push @$where, "a.$_ >= ?";
+            push @$param, $opt->{"min_a_$_"};
+        };
+        if( defined $opt->{"max_a_$_"} ) {
+            push @$where, "a.$_ <= ?";
+            push @$param, $opt->{"max_a_$_"};
+        };
+    };
+};
+
+sub _select_issue {
+    my ($where, $param, $opt) = @_;
+
+    if (defined $$opt{status}) {
+        push @$where, "NOT " x !!$$opt{status_not} . "i.status_id = ?";
+        push @$param, $$opt{status};
+    };
+    foreach (@bound_issue) {
+        if( defined $$opt{"min_i_$_"} ) {
+            push @$where, "i.$_ >= ?";
+            push @$param, $$opt{"min_i_$_"};
+        };
+        if( defined $$opt{"max_i_$_"} ) {
+            push @$where, "i.$_ <= ?";
+            push @$param, $$opt{"max_i_$_"};
+        };
+    };
+};
 
 # WATCHES
 
@@ -892,9 +914,10 @@ SELECT
     sum(a.seconds)             AS time_spent,
     max(a.created)             AS last_modified
 FROM tag t
-    LEFT JOIN issue_tag i USING(tag_id)
-    LEFT JOIN watch w ON i.issue_id = w.issue_id
-    LEFT JOIN activity a ON i.issue_id = a.issue_id
+    LEFT JOIN issue_tag it USING(tag_id)
+    LEFT JOIN issue i    ON it.issue_id = i.issue_id
+    LEFT JOIN watch w    ON it.issue_id = w.issue_id
+    LEFT JOIN activity a ON it.issue_id = a.issue_id
 WHERE %s
 GROUP BY t.tag_id
 HAVING %s
@@ -905,6 +928,10 @@ sub get_tag_stats {
     my @where;
     my @having;
     my @param;
+
+    $self->_prepare_time( \%opt );
+    _select_activity( \@where, \@param, \%opt );
+    _select_issue(    \@where, \@param, \%opt );
 
     my $sql = sprintf( $sql_tag_stat
         , (join ' AND ', @where)||'1=1', (join ' AND ', @having) || '1=1' );
@@ -932,6 +959,10 @@ sub get_stats_total {
     my @where;
     my @having;
     my @param;
+
+    $self->_prepare_time( \%opt );
+    _select_activity( \@where, \@param, \%opt );
+    _select_issue(    \@where, \@param, \%opt );
 
     my $sql = sprintf( $sql_stat_total
         , (join ' AND ', @where)||'1=1', (join ' AND ', @having) || '1=1' );

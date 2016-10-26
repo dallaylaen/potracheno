@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0809;
+our $VERSION = 0.0810;
 
 use URI::Escape;
 use Data::Dumper;
@@ -343,9 +343,17 @@ MVC::Neaf->route( user => sub {
     };
 });
 
-my $val_browse = MVC::Neaf::X::Form->new({
+our %pagination = (
     order_by     => '\w+',
     order_dir    => '.*',
+    limit        => '\d+',
+    start        => '\d+',
+    next         => '.+',
+    prev         => '.+',
+    start_scratch => '.+',
+);
+
+my $val_browse = MVC::Neaf::X::Form->new({
     min_a_created    => '\d\d\d\d-\d\d-\d\d',
     max_a_created    => '\d\d\d\d-\d\d-\d\d',
     has_solution => '\d',
@@ -357,12 +365,7 @@ my $val_browse = MVC::Neaf::X::Form->new({
     max_time_spent => '.+',
     min_best_estimate => '.+',
     max_best_estimate => '.+',
-    # pagination
-    limit        => '\d+',
-    start        => '\d+',
-    next         => '.+',
-    prev         => '.+',
-    start_scratch => '.+',
+    %pagination,
 });
 MVC::Neaf->route( browse => sub {
     my $req = shift;
@@ -384,25 +387,39 @@ MVC::Neaf->route( browse => tag => sub {
     return _do_browse( $form );
 });
 
+my $val_stats = MVC::Neaf::X::Form->new({
+    min_a_created    => '\d\d\d\d-\d\d-\d\d',
+    max_a_created    => '\d\d\d\d-\d\d-\d\d',
+    %pagination,
+});
 MVC::Neaf->route( stats => sub {
     my $req = shift;
 
-    my $tag_info   = $model->get_tag_stats; # TODO form
-    my $tag_count  = $model->get_tag_stats( count_only => 1 );
-    my $total      = $model->get_stats_total;
+    my $form = $req->form( $val_stats );
+    _form_paginate( $form );
+
+    my ($tag_info, $tag_count, $total);
+
+    if ($form->is_valid) {
+        my $opt = $form->data;
+        $tag_info   = $model->get_tag_stats( %$opt ); # TODO form
+        $tag_count  = $model->get_tag_stats( %$opt, count_only => 1 );
+        $total      = $model->get_stats_total( %$opt );
+    };
 
     return {
-        -template  => 'tags.html',
+        -template  => 'stats.html',
         title      => 'Statistics',
         table_data => $tag_info,
         stat       => $tag_count,
         total      => $total,
+        form       => $form,
+        order_options => [[name => "Tag name"], [time_spent => "Time spent"]],
     };
 });
 
-sub _do_browse {
+sub _form_paginate {
     my ($form) = @_;
-    $form->data->{status_not} = !!$form->data->{status_not};
 
     # TODO Use form->defaults when they appear
     if (!defined $form->data->{limit}) {
@@ -420,6 +437,15 @@ sub _do_browse {
     };
     $form->data->{start} = 0
         if $form->data->{start} < 0 or delete $form->data->{start_scratch};
+
+    return $form;
+};
+
+sub _do_browse {
+    my ($form) = @_;
+
+    _form_paginate( $form );
+    $form->data->{status_not} = !!$form->data->{status_not};
 
     my $data = [];
     my $stat;
@@ -462,12 +488,7 @@ my $val_feed = MVC::Neaf::X::Form->new({
     min_created  => '\d\d\d\d-\d\d-\d\d',
     max_created  => '\d\d\d\d-\d\d-\d\d',
     all          => '.+',
-    # pagination
-    limit        => '\d+',
-    start        => '\d+',
-    next         => '.+',
-    prev         => '.+',
-    start_scratch => '.+',
+    %pagination,
 });
 MVC::Neaf->route( feed => sub {
     my $req = shift;
@@ -476,23 +497,7 @@ MVC::Neaf->route( feed => sub {
 
     my $form = $req->form( $val_feed );
 
-    # TODO pagination copy-paste from report
-    # TODO Use form->defaults when they appear
-    if (!defined $form->data->{limit}) {
-        $form->data->{limit} = 20;
-        $form->raw->{limit} = 20;
-    };
-    $form->data->{start} ||= 0;
-    if (delete $form->data->{next}) {
-        $form->data->{start}+=$form->data->{limit};
-        $form->raw->{start}+=$form->data->{limit};
-    };
-    if (delete $form->data->{prev}) {
-        $form->data->{start}-=$form->data->{limit};
-        $form->raw->{start}-=$form->data->{limit};
-    };
-    $form->data->{start} = 0
-        if $form->data->{start} < 0 or delete $form->data->{start_scratch};
+    _form_paginate( $form );
 
     my $result = [];
     my $stat;

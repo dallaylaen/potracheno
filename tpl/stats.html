@@ -1,0 +1,15 @@
+[% PROCESS inc/render.html %]
+[% PROCESS inc/form.html %]
+<form method="GET">
+<div>
+    [% INCLUDE between explain="Date range" name="a_created" width=10 %]
+</div>
+    [% INCLUDE form_pagination base_url="/stats" %]
+</form>
+
+[% INCLUDE render_stat item=total %]
+<hr>
+
+[% FOREACH item IN table_data %]
+    [% INCLUDE render_stat %]
+[% END %]
