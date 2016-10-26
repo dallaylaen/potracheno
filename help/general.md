@@ -77,10 +77,17 @@ only issues having wasted time count exceeding minimal fix estimate
 by a factor of Pi are shown.
 Pi value can be adjusted if needed. Default is of course equal to 3.1415....
 
+### Browsing tags
+
+Each issue may have zero or more tags, which are shown below the description.
+Tags are there to categorize issues.
+
+Go to [tag search](/stats) to get tag and overall statistics.
+
 ### Issue search
 
 Although search string is present at the top, it barely works.
-Please wait for Sphinx support to be added, or
+Please wait for Sphinx/Lucene support to be added, or
 [send patches](https://github.com/dallaylaen/potracheno).
 
 Search is known to break unicode under MySQL. No fix exists yet.
@@ -89,11 +96,11 @@ Search is known to break unicode under MySQL. No fix exists yet.
 
 Lots of them. This product is still under heavy development.
 
-Bug reports are welcome at [https://github.com/dallaylaen/potracheno/issues/new]
-(https://github.com/dallaylaen/potracheno/issues/new).
+Bug reports are welcome at
+[https://github.com/dallaylaen/potracheno/issues/new](https://github.com/dallaylaen/potracheno/issues/new).
 
-Contributions are welcome at [https://github.com/dallaylaen/potracheno]
-(https://github.com/dallaylaen/potracheno).
+Contributions are welcome at
+[https://github.com/dallaylaen/potracheno](https://github.com/dallaylaen/potracheno).
 
 ## COPYRIGHT AND LICENSE
 
