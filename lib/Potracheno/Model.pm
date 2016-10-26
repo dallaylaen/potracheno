@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0806;
+our $VERSION = 0.0807;
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -882,7 +882,6 @@ sub get_tags {
     return \%id_tag;
 };
 
-
 my $sql_tag_stat = <<"SQL";
 SELECT
     t.tag_id                   AS tag_id,
@@ -913,6 +912,32 @@ sub get_tag_stats {
     return $self->_run_query( $sql, \@param, \%opt );
 };
 
+# TODO Merge all reporting subs where possible!
+my $sql_stat_total = <<"SQL";
+SELECT
+    count(distinct i.issue_id) AS issues,
+    count(distinct a.user_id)  AS participants,
+    count(distinct w.user_id)  AS watchers,
+    sum(a.seconds)             AS time_spent,
+    max(a.created)             AS last_modified
+FROM issue i
+    LEFT JOIN watch w ON i.issue_id = w.issue_id
+    LEFT JOIN activity a ON i.issue_id = a.issue_id
+WHERE %s
+HAVING %s
+SQL
+sub get_stats_total {
+    my ($self, %opt) = @_;
+
+    my @where;
+    my @having;
+    my @param;
+
+    my $sql = sprintf( $sql_stat_total
+        , (join ' AND ', @where)||'1=1', (join ' AND ', @having) || '1=1' );
+
+    return $self->_run_query( $sql, \@param, {} )->[0];
+};
 # BACKUP PROCEDURES
 
 my @tables = qw(user issue activity watch tag issue_tag);

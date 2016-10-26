@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.0807;
+our $VERSION = 0.0809;
 
 use URI::Escape;
 use Data::Dumper;
@@ -384,15 +384,19 @@ MVC::Neaf->route( browse => tag => sub {
     return _do_browse( $form );
 });
 
-MVC::Neaf->route( tags => sub {
+MVC::Neaf->route( stats => sub {
     my $req = shift;
 
-    my $tag_info = $model->get_tag_stats; # TODO form
+    my $tag_info   = $model->get_tag_stats; # TODO form
+    my $tag_count  = $model->get_tag_stats( count_only => 1 );
+    my $total      = $model->get_stats_total;
 
     return {
         -template  => 'tags.html',
-        title      => 'Tag statistics',
+        title      => 'Statistics',
         table_data => $tag_info,
+        stat       => $tag_count,
+        total      => $total,
     };
 });
 
@@ -556,6 +560,14 @@ MVC::Neaf->route( "/" => sub {
 
 MVC::Neaf->error_template( 403 => { -template => '403.html', title => "403 Forbidden" } );
 MVC::Neaf->error_template( 404 => { -template => '404.html', title => "404 Not Found" } );
+
+# FIXME work around nasty bug in Neaf.
+# remove after 0.12 is out.
+MVC::Neaf->pre_route( sub {
+    my $req = shift;
+    $req->session; # make Neaf read session once, throw it away
+    return;
+});
 
 # TODO move to model OR view
 sub DATE {

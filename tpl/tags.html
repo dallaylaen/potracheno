@@ -1,9 +1,8 @@
+[% PROCESS inc/render.html %]
+
+[% INCLUDE render_stat item=total %]
+<hr>
+
 [% FOREACH item IN table_data %]
-    <div>
-    <a class="issue-tag" href="/browse/tag/[% item.name | html %]">[% item.name | html %]</a>
-    Issues:     <span class="status">[% item.issues | html %]</span>
-    Watchers:   <span class="status">[% item.watchers | html %]</span>
-    Participants:   <span class="status">[% item.participants | html %]</span>
-    Time spent: <span class="time">[% item.time_spent | time %]</span>
-    </div>
+    [% INCLUDE render_stat %]
 [% END %]

@@ -81,3 +81,15 @@
 [% BLOCK render_tag # item = %]
     <span class="issue=tag">[% item.name | html %]</span>
 [% END %]
+[% BLOCK render_stat # item = %]
+    <div>
+    [% IF item.tag_id %]
+        <a class="issue-tag" href="/browse/tag/[% item.name | html %]">[% item.name | html %]</a>
+    [% END %]
+    Issues:     <span class="status">[% item.issues | html %]</span>
+    Watchers:   <span class="status">[% item.watchers | html %]</span>
+    Participants:   <span class="status">[% item.participants | html %]</span>
+    Time spent: <span class="status">[% item.time_spent | time %]</span>
+    </div>
+
+[% END %]
