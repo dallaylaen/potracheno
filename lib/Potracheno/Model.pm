@@ -2,7 +2,25 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0809;
+our $VERSION = 0.0810;
+
+=head1 NAME
+
+App::Its::Potracheno::Model - The data model for tech debt ITS.
+
+=head1 DESCRIPTION
+
+This Model contains methods to access user, issue, time tracking, etc. data.
+
+Data is stored in a SQL database.
+
+Model is instantiated and requires config.
+
+Also some presentation methods are currently here (HTML escping + markdown).
+
+=head1 METHODS
+
+=cut
 
 use DBI;
 use Digest::MD5 qw(md5_base64);
@@ -10,8 +28,27 @@ use Time::Local qw(timelocal);
 use Data::Dumper;
 use Text::Markdown qw(markdown);
 
+# We'll also work as a session storage
 use parent qw(MVC::Neaf::X::Session);
+
+# TODO use config from CPAN instead
 use Potracheno::Config;
+
+=head2 new (%options)
+
+%options:
+
+=over
+
+=item * config - hash with parameters
+
+=item * config_file - file with parameters
+
+=item * dbh - provide database handler
+
+=back
+
+=cut
 
 sub new {
     my ($class, %opt) = @_;
@@ -30,6 +67,12 @@ sub new {
     return $self;
 };
 
+=head2 get_config
+
+Return the config hash.
+
+=cut
+
 sub get_config {
     my $self = shift;
 
@@ -39,7 +82,39 @@ sub get_config {
     return $self->{config}{$section}{ + shift };
 };
 
+=head1 CONFIG FORMAT
+
+The config hash is expected to contain the following:
+
+    {db}
+        {handle}
+        {user} # not required for sqlite
+        {pass}
+
+    {status}
+        {0}
+        {1}
+        other numbers
+
+    {search}
+        {limit} # not required
+
+=cut
+
+=head2 dbh()
+
+Return database handler.
+
+=cut
+
 sub dbh { return $_[0]->{dbh} };
+
+=head2 get_dbh($config)
+
+Connect to database using config information.
+This is performed in new(), no need to do manually.
+
+=cut
 
 sub get_dbh {
     my ($self, $db) = @_;
@@ -61,10 +136,23 @@ sub get_dbh {
         { RaiseError => 1 });
 };
 
+=head2 get_status( $id )
+
+Resolve status id to name. Statuses are stored in config rather than db.
+
+=cut
+
 sub get_status {
     my ($self, $id) = @_;
     return $self->{status}{$id};
 };
+
+=head2 get_status_pairs()
+
+Return (id, name) pairs for all known issue statuses.
+This is used to build E<lt>selectE<gt>'s.
+
+=cut
 
 sub get_status_pairs {
     my $self = shift;
@@ -76,6 +164,14 @@ sub get_status_pairs {
         keys %{ $self->{status} }
     ];
 };
+
+=head1 USER METHODS
+
+=head1 load_user( %options )
+
+Either user_id or name key is required.
+
+=cut
 
 my $sql_user_by_id   = "SELECT user_id,name FROM user WHERE user_id = ?";
 my $sql_user_by_name = "SELECT user_id,name FROM user WHERE name = ?";
@@ -101,6 +197,13 @@ sub load_user {
     return $data;
 };
 
+=head2 login( name, password )
+
+Log user into the system.
+Returns load_user result if success, nothing otherwise.
+
+=cut
+
 sub login {
     my ($self, $name, $pass) = @_;
 
@@ -115,6 +218,12 @@ sub login {
 my $sql_user_ins = <<'SQL';
 INSERT INTO user(name,password) VALUES (?,?);
 SQL
+
+=head2 add_user( name, password )
+
+Create new user. To be rewritten.
+
+=cut
 
 # TODO refactor into (insert stub, save_user)
 sub add_user {
@@ -132,6 +241,15 @@ sub add_user {
     return $id;
 };
 
+=head2 save_user( \%user )
+
+Saves user struct as returned by load_user();
+
+Returns user id.
+
+To be rewritten via save_any().
+
+=cut
 
 sub save_user {
     my ($self, $data) = @_;
@@ -157,11 +275,23 @@ sub save_user {
     return $id;
 };
 
+=head2 check_pass( $salted_pass, $plain_pass )
+
+Return true if password matches.
+
+=cut
+
 sub check_pass {
     my ($self, $salt, $pass) = @_;
 
     return $self->make_pass( $salt, $pass ) eq $salt;
 };
+
+=head2 make_pass ( $salt, $plain_pass )
+
+Encrypt password. md5 is used (should move to sha1?).
+
+=cut
 
 sub make_pass {
     my ($self, $salt, $pass) = @_;
@@ -169,6 +299,14 @@ sub make_pass {
     $salt =~ s/#.*//;
     return join '#', $salt, md5_base64( join '#', $salt, $pass );
 };
+
+=head1 ISSUE METHODS
+
+=head2 save_issue( %issue )
+
+Create a new issue, or update existing one if issue_id given.
+
+=cut
 
 sub save_issue {
     my ($self, %opt) = @_;
@@ -189,6 +327,14 @@ sub save_issue {
 
     return $self->save_any( issue => issue_id => \%data );
 };
+
+=head2 get_issue
+
+Load issue from database.
+
+=cut
+
+# why not load_issue?!
 
 my $sql_art_sel = <<"SQL";
     SELECT a.issue_id AS issue_id, a.body AS body, a.summary AS summary
@@ -216,7 +362,16 @@ sub get_issue {
     return $data;
 };
 
-my $sql_time_ins = "INSERT INTO activity(user_id,issue_id,seconds,note,created) VALUES(?,?,?,?,?)";
+=head2 log_activity( \%activity )
+
+user_id and issue_id are mandatory.
+
+Save spent time/comment/solution.
+
+Also changes issue status, if status given.
+
+=cut
+
 my $sql_time_sum = "SELECT sum(seconds) FROM activity WHERE 1 = 1";
 my $sql_issue_status = "UPDATE issue SET status_id = ? WHERE issue_id = ?";
 
@@ -252,7 +407,7 @@ sub log_activity {
             . ( defined $opt{note} ? "\n\n$opt{note}" : "");
     };
 
-    # TODO orm it?
+    # TODO Redo with save_any
     # Make sql request
     my @fields;
     my @values;
@@ -267,6 +422,12 @@ sub log_activity {
     my $sth = $self->dbh->prepare( "INSERT INTO activity($into) VALUES ($quest)" );
     $sth->execute( @values );
 };
+
+=head2 get_time( user_id => ... || issue_id => ... )
+
+Get spent time sum for given user/issue/both.
+
+=cut
 
 sub get_time {
     my ($self, %opt) = @_;
@@ -286,6 +447,12 @@ sub get_time {
     $t ||= 0;
     return $t;
 };
+
+=head2 get_comments( user_id => ... || issue_id => ... )
+
+Get whatever logged activity for user/issue as an arrayref of hashrefs.
+
+=cut
 
 my $sql_time_sel = "SELECT
     t.activity_id AS activity_id,
@@ -341,6 +508,14 @@ sub get_comments {
 
     return \@ret;
 };
+
+=head1 SEARCH
+
+=head2 search( terms => [word, word ... ] )
+
+SQL-based search is wrong. TODO replace with normal indexer.
+
+=cut
 
 my $sql_search_art = <<"SQL";
 SELECT issue_id, 0 AS activity_id, body, summary, status_id, created
@@ -420,6 +595,16 @@ sub search {
     return wantarray ? ($res, $start_next) : $res;
 };
 
+=head1 SESSION
+
+This implements L<MVC::Neaf::X::Session>.
+
+=head2 load_session
+
+=head2 save_session
+
+=cut
+
 my $sql_sess_load = <<'SQL';
 SELECT u.user_id, u.name
 FROM user u JOIN sess s USING(user_id)
@@ -459,6 +644,18 @@ sub save_session {
 
 # Non-DB methods
 
+=head1 DATA CONVERTION METHODS
+
+=cut
+
+=head2 render_issue
+
+Convert issue as fetched from DB into tpl-ready form.
+
+Currenty only appies formatting to body.
+
+=cut
+
 sub render_issue {
     my ($self, $data) = @_;
 
@@ -467,6 +664,13 @@ sub render_issue {
 
     return $data;
 };
+
+=head2 filter_text
+
+Convert text into HTML-safe form.
+Uses home-brewn HTML escaping.
+
+=cut
 
 my %html_replace = qw(< &lt; > &gt; & &amp;);
 
@@ -479,7 +683,9 @@ sub filter_text {
 
 =head2 render_text
 
-Apply safety procedures as well as markdown rendering.
+Apply safety procedures, custom tags, and markdown rendering.
+
+custom tags include <code>, <quote>, and <plain>.
 
 =cut
 
@@ -516,6 +722,16 @@ sub _md {
     $text = $self->filter_text($text);
     return markdown( $text );
 }
+
+=head2 human2time
+
+=head2 time2human
+
+Convert seconds to and from "1w 2d 3h 4m 5s".
+
+"Spent 2 weeks on vacation" will also render as 2w, yielding 1+ million.
+
+=cut
 
 my %time_unit = (
     s => 1,
@@ -561,8 +777,14 @@ sub time2human {
     return @ret ? join " ", @ret : '0';
 };
 
-sub time2date {
-};
+=head2 date2time
+
+Convert date to seconds.
+
+Currently seconds are stored in DB to avoid mysql/sqlite compatibility issues.
+This MAY change in the future.
+
+=cut
 
 sub date2time {
     my ($self, $date) = @_;
@@ -577,7 +799,14 @@ sub date2time {
     return timelocal(0,$5||0,$4||0,$3,$2-1,$1);
 };
 
-# REPORT
+=head1 AGGREGATE REPORTS
+
+=head2 browse_order_options()
+
+Return pairs of values for ordering browse page, seady to be used by
+E<lt>selectE<gt>.
+
+=cut
 
 sub browse_order_options {
     return _pairs(
@@ -592,6 +821,14 @@ sub browse_order_options {
         best_estimate   => "Solution estimate",
     );
 };
+
+=head2 browse( %options )
+
+Return issues as selected by parameters.
+
+=cut
+
+# TODO document params
 
 my @bound_aggregate = qw(last_modified created participants time_spent best_estimate activity_count);
 my @bound_issue    = qw(created);
@@ -738,6 +975,12 @@ sub _select_issue {
 
 # WATCHES
 
+=head2 add_watch( %options )
+
+Start watching an issue. issue_id and user_id is required.
+
+=cut
+
 sub add_watch {
     my ($self, %opt) = @_;
 
@@ -751,6 +994,12 @@ sub add_watch {
     return $self->insert_any( watch => watch_id => \%opt )
         unless $self->get_watch( %opt )->[0];
 };
+
+=head2 del_watch( %options )
+
+Opposite of add watch.
+
+=cut
 
 sub del_watch {
     my ($self, %opt) = @_;
@@ -770,6 +1019,14 @@ my $sql_get_watch = <<"SQL";
     WHERE us.issue_id = ?
 SQL
 
+=head2 get_watch
+
+Return a pair (me_watching=0|1, total_watchers=nnn).
+
+If user_id not given, me_watching is 0.
+
+=cut
+
 sub get_watch {
     my ($self, %opt) = @_;
 
@@ -784,6 +1041,14 @@ sub get_watch {
     $sth->execute( $opt{user_id} ? $opt{user_id} : (), $opt{issue_id} );
     return $sth->fetchrow_arrayref;
 };
+
+=head2 watch_feed( %options )
+
+Get wathed issue activity feed, with filters.
+
+user_id is required.
+
+=cut
 
 my $sql_watch_feed = <<"SQL";
     SELECT
@@ -827,6 +1092,14 @@ sub watch_feed {
 
 # TAGS
 
+=head2 fetch_tags ( tags => [tag_name, tag_name ... ] )
+
+Return { tag_id => tag_name, ... } for tags in database.
+
+If C<create> option given, creates missing tags.
+
+=cut
+
 sub fetch_tags {
     my ($self, %opt) = @_;
 
@@ -862,6 +1135,18 @@ sub fetch_tags {
     return \%id_tag;
 };
 
+=head2 tag_issue( %opt )
+
+Set tags on an issue.
+
+issue_id is required.
+
+tags => [tag_name, ...] sets new tags (if any).
+
+Will remove any existing tags.
+
+=cut
+
 sub tag_issue {
     my ($self, %opt) = @_;
 
@@ -880,6 +1165,14 @@ sub tag_issue {
 
     return $self;
 };
+
+=head2 get_tags( issue_id => nnn )
+
+Fetch tags on an issue.
+
+=cut
+
+# TODO rename to get_issue_tags?..
 
 my $sql_sel_tag = <<"SQL";
     SELECT t.tag_id, t.name
@@ -903,6 +1196,13 @@ sub get_tags {
 
     return \%id_tag;
 };
+
+=head2 get_tags_stats( %options )
+
+Get statistics by tags. Works similar to browse(), but aggregates by tag
+and not by issue.
+
+=cut
 
 my $sql_tag_stat = <<"SQL";
 SELECT
@@ -944,6 +1244,12 @@ sub get_tag_stats {
     return $self->_run_query( $sql, \@param, \%opt );
 };
 
+=head2 get_stats_total( %options )
+
+Get total aggregate stats. Similar to browse.
+
+=cut
+
 # TODO Merge all reporting subs where possible!
 my $sql_stat_total = <<"SQL";
 SELECT
@@ -974,7 +1280,20 @@ sub get_stats_total {
 
     return $self->_run_query( $sql, \@param, {} )->[0];
 };
-# BACKUP PROCEDURES
+
+=head1 BACKUP & ORM PROCEDURES
+
+=head2 dump
+
+=head2 restore
+
+Convert a live DB to and from hashref:
+
+{ table => [ { row }, {row}, ... ], ... }
+
+Used to migrate database.
+
+=cut
 
 my @tables = qw(user issue activity watch tag issue_tag);
 sub dump {
@@ -1060,6 +1379,14 @@ sub _run_query {
     return \@res;
 };
 
+=head2 save_any( table, id_fields, \%data )
+
+INSERT or UPDATE data, based on whether id_field is present.
+
+Returns value of that id_field, or 1 if none specified.
+
+=cut
+
 sub save_any {
     my ($self, $table, $key, $data) = @_;
 
@@ -1069,6 +1396,15 @@ sub save_any {
         return $self->insert_any($table, $key, $data);
     };
 };
+
+=head2 save_any( table, id_fields, \%data )
+
+INSERT data into table.
+
+Returns value of id_field if present, last_insert_id if autogenerated,
+or 1 if none specified.
+
+=cut
 
 sub insert_any {
     my ($self, $table, $key, $data) = @_;
@@ -1098,6 +1434,15 @@ sub insert_any {
     my $id = $data->{$key} || $self->dbh->last_insert_id("", "", $table, $key);
     return $id;
 };
+
+=head2 save_any( table, id_fields, \%data )
+
+UPDATE data in table with id = value of id_field (required).
+
+Returns value of id_field.
+
+=cut
+
 
 sub update_any {
     my ($self, $table, $key, $data) = @_;
