@@ -167,4 +167,14 @@ my $tags = $model->get_tags( issue_id => 1 );
 
 is_deeply( [sort values %$tags], [ "c3po", "r2d2" ], "Tags round trip" );
 
+my $tagdata = $model->get_tag_stats( tag_like => "3" );
+
+is (scalar @$tagdata, 1, "Got 1 tag" );
+note explain $tagdata;
+
+my $stat = $model->get_stats_total();
+is ($stat->{issues}, 1, "Total 1 issue");
+
+note explain $stat;
+
 done_testing;

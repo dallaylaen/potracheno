@@ -12,9 +12,7 @@
 
 % cd ../clean-potr
 
-% git pull
-
-% ./run.sh
+% ./smoke.sh
 - http://localhost:5000/
 - can register
 - can log in

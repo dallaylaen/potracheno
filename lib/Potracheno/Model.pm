@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.0810;
+our $VERSION = 0.0811;
 
 =head1 NAME
 
@@ -1262,7 +1262,6 @@ FROM issue i
     LEFT JOIN watch w ON i.issue_id = w.issue_id
     LEFT JOIN activity a ON i.issue_id = a.issue_id
 WHERE %s
-HAVING %s
 SQL
 sub get_stats_total {
     my ($self, %opt) = @_;
