@@ -8,12 +8,27 @@
 <div>
     [% INCLUDE between explain="Date range" name="a_created" width=10 %]
 </div>
-    [% INCLUDE form_pagination base_url="/stats" %]
+    [% INCLUDE form_pagination base_url="/stats" 
+    order_options=[
+        ["name", "Tag name"], 
+        ["time_spent", "Time spent"],
+        ["issues", "Issues"],
+        ["participants", "Participants"],
+        ["watchers", "Watchers"],
+    ] %]
 </form>
 
+<table cellpadding="3px" class="stat">
+<tr>
+    <th>Tag</th>
+    <th align="right">Issues</th>
+    <th align="right">Watchers</th>
+    <th align="right">Participants</th>
+    <th align="right">Time spent</th>
+</tr>
 [% INCLUDE render_stat item=total %]
-<hr>
 
 [% FOREACH item IN table_data %]
     [% INCLUDE render_stat %]
 [% END %]
+</table>

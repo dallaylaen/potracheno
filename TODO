@@ -1,16 +1,14 @@
 VERSION ADDED | VERSION TBD | TITLE
 
 -- NEXT --
-0.07    0.10    REF rename urls (watch => follow/feed, report => browse ...)
+
+-- BACKLOG --
 0.07    0.10    REF Rename closed status to a true value
-0.07    0.10    APP Issue tags a-la stackoverflow
-0.08    0.10    APP Password reset
+0.08    0.10    APP Password reset w/o admin knowing passw
 0.08    0.10    APP Oauth support (for jira etc)
 0.08    0.10    UI  JS calendar - find open-source
 0.08    0.10    APP aggregate reports (what to report?)
 0.08    0.10    APP Dashboard with predefined reports (conf?)
-
--- BACKLOG --
 0.05    0.20    APP Comment replies
 0.07    0.20    UI  User/guest menu as select, remove jquery if possible
 0.01    0.20    issue & comment editing - versioned

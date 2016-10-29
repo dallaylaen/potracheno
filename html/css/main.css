@@ -83,3 +83,11 @@ textarea {
     border-left: solid 0.5em #6688aa;
 }
 
+.stat tr th {
+    padding-left: 0.3em;
+    padding-right: 0.3em;
+}
+.stat tr td {
+    padding-left: 0.3em;
+    padding-right: 0.3em;
+}
