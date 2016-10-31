@@ -111,9 +111,9 @@ handle = "dbi:SQLite:$(ROOT)/local/potracheno.sqlite"
 # pass = 'my_pass'
 
 [status]
-0 = Closed
-1 = Open
-2 = "Solution underway"
+1   = Open
+70  = "Solution underway"
+100 = Closed
 CONF
     close $fd or die "Failed to sync config $conf: $!";
 };

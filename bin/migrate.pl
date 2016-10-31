@@ -85,13 +85,19 @@ if ($todo eq "dump") {
         /^\s*#/ and next;
         /^\s*(\w+)\s*:\s*(\{.*\})\s*$/s
             or die "Wrong dump file format in $file";
+        my $data = decode_json($2);
 
-        push @{ $dump{$1} }, decode_json($2);
+        # HACK for v.0.10
+        # rename closed 0 => 100
+        $data->{status_id} = 100
+            if defined $data->{status_id} and $data->{status_id} eq '0';
+
+        push @{ $dump{$1} }, $data;
     };
 
+    warn "Dump has table $_\n" for keys %dump;
+    warn "Dump file $file ok\n";
     if ($dry_run) {
-        warn "Dump has table $_\n" for keys %dump;
-        warn "Dump file $file ok\n";
         exit 0;
     };
     warn "Restoring DB from memory...\n";

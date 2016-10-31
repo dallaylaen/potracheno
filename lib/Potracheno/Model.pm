@@ -2,7 +2,7 @@ package Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.09;
+our $VERSION = 0.0901;
 
 =head1 NAME
 
@@ -58,7 +58,11 @@ sub new {
             || $opt{config}; # fallback to defaults if file not found
     };
 
-    $opt{status} = $opt{config}{status} || { 0 => "Closed", 1 => "Open" };
+    $opt{status} = $opt{config}{status} || { 1 => "Open", 100 => "Closed" };
+    my @bad_status = grep { !/^\d+$/ || $_ < 1 || $_ > 100 }
+        keys %{ $opt{status} };
+    $class->my_croak("Bad status ids @bad_status")
+        if @bad_status;
 
     my $self = bless \%opt, $class;
 
@@ -324,6 +328,9 @@ sub save_issue {
         $data{created} ||= time;
         $data{status_id} = 1 unless defined $data{status_id};
     };
+
+    $self->my_croak("Unknown status_id $data{status_id}")
+        if defined $data{status_id} and !$self->get_status( $data{status_id} );
 
     return $self->save_any( issue => issue_id => \%data );
 };
@@ -1267,15 +1274,13 @@ sub get_stats_total {
     my ($self, %opt) = @_;
 
     my @where;
-    my @having;
     my @param;
 
     $self->_prepare_time( \%opt );
     _select_activity( \@where, \@param, \%opt );
     _select_issue(    \@where, \@param, \%opt );
 
-    my $sql = sprintf( $sql_stat_total
-        , (join ' AND ', @where)||'1=1', (join ' AND ', @having) || '1=1' );
+    my $sql = sprintf( $sql_stat_total, (join ' AND ', @where)||'1=1' );
 
     return $self->_run_query( $sql, \@param, {} )->[0];
 };

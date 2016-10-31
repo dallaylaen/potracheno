@@ -20,8 +20,8 @@ my $model = Potracheno::Model->new( ROOT => $root, config_file => $conf );
 
 ok ( $model->dbh, "DBH exists" );
 
-ok ( $model->get_status(0), "Closed status exists" );
 ok ( $model->get_status(1), "Open status exists" );
+ok ( $model->get_status(100), "Closed status exists" );
 
 eval {
     $model->login( "foo", "bar" );
@@ -52,6 +52,26 @@ eval {
     $model->search( terms => [ 'xxxxxxxxxxxxxxxxxxxxxx' ] );
 };
 is ( $@, '', "search doesn't die" );
+
+eval {
+    $model->get_watch( user_id => 100500, issue_id => 42137 );
+};
+is ( $@, '', "get_watch doesn't die" );
+
+eval {
+    $model->watch_feed( user_id => 100500, issue_id => 42137 );
+};
+is ( $@, '', "watch_feed doesn't die" );
+
+eval {
+    $model->get_stats_total( );
+};
+is ( $@, '', "get_stats_total doesn't die" );
+
+eval {
+    $model->get_tag_stats(  );
+};
+is ( $@, '', "get_tag_stats doesn't die" );
 
 diag "Tested DB at ", $model->{config}{db}{handle};
 
