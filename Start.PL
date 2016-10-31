@@ -48,8 +48,9 @@ sub start {
     $content =~ /<body>/ or die "Unable to start $app";
 
     print "Running server...\n";
-    local $SIG{CHLD} = sub { die "Premature exit from child" };
-    my $pid = fork;
+    my $pid;
+    local $SIG{CHLD} = sub { die "Premature exit from child ($pid)" };
+    $pid = fork;
     die "Fork failed: $!" unless defined $pid;
 
     if (!$pid) {
