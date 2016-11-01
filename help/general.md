@@ -71,6 +71,7 @@ to get feedback for now.
 Go to [Browse](/browse) to get report on recent issues.
 
 A form with a lot of criteria allows to select issue type you want.
+Dates have to be entered manually in yyyy-mm-dd format.
 
 In **solution ready to go** mode (see *--select solution--* dropdown),
 only issues having wasted time count exceeding minimal fix estimate
@@ -98,6 +99,18 @@ Lots of them. This product is still under heavy development.
 
 Bug reports are welcome at
 [https://github.com/dallaylaen/potracheno/issues/new](https://github.com/dallaylaen/potracheno/issues/new).
+
+* Password recovery needed;
+
+* Email integration needed;
+
+* OAuth support needed;
+
+* JS calendar wanted;
+
+* Normal search wanted;
+
+* Refactoring of model class wanted.
 
 Contributions are welcome at
 [https://github.com/dallaylaen/potracheno](https://github.com/dallaylaen/potracheno).
