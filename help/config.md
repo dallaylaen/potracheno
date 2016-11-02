@@ -32,7 +32,7 @@ The following sections are expected:
 * `[status]` - list of issue statuses.
 Must be integer numbers from 1 to 100.
 Status id 1 MUST be present, others are optional.
-* `[system]` - `port`, `pidfile`, `error_log`, and `access_log`
+* `[server]` - `port`, `pidfile`, `error_log`, and `access_log`
 * `[search]` - default search `limit`. Does not affect reports & browse,
 which is a bug.
 

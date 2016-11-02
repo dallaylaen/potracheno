@@ -1,5 +1,16 @@
 Revision history for the Potracheno time tracker project.
 
+0.10    Thu Nov 3 2016
+        DOC Help improved, modules renamed.
+
+0.09    Fri Oct 28 2016
+        DOC Add help index
+        TPL Add manual password recovery help page
+        APP Add stats page with overall & per-tag aggregate stats
+        APP Add issue tags as space-separated hyphen-delimited alphanumeric characters
+        UI  Add <qoute> and <plain> md tags, add #888 autolinks
+        AUX Add initscript
+
 0.08    Mon Oct 17 2016
         APP Add watched issues + in-app activity stream
         APP Add report showing ready to go solutions

@@ -15,7 +15,6 @@
 % ./smoke.sh
 - http://localhost:5000/
 - can register
-- can log in
 - can post issue
 - can post comment in Russian (or other UTF)
 - can spend time
@@ -25,6 +24,8 @@
 - can view solutions ready
 - can search
 - can log out
+- can log in
+- can close issue
 
 % cd -
 

@@ -26,6 +26,8 @@ for issues & comments, editing issues;
 
 * solution proposals with time estimate;
 
+* issue tags similar to those on Stackoverflow;
+
 * report showing issues with various properties;
 
 * report showing solutions that take less time then
@@ -77,9 +79,12 @@ reasons, a **MySQL** DB scheme is also available in `sql/` directory, as well
 as a DB migration script (`bin/migrate --help`).
 Postgresql support is planned in the future. Patches welcome.
 
+Please see file `help/config.md` for configuration & troubleshooting options.
+
 # DEPENDENCIES
 
-* https://github.com/dallaylaen/perl-mvc-neaf (currently not on CPAN)
+* MVC::Neaf (also available from 
+[github](https://github.com/dallaylaen/perl-mvc-neaf))
 
 * DBI
 
@@ -88,8 +93,6 @@ Postgresql support is planned in the future. Patches welcome.
 # BUGS
 
 Lots of them. This product is still under heavy development, see TODO.
-
-Please see file `help/config.md` for configuration & troubleshooting options.
 
 # COPYRIGHT AND LICENSE
 

@@ -2,7 +2,7 @@ package App::Its::Potracheno::Config;
 
 use strict;
 use warnings;
-our $VERSION = 0.05;
+our $VERSION = 0.10;
 
 # TODO replace with stock module!!!!!
 

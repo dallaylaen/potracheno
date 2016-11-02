@@ -3,24 +3,22 @@ VERSION ADDED | VERSION TBD | TITLE
 -- NEXT --
 
 -- BACKLOG --
-0.07    0.10    REF Rename closed status to a true value
-0.08    0.10    APP Password reset w/o admin knowing passw
-0.08    0.10    APP Oauth support (for jira etc)
-0.08    0.10    UI  JS calendar - find open-source
-0.08    0.10    APP aggregate reports (what to report?)
-0.08    0.10    APP Dashboard with predefined reports (conf?)
-0.05    0.20    APP Comment replies
-0.07    0.20    UI  User/guest menu as select, remove jquery if possible
-0.01    0.20    issue & comment editing - versioned
-0.07    0.20    ??? Merge issues (preserving track & solutions)
-0.07    0.20    APP Watch multiple issues
-0.05    0.20    APP Admin interface
-0.07    0.20    BUG Search breaks UTF8 under mysql
 0.07    0.20    AUX Run on windows
-0.07    0.20    UI  js in report
-0.01    0.20    reports - time spent this month etc
+0.08    0.20    APP Password reset w/o admin knowing passw
+0.08    0.20    APP Oauth support (for jira etc)
+0.08    0.20    UI  JS calendar - find open-source
+0.08    0.20    APP aggregate reports (what to report?)
+0.08    0.20    APP Dashboard with predefined reports (conf?)
+0.01    0.20    APP issue & comment editing - versioned
+0.07    0.20    BUG Search breaks UTF8 under mysql
 0.07    0.20    AUX Release to CPAN as App::Potracheno
 0.08    0.20    DEV Logging w/debug
+0.09    0.20    APP Invalidate solutions so that they don't show up
+0.07    0.20    UI  js in report
+0.05    0.30    APP Admin interface
+0.07    0.30    ??? Merge issues (preserving track & solutions)
+0.05    0.30    APP Comment replies
+0.07    0.30    UI  User/guest menu as select, remove jquery if possible
 0.07    0.30    APP in-app messages
 0.04    0.30    use search engine, sql too slow
 0.01    0.30    seamless install.pl (win included)
