@@ -8,7 +8,7 @@ use File::Temp qw(tempfile);
 use FindBin qw($Bin);
 use DBI;
 
-use Potracheno::Model;
+use App::Its::Potracheno::Model;
 
 my $spec = "$Bin/../sql/potracheno.sqlite.sql";
 
@@ -36,7 +36,7 @@ my $dbh = DBI->connect( $db, '', '', { RaiseError => 1 } );
 $dbh->do( $_ ) for split /;/, $sql; # this autodies
 $dbh->disconnect;
 
-my $model = Potracheno::Model->new(
+my $model = App::Its::Potracheno::Model->new(
     config => { db => { handle => $db }},
 );
 

@@ -1,4 +1,4 @@
-package Potracheno::Config;
+package App::Its::Potracheno::Config;
 
 use strict;
 use warnings;

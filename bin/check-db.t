@@ -6,7 +6,7 @@ use Test::More;
 
 use FindBin qw($Bin);
 use lib "$Bin/../lib", "$Bin/../local/lib";
-use Potracheno::Model;
+use App::Its::Potracheno::Model;
 
 my $root = "$Bin/..";
 my $conf = shift;
@@ -16,7 +16,7 @@ if (!$conf) {
     exit;
 };
 
-my $model = Potracheno::Model->new( ROOT => $root, config_file => $conf );
+my $model = App::Its::Potracheno::Model->new( ROOT => $root, config_file => $conf );
 
 ok ( $model->dbh, "DBH exists" );
 

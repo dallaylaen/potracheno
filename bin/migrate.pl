@@ -7,7 +7,7 @@ use Getopt::Long;
 
 use FindBin qw($Bin);
 use lib "$Bin/../lib", "$Bin/../local/lib";
-use Potracheno::Model;
+use App::Its::Potracheno::Model;
 
 my $root = "$Bin/..";
 my $config = "$root/local/potracheno.cfg";
@@ -38,7 +38,7 @@ USAGE
 usage() unless $todo;
 my $file = shift;
 
-my $model = Potracheno::Model->new(
+my $model = App::Its::Potracheno::Model->new(
     ROOT        => $root,
     config_file => $config,
 );

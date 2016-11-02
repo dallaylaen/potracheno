@@ -1,4 +1,4 @@
-package Potracheno::Model;
+package App::Its::Potracheno::Model;
 
 use strict;
 use warnings;
@@ -32,7 +32,7 @@ use Text::Markdown qw(markdown);
 use parent qw(MVC::Neaf::X::Session);
 
 # TODO use config from CPAN instead
-use Potracheno::Config;
+use App::Its::Potracheno::Config;
 
 =head2 new (%options)
 
@@ -54,7 +54,7 @@ sub new {
     my ($class, %opt) = @_;
 
     if ($opt{config_file}) {
-        $opt{config} = Potracheno::Config->load_config( $opt{config_file}, %opt )
+        $opt{config} = App::Its::Potracheno::Config->load_config( $opt{config_file}, %opt )
             || $opt{config}; # fallback to defaults if file not found
     };
 

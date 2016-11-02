@@ -15,7 +15,7 @@ use lib dirname(__FILE__)."/../lib", dirname(__FILE__)."/../local/lib";
 use MVC::Neaf 0.09;
 use MVC::Neaf qw(neaf_err);
 use MVC::Neaf::X::Form;
-use Potracheno::Model;
+use App::Its::Potracheno::Model;
 
 $SIG{__WARN__} = sub {
     print STDERR join " ", DATE(time), "[$$]", $_[0];
@@ -30,7 +30,7 @@ my $conf = {
 };
 
 # Will consume config later
-my $model = Potracheno::Model->new(
+my $model = App::Its::Potracheno::Model->new(
     config => $conf, # fallback value
     config_file => "$Bin/../local/potracheno.cfg",
     ROOT   => "$Bin/..",
@@ -49,7 +49,7 @@ MVC::Neaf->load_view( TT => TT =>
     },
 )->render({ -template => \"\n\ntest\n\n" });
 
-MVC::Neaf->set_default( version => "$VERSION/".Potracheno::Model->VERSION );
+MVC::Neaf->set_default( version => "$VERSION/".App::Its::Potracheno::Model->VERSION );
 
 MVC::Neaf->set_session_handler( engine => $model, view_as => 'session' );
 

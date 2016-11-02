@@ -7,7 +7,7 @@ use Data::Dumper;
 
 use FindBin qw($Bin);
 use lib "$Bin/../lib", "$Bin/../local/lib";
-use Potracheno::Model;
+use App::Its::Potracheno::Model;
 
 my $root   = "$Bin/..";
 my $config = "$root/local/potracheno.cfg";
@@ -32,7 +32,7 @@ usage() unless @ARGV == 2;
 
 my ($user, $pass) = @ARGV;
 
-my $model = Potracheno::Model->new(
+my $model = App::Its::Potracheno::Model->new(
     config_file   => $config,
     ROOT          => $root,
 );
