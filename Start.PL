@@ -9,7 +9,7 @@ use IO::Socket::INET;
 
 use FindBin qw($Bin);
 use lib "$Bin/lib", "$Bin/local/lib";
-use Potracheno::Config;
+use App::Its::Potracheno::Config;
 
 my $root = "$Bin";
 my $config_file = "$root/local/potracheno.cfg";
@@ -18,7 +18,8 @@ my $server = "plackup";
 
 # getopt here?
 
-my $conf = Potracheno::Config->load_config( $config_file, ROOT => $root );
+my $conf = App::Its::Potracheno::Config->load_config(
+    $config_file, ROOT => $root );
 
 $conf = $conf->{server};
 $conf->{port}       ||= 5000;
