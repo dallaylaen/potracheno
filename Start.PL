@@ -33,7 +33,7 @@ if (!$action) {
     exit 0;
 };
 
-if ($action eq 'restart') {
+if ($action eq 'restart' || $action eq 'start') {
     stop() && start();
 } elsif ($action eq 'stop' ) {
     stop();

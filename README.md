@@ -89,6 +89,8 @@ Postgresql support is planned in the future. Patches welcome.
 
 Lots of them. This product is still under heavy development, see TODO.
 
+Please see file `help/config.md` for configuration & troubleshooting options.
+
 # COPYRIGHT AND LICENSE
 
 Copyright 2016 [Konstantin S. Uvarin](https://github.com/dallaylaen).
