@@ -15,6 +15,7 @@ GetOptions(
     "install"   => \$write,
     "check"     => \$check,
     "help"      => \&usage,
+    "neaf=s"      => \$neaf_home,
 ) or die "Bad usage, see $0 --help";
 
 sub usage {
