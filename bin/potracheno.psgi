@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.10;
+our $VERSION = 0.1001;
 
 use URI::Escape;
 use Data::Dumper;
@@ -12,7 +12,7 @@ use Encode;
 
 use File::Basename qw(dirname);
 use lib dirname(__FILE__)."/../lib", dirname(__FILE__)."/../local/lib";
-use MVC::Neaf 0.09;
+use MVC::Neaf 0.1101;
 use MVC::Neaf qw(neaf_err);
 use MVC::Neaf::X::Form;
 use App::Its::Potracheno::Model;
@@ -566,14 +566,6 @@ MVC::Neaf->route( "/" => sub {
 
 MVC::Neaf->error_template( 403 => { -template => '403.html', title => "403 Forbidden" } );
 MVC::Neaf->error_template( 404 => { -template => '404.html', title => "404 Not Found" } );
-
-# FIXME work around nasty bug in Neaf.
-# remove after 0.12 is out.
-MVC::Neaf->pre_route( sub {
-    my $req = shift;
-    $req->session; # make Neaf read session once, throw it away
-    return;
-});
 
 # TODO move to model OR view
 sub DATE {
