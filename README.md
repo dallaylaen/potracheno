@@ -53,7 +53,24 @@ On a Unix system:
 
     perl Install.PL --install
 
-    plackup cgi/app.psgi
+    ./Start.PL restart
+
+On Windows system (tested by author on Win7, other ways may be possible):
+
+ * Download and install ActivePerl from http://activestate.com
+(this requires admin rights);
+ * run `ppm.bat install CGI Plack JSON-XS DBD-SQLite Template-Toolkit Text-Markdown`
+(this may be an overkill, but at least it works).
+ * download Potracheno at https://codeload.github.com/dallaylaen/potracheno/zip/master
+ * unpack zip to destination folder
+ * create `local` folder there
+ * download Neaf at https://codeload.github.com/dallaylaen/perl-mvc-neaf/zip/master
+(MVC::Neaf not currently available through ppm)
+ * unpack `lib` from Neaf package into `local\\lib`
+ * run `perl Install.PL --install`
+ * run `perl bin/potracheno.psgi --list`
+to check Potracheno installed correctly
+ * run `plackup.bat bin/potracheno.psgi` and go to http://localhost:5000
 
 The `Install.PL` command will:
 
