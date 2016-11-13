@@ -47,30 +47,42 @@ Planned:
 
 # INSTALLATION
 
-On a Unix system:
+* Download and unpack this software at
+https://codeload.github.com/dallaylaen/potracheno/zip/master,
+or just clone:
 
-    git clone <this repository>
+    git clone https://github.com/dallaylaen/potracheno.git
+
+* Install dependencies:
+
+    cpanm DBD::SQLite Text::Markdown MVC::Neaf
+
+* Run the setup script:
 
     perl Install.PL --install
 
-    ./Start.PL restart
+* Start the software:
 
-On Windows system (tested by author on Win7, other ways may be possible):
+    plackup bin/potracheno.psgi
 
- * Download and install ActivePerl from http://activestate.com
-(this requires admin rights);
- * run `ppm.bat install CGI Plack JSON-XS DBD-SQLite Template-Toolkit Text-Markdown`
-(this may be an overkill, but at least it works).
- * download Potracheno at https://codeload.github.com/dallaylaen/potracheno/zip/master
- * unpack zip to destination folder
- * create `local` folder there
- * download Neaf at https://codeload.github.com/dallaylaen/perl-mvc-neaf/zip/master
+## NOTES
+
+* If you use ActivePerl, the following command needs to be used instead of cpanm:
+
+     ppm.bat install CGI Plack JSON-XS DBD-SQLite Template-Toolkit Text-Markdown
+
+This may be an overkill, but at least it works.
+
+Then, download Neaf at https://codeload.github.com/dallaylaen/perl-mvc-neaf/zip/master
 (MVC::Neaf not currently available through ppm)
- * unpack `lib` from Neaf package into `local\\lib`
- * run `perl Install.PL --install`
- * run `perl bin/potracheno.psgi --list`
-to check Potracheno installed correctly
- * run `plackup.bat bin/potracheno.psgi` and go to http://localhost:5000
+and unpack `lib` from Neaf package into `local\\lib`
+
+* If you use a Unix-like OS, init-script called `Start.PL`
+is also at your service.
+
+All commands in the package accept `--help` option, so don't hesitate to use it.
+
+## Install.PL
 
 The `Install.PL` command will:
 
@@ -87,10 +99,6 @@ unless it's already there;
 * create an empty SQLite DB from template in `sql` directory,
 unless a previous config was detected, or database already exists.
 
-No setup is currently available for Windows, though it is planned.
-Generally the sequence is as described above.
-`perl Install.PL --check` command will assist by checking dependencies.
-
 If **sqlite** which comes by default is not enough due to high load or other
 reasons, a **MySQL** DB scheme is also available in `sql/` directory, as well
 as a DB migration script (`bin/migrate --help`).
@@ -100,16 +108,19 @@ Please see file `help/config.md` for configuration & troubleshooting options.
 
 # DEPENDENCIES
 
-* MVC::Neaf (also available from 
+* MVC::Neaf (also available from
 [github](https://github.com/dallaylaen/perl-mvc-neaf))
 
-* DBI
-
 * DBD::SQLite
+
+* Text::Markdown
 
 # BUGS
 
 Lots of them. This product is still under heavy development, see TODO.
+
+Please report any bugs or feature request to
+https://github.com/dallaylaen/potracheno/issues
 
 # COPYRIGHT AND LICENSE
 
