@@ -2,7 +2,7 @@ package App::Its::Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.10;
+our $VERSION = 0.1001;
 
 =head1 NAME
 
@@ -696,7 +696,7 @@ custom tags include <code>, <quote>, and <plain>.
 
 =cut
 
-my $render_tags = qr(code|quote|plain);
+my $render_tags = qr(code|quote|plain)i;
 
 sub render_text {
     my ($self, $text) = @_;
@@ -704,15 +704,19 @@ sub render_text {
     # cut text code blocks & markdown blocks
     # process them separately
     my @slice;
-    while ($text =~ s#^(.*?)<($render_tags)>(.*?)</\2>##gis) {
-        my ($md, $tag, $special) = ($1, $2, $3);
+
+    # TODO BUG should use \2 + /i for <code></CODE>, but it breaks
+    # capturing values in Perls < 5.010
+    # Should find a workaround though
+    while ($text =~ s#^(.*?)<($render_tags)>(.*?)</\2>##gs) {
+        my ($md, $tag, $special) = ($1, lc $2, $3);
         push @slice, $self->_md( $md );
 
-        if (lc $tag eq 'code') {
+        if ($tag eq 'code') {
             push @slice, '<pre class="code">'.$self->filter_text($special).'</pre>';
-        } elsif (lc $tag eq 'quote') {
+        } elsif ($tag eq 'quote') {
             push @slice, '<div class="quote">'.$self->_md( $special ).'</div>';
-        } elsif (lc $tag eq 'plain') {
+        } elsif ($tag eq 'plain') {
             push @slice, '<span class="plain">'.$self->filter_text( $special ).'</span>';
         };
     };

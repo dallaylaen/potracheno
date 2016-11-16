@@ -14,6 +14,16 @@ More features to follow.
 
 Use <*code*></*code*> tags around code samples.
 
+Use <*quote*></*quote*> tags to quote someone.
+
+Use <*plain*></*plain*> tags to add a paragraph of unprocessed text.
+
+**NOTE** These tags cannot be nested (yet).
+
+**NOTE** Tags can be diven in UPPERCASE or mixed case, but opening and
+closing ones must match exactly due to bug in older Perls which
+Potracheno has no work around as of yet.
+
 ## Preview mode
 
 Please note that any form that offers preview will *not* allow to save
