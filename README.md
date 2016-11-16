@@ -51,6 +51,19 @@ Planned:
 
 ![issue preview](html/screenshot/shot-preview.png)
 
+## Comment form
+
+![comment form](html/screenshot/shot-comment-form.png)
+![adding fix estimate](html/screenshot/shot-fix-estimate.png)
+
+## Browsing issues
+
+![browsing issues](html/screenshot/shot-browse.png)
+
+## Browsing issues with solutions ready
+
+![solutions ready](html/screenshot/shot-solution-ready.png)
+
 # INSTALLATION
 
 * Download and unpack this software at
