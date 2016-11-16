@@ -45,6 +45,12 @@ Planned:
 
 * comment replies.
 
+# SOME SCREENSHOTS
+
+## Issue preview
+
+![issue preview](html/screenshot/shot-preview.png)
+
 # INSTALLATION
 
 * Download and unpack this software at
