@@ -2,7 +2,7 @@ package App::Its::Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.1001;
+our $VERSION = 0.1002;
 
 =head1 NAME
 
@@ -631,7 +631,7 @@ sub load_session {
     my ($user_id, $name) = $sth->fetchrow_array;
     $sth->finish;
 
-    return { user_id => $user_id, user_name => $name };
+    return { data => { user_id => $user_id, user_name => $name } };
 };
 
 sub save_session {
@@ -647,6 +647,8 @@ sub save_session {
 
     my $sth = $self->dbh->prepare($sql_sess_upd);
     $sth->execute( $data->{user_id}, $id );
+
+    return { id => $id };
 };
 
 # Non-DB methods
