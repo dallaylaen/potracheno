@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.1001;
+our $VERSION = 0.1002;
 
 use URI::Escape;
 use Data::Dumper;
@@ -12,7 +12,7 @@ use Encode;
 
 use File::Basename qw(dirname);
 use lib dirname(__FILE__)."/../lib", dirname(__FILE__)."/../local/lib";
-use MVC::Neaf 0.1101;
+use MVC::Neaf 0.1201;
 use MVC::Neaf qw(neaf_err);
 use MVC::Neaf::X::Form;
 use App::Its::Potracheno::Model;
@@ -564,8 +564,16 @@ MVC::Neaf->route( "/" => sub {
     };
 } );
 
-MVC::Neaf->error_template( 403 => { -template => '403.html', title => "403 Forbidden" } );
-MVC::Neaf->error_template( 404 => { -template => '404.html', title => "404 Not Found" } );
+MVC::Neaf->set_error_handler( 403 => {
+    -template => '403.html',
+     title => "403 Forbidden",
+     version => "$VERSION/".App::Its::Potracheno::Model->VERSION,
+} );
+MVC::Neaf->set_error_handler( 404 => {
+    -template => '404.html',
+     title => "404 Not Found",
+     version => "$VERSION/".App::Its::Potracheno::Model->VERSION,
+} );
 
 # TODO move to model OR view
 sub DATE {
