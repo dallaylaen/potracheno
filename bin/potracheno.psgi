@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.1002;
+our $VERSION = 0.1003;
 
 use URI::Escape;
 use Data::Dumper;
@@ -12,7 +12,7 @@ use Encode;
 
 use File::Basename qw(dirname);
 use lib dirname(__FILE__)."/../lib", dirname(__FILE__)."/../local/lib";
-use MVC::Neaf 0.1201;
+use MVC::Neaf 0.1207;
 use MVC::Neaf qw(neaf_err);
 use MVC::Neaf::X::Form;
 use App::Its::Potracheno::Model;
@@ -237,7 +237,7 @@ MVC::Neaf->route ( edit_issue => sub {
 MVC::Neaf->route( issue => sub {
     my $req = shift;
 
-    my $id = $req->path_info =~ /(\d+)/ ? $1 : $req->param ( id => '\d+' );
+    my $id = $req->path_info || $req->param ( id => '\d+' );
     my $show_all = $req->param(all => 1);
     die 422 unless $id;
 
@@ -259,7 +259,7 @@ MVC::Neaf->route( issue => sub {
         statuses  => $model->get_status_pairs,
         watch     => $watch,
     };
-} );
+}, path_info_regex => '\d+' );
 
 my $search_limit = $model->get_config( search => "limit" ) || 10;
 
@@ -329,7 +329,7 @@ MVC::Neaf->route( addtime => sub {
 MVC::Neaf->route( user => sub {
     my $req = shift;
 
-    my $id = $req->param( user_id => '\d+', $req->path_info =~ /(\d+)/ );
+    my $id = $req->param( user_id => '\d+', $req->path_info );
     my $data = $model->load_user ( user_id => $id );
     die 404 unless $data->{user_id};
 
@@ -341,7 +341,7 @@ MVC::Neaf->route( user => sub {
         user => $data,
         comments => $comments,
     };
-});
+}, path_info_regex => '\d+');
 
 our %pagination = (
     order_by     => '\w+',
@@ -379,13 +379,11 @@ MVC::Neaf->route( browse => tag => sub {
 
     my $form = $req->form( $val_browse );
     my $tag = $req->path_info;
-    $tag =~ s#^/+##;
-    $tag =~ /^$re_tag$/ or die 404;
 
     $form->data( tag => $tag );
 
     return _do_browse( $form );
-});
+}, path_info_regex => $re_tag );
 
 my $val_stats = MVC::Neaf::X::Form->new({
     min_a_created    => '\d\d\d\d-\d\d-\d\d',
@@ -527,12 +525,7 @@ MVC::Neaf->route( feed => sub {
 MVC::Neaf->route( help => sub {
     my $req = shift;
 
-    my ($topic) = $req->path_info =~ /(\w+)/;
-
-    if (!$topic) {
-        # TODO show listing
-        die 404;
-    };
+    my $topic = $req->path_info;
 
     my $file = "$Bin/../help/$topic.md";
     my $fd;
@@ -550,19 +543,16 @@ MVC::Neaf->route( help => sub {
         title => "$title - Help",
         body => $body,
     };
-});
+}, path_info_regex => '\w+');
 
 MVC::Neaf->route( "/" => sub {
     my $req = shift;
-
-    # this is main page ONLY
-    die 404 if $req->path_info gt '/';
 
     return {
         -template => "main.html",
         title => "Potracheno - wasted time tracker",
     };
-} );
+}, path_info_regex => '' );
 
 MVC::Neaf->set_error_handler( 403 => {
     -template => '403.html',
