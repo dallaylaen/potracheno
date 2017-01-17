@@ -2,7 +2,7 @@ package App::Its::Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.1002;
+our $VERSION = 0.1003;
 
 =head1 NAME
 
@@ -750,10 +750,10 @@ my %time_unit = (
     s => 1,
     m => 60,
     h => 60*60,
-    d => 60*60*24,
-    w => 60*60*24*7,
-    mon => 60*60*24*30,
-    y => 60*60*24*365,
+    d => 60*60*8,
+    w => 60*60*8*5,
+    mon => 60*60*8*21,
+    y => 60*60*8*21*12,
 );
 my $time_unit_re = join "|", reverse sort keys %time_unit;
 $time_unit_re = qr/(?:$time_unit_re)/;
