@@ -1,6 +1,7 @@
-[%- BLOCK select # name=, pairs=, noopt=, selected= -%]
+[%- BLOCK select # name=, pairs=, noopt=, selected=, onChange= -%]
 [% IF selected.keys; SET selected=selected.$name; END %]
-<select name="[% name | html %]">
+<select name="[% name | html %]" class="form-data"[% IF onChange
+ %] onChange="[% onChange | html %]"[% END %]>
     [% IF noopt %]
     <option value=''>[% noopt | html %]</option>
     [% END %]
@@ -16,7 +17,7 @@
     [% IF width %] size="[% width %]"[% END %]>
 [% END %]
 [% BLOCK between # name=, width=, explain= %]
-[% explain | html %]
+<span class="form-expl">[% explain | html %]</span>
 [% INCLUDE input name="min_" _ name %] ..  [% INCLUDE input name="max_" _ name %]
 [% END %]
 [% BLOCK checkbox %]
@@ -34,19 +35,20 @@
     [% END %]
 [%- END -%]
 [%- BLOCK form_explain # name= explain="text" -%]
-    <span class="[% IF form.error.$name %]error[% ELSE %]explain[% END %]">
+    <span class="form-expl [% IF form.error.$name %]error[% ELSE %]explain[% END %]">
         [% explain # no filter, html allowed %]
     </span>
 [%- END -%]
 [% BLOCK form_pagination # form=, order_options=[pairs], stat={n:}, base_url= %]
     <div>
-    Sort by:
+    <span class="form-expl">Sort by:</span>
     [% INCLUDE select name="order_by" selected=form.raw pairs=order_options %]
     [% INCLUDE select name="order_dir" selected=form.raw pairs=[["1", "down"], ["0", "up"]] %]
     [% INCLUDE select name="limit" selected=form.raw
     pairs=[[10, "10 per page"], [20, "20 per page"], [50, "50 per page"], [0, "All results"]] %]
     </div>
     <div>
+        <span class="form-expl"></span>
     <input type="submit" name="start_scratch" value="Apply criteria">
     [% IF base_url %]<a href="[% base_url %]">Reset form</a>[% END %]
     </div>

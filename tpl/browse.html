@@ -3,12 +3,15 @@
 
 <form method="GET">
     <div>
-        Status: [% INCLUDE checkbox name="status_not" %] all but
+        <span class="form-expl">Status:
+        [% INCLUDE checkbox name="status_not" %] all but</span>
         [% INCLUDE select name="status" pairs=status_pairs noopt="-- Select status --" selected=form.raw %]
         [% INCLUDE select name="has_solution" selected=form.raw pairs=
-            [['', '-- Select solution --'], [0, 'Without solution'], [1, 'Solution proposed'], [2, 'Solution ready to go']] %]
-        pi factor: [% INCLUDE input name="pi_factor" width="5" %]
-        (this only matters if "ready to go" selected)
+            [['', '-- Select solution --'], [0, 'Without solution'], [1, 'Solution proposed'], [2, 'Solution ready to go']]
+            onChange="el=\$('#pi_factor_span'); (this.selectedIndex == 3) ?
+                el.removeClass('hidden') : el.addClass('hidden')"
+        %]
+        <span [% IF form.raw.has_solution != 2 %]class="hidden" [%END%]id="pi_factor_span">pi factor: [% INCLUDE input name="pi_factor" width="5" %]</span>
     </div>
     <div>
     [% INCLUDE between explain="Date range" name="a_created" width=10 %]

@@ -91,3 +91,16 @@ textarea {
     padding-left: 0.3em;
     padding-right: 0.3em;
 }
+
+.form-expl {
+    display: inline-block;
+    width: 20%;
+    text-align: right;
+}
+
+.form-data {
+    display: inline-block;
+    width: 15%;
+}
+
+
