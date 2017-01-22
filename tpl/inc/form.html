@@ -57,11 +57,11 @@
     [% SET start = form.data.start; SET limit = form.data.limit; %]
         <div>
         <input type="hidden" name="start" value="[% form.data.start %]">
-        [% IF start > 0 %]<input type="submit" name="prev" value="&lt;&lt;Prev">[% END %]
+        [% IF start > 0 %]<a href="[% base_url %]?[% form.as_url( "start", start - limit, "start_scratch", '' ) | html %]">&lt;&lt;Prev</a>[% END %]
         <b>Page [% start  / limit + 1 | int %]
         of   [% stat.n / limit + 1 | int %]
         ([% stat.n %] total)</b>
-        [% IF start + limit < stat.n %]<input type="submit" name="next" value="Next &gt;&gt;">[% END %]
+        [% IF start + limit < stat.n %]<a href="[% base_url %]?[% form.as_url( "start", start + limit, "start_scratch", '' ) | html %]">Next &gt;&gt;</a>[% END %]
         </div>
     [% END %]
 [% END %]

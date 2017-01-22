@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.1003;
+our $VERSION = 0.1004;
 
 use URI::Escape;
 use Data::Dumper;
@@ -15,7 +15,24 @@ use lib dirname(__FILE__)."/../lib", dirname(__FILE__)."/../local/lib";
 use MVC::Neaf 0.1207;
 use MVC::Neaf qw(neaf_err);
 use MVC::Neaf::X::Form;
+use MVC::Neaf::X::Form::Data;
 use App::Its::Potracheno::Model;
+
+# TODO UGLY HACK - remove after Form is updated.
+# Monkey patch form into showing itself as url
+# pointing to the same form again, with some additions
+if (!MVC::Neaf::X::Form::Data->can("as_url")) {
+    *MVC::Neaf::X::Form::Data::as_url = # avoid warn
+    *MVC::Neaf::X::Form::Data::as_url = sub {
+        my ($self, %override) = @_;
+
+        my %data = ( %{ $self->{raw} }, %override );
+        return join "&"
+            , map { uri_escape($_)."=".uri_escape_utf8($data{$_}) }
+            grep { defined $data{$_} && length $data{$_} }
+            keys %data;
+    };
+};
 
 $SIG{__WARN__} = sub {
     print STDERR join " ", DATE(time), "[$$]", $_[0];
