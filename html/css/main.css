@@ -103,4 +103,7 @@ textarea {
     width: 15%;
 }
 
-
+.hint {
+    color: #aaaaaa;
+    font-style: italic;
+}

@@ -14,10 +14,10 @@
         <span [% IF form.raw.has_solution != 2 %]class="hidden" [%END%]id="pi_factor_span">pi factor: [% INCLUDE input name="pi_factor" width="5" %]</span>
     </div>
     <div>
-    [% INCLUDE between explain="Date range" name="a_created" width=10 %]
+    [% INCLUDE between explain="Date range" name="a_created" width=10 hint="Use YYYY-MM-DD date format" %]
     </div>
     <div>
-    [% INCLUDE between explain="Time spent" name="time_spent" width=10 %]
+    [% INCLUDE between explain="Time spent" name="time_spent" width=10 hint="Format is like 1.5h or 1d" %]
     </div>
     <div>
     [% INCLUDE between explain="Fix estimate" name="best_estimate" width=10 %]

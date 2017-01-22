@@ -16,9 +16,10 @@
     [%- IF form.error.$name %] class="error"[% END %]
     [% IF width %] size="[% width %]"[% END %]>
 [% END %]
-[% BLOCK between # name=, width=, explain= %]
+[% BLOCK between # name=, width=, explain=, hint= %]
 <span class="form-expl">[% explain | html %]</span>
 [% INCLUDE input name="min_" _ name %] ..  [% INCLUDE input name="max_" _ name %]
+[% IF hint %]<span class="hint">[% hint %]</span>[% END %]
 [% END %]
 [% BLOCK checkbox %]
 <input name="[% name | html %]" type="checkbox"[% IF form.raw.$name %] checked[% END %]>
