@@ -1,5 +1,8 @@
 <hr>
 <footer class="footer">
+[%- IF auto_update.version %]
+        <p class="text-right"><b class="error">New version [% auto_update.version | html %] available!</b></p>
+[% END -%]
         <p class="text-right">&copy; 2016 <a href="https://github.com/dallaylaen/">Konstantin S. Uvarin</a>.
         Browse <a href="https://github.com/dallaylaen/potracheno">source code</a>.</p>
         <p class="text-right">Powered by <a href="https://github.com/dallaylaen/perl-mvc-neaf">Neaf</a></p>

@@ -115,6 +115,9 @@ handle = "dbi:SQLite:$(ROOT)/local/potracheno.sqlite"
 1   = Open
 70  = "Solution underway"
 100 = Closed
+
+[update]
+interval = 86400
 CONF
     close $fd or die "Failed to sync config $conf: $!";
 };

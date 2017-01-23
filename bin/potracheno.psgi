@@ -2,13 +2,14 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.1004;
+our $VERSION = 0.1005;
 
 use URI::Escape;
 use Data::Dumper;
 use POSIX qw(strftime);
 use Digest::MD5 qw(md5_base64);
 use Encode;
+use LWP::UserAgent;
 
 use File::Basename qw(dirname);
 use lib dirname(__FILE__)."/../lib", dirname(__FILE__)."/../local/lib";
@@ -17,22 +18,6 @@ use MVC::Neaf qw(neaf_err);
 use MVC::Neaf::X::Form;
 use MVC::Neaf::X::Form::Data;
 use App::Its::Potracheno::Model;
-
-# TODO UGLY HACK - remove after Form is updated.
-# Monkey patch form into showing itself as url
-# pointing to the same form again, with some additions
-if (!MVC::Neaf::X::Form::Data->can("as_url")) {
-    *MVC::Neaf::X::Form::Data::as_url = # avoid warn
-    *MVC::Neaf::X::Form::Data::as_url = sub {
-        my ($self, %override) = @_;
-
-        my %data = ( %{ $self->{raw} }, %override );
-        return join "&"
-            , map { uri_escape($_)."=".uri_escape_utf8($data{$_}) }
-            grep { defined $data{$_} && length $data{$_} }
-            keys %data;
-    };
-};
 
 $SIG{__WARN__} = sub {
     print STDERR join " ", DATE(time), "[$$]", $_[0];
@@ -75,6 +60,9 @@ MVC::Neaf->static( fonts         => "$Bin/../html/fonts" );
 MVC::Neaf->static( css           => "$Bin/../html/css" );
 MVC::Neaf->static( i             => "$Bin/../html/i" );
 MVC::Neaf->static( js            => "$Bin/../html/js" );
+
+###################################
+#  Routes
 
 MVC::Neaf->route( login => sub {
     my $req = shift;
@@ -208,7 +196,9 @@ MVC::Neaf->route( post => sub {
         $form->error( preview_mode => 1 );
         $form->raw->{sign} = $sign;
     };
-    $form->data->{tags_alpha} = [ map { lc } $form->data->{tags_str} =~ /(\S+)/g ];
+    $form->data->{tags_alpha} =
+        [ map { lc } $form->data->{tags_str} =~ /(\S+)/g ]
+            if defined $form->data->{tags_str};
 
     if ( $req->method eq 'POST' and $form->is_valid ) {
         my $id = $model->save_issue( user => $user, issue => $form->data);
@@ -251,6 +241,41 @@ MVC::Neaf->route ( edit_issue => sub {
     };
 });
 
+# Add autoupdate detection to ticket display
+# TODO Remove this hack from here when Neaf gets periodic jobs
+my $UPDATE_INTERVAL = $model->get_config("update", "interval");
+my $UPDATE_COOLDOWN = $model->get_config("update", "cooldown")
+    || $UPDATE_INTERVAL / 10;
+my $UPDATE_DUE = time + $UPDATE_COOLDOWN;
+my $UPDATE_AVAIL = {};
+my $UPDATE_LINK = $model->get_config("update", "link")
+    || "https://raw.githubusercontent.com/dallaylaen/potracheno/master/Changes";
+MVC::Neaf->set_default( auto_update => $UPDATE_AVAIL );
+
+sub auto_update {
+    warn "Checking for updates at $UPDATE_LINK";
+
+    # avoid spamming github too often
+    $UPDATE_DUE = time + $UPDATE_COOLDOWN;
+
+    my $ua = LWP::UserAgent->new;
+    my $resp = $ua->get($UPDATE_LINK);
+    return unless $resp->is_success;
+    return unless $resp->decoded_content =~ m#^(\d+\.\d+)#m;
+
+    my $ver = $1;
+    warn "Got version $ver, ours is $VERSION";
+
+    if ($ver > $VERSION) {
+        # Got it - no more checking needed
+        # TODO or should we save it to a file?
+        $UPDATE_INTERVAL = 0;
+        $UPDATE_AVAIL->{version} = $ver+0; # conversion avoids utf issues
+    } else {
+        $UPDATE_DUE = time + $UPDATE_INTERVAL;
+    };
+};
+
 MVC::Neaf->route( issue => sub {
     my $req = shift;
 
@@ -260,13 +285,16 @@ MVC::Neaf->route( issue => sub {
 
     my $data = $model->get_issue( id => $id );
     die 404 unless $data->{issue_id};
-    warn Dumper($data);
 
     my $comments = $model->get_comments(
         issue_id => $id, sort => '+created', text_only => !$show_all);
 
     my $watch = $model->get_watch(
         user_id => $req->session->{user_id}, issue_id => $id );
+
+    if ($UPDATE_INTERVAL && time >= $UPDATE_DUE) {
+        $req->postpone(\&auto_update);
+    };
 
     return {
         -template => "issue.html",
@@ -582,10 +610,30 @@ MVC::Neaf->set_error_handler( 404 => {
      version => "$VERSION/".App::Its::Potracheno::Model->VERSION,
 } );
 
+################################
+# Some extra hacks
+
 # TODO move to model OR view
 sub DATE {
     my $time = shift;
     return strftime("%Y-%m-%d %H:%M:%S", localtime($time));
 };
+
+# TODO UGLY HACK - remove after Form is updated.
+# Monkey patch form into showing itself as url
+# pointing to the same form again, with some additions
+if (!MVC::Neaf::X::Form::Data->can("as_url")) {
+    *MVC::Neaf::X::Form::Data::as_url = # avoid warn
+    *MVC::Neaf::X::Form::Data::as_url = sub {
+        my ($self, %override) = @_;
+
+        my %data = ( %{ $self->{raw} }, %override );
+        return join "&"
+            , map { uri_escape($_)."=".uri_escape_utf8($data{$_}) }
+            grep { defined $data{$_} && length $data{$_} }
+            keys %data;
+    };
+};
+
 
 MVC::Neaf->run();
