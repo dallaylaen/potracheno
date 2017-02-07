@@ -35,8 +35,8 @@
     </p>
     [% END %]
 [%- END -%]
-[%- BLOCK form_explain # name= explain="text" -%]
-    <span class="form-expl [% IF form.error.$name %]error[% ELSE %]explain[% END %]">
+[%- BLOCK form_explain # name= explain="text" wide=1|0 -%]
+    <span class="[% IF wide %]wide[% ELSE %]form-expl[% END %][% IF form.error.$name %] error[% ELSE %] explain[% END %]">
         [% explain # no filter, html allowed %]
     </span>
 [%- END -%]

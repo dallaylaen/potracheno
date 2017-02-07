@@ -6,14 +6,14 @@
 [% END %]
 [% SET form.raw.tags_str = form.raw.tags_str || issue.tags_alpha.join(" ") %]
 <form method="POST"[% IF post_to %] action="[% post_to | html %]"[% END %]>
-    [% INCLUDE form_explain name="summary" explain="Summary*:" %]<br>
+    [% INCLUDE form_explain name="summary" wide=1 explain="Summary*:" %]
     <input name="summary" value="[% form.raw.summary | html %]" class="wide"><br>
     <input type="hidden" name="issue_id" value="[% form.raw.issue_id | html %]">
-    [% INCLUDE form_explain name="summary"
+    [% INCLUDE form_explain name="summary" wide=1
         explain='Details (<a href="/help/markdown">markdown</a> supported)*:' %]
-    <br>
     <textarea name="body" class="wide">[% form.raw.body | html %]</textarea><br>
-    [% INCLUDE form_explain name="tags_str" explain="Issue tags (space-separated hyphen-delimited alphanumeric characters):" %]<br>
+    [% INCLUDE form_explain name="tags_str" wide=1
+        explain="Issue tags (space-separated hyphen-delimited alphanumeric characters):" %]
     <input name="tags_str" class="wide" value="[% form.raw.tags_str %]">
     <input type="hidden" name="sign" value="[% form.raw.sign | html %]">
     <input type="submit" value="Preview">
