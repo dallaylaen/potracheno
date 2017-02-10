@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.1005;
+our $VERSION = 0.1006;
 
 use URI::Escape;
 use Data::Dumper;
@@ -13,7 +13,7 @@ use LWP::UserAgent;
 
 use File::Basename qw(dirname);
 use lib dirname(__FILE__)."/../lib", dirname(__FILE__)."/../local/lib";
-use MVC::Neaf 0.1207;
+use MVC::Neaf 0.14;
 use MVC::Neaf qw(neaf_err);
 use MVC::Neaf::X::Form;
 use MVC::Neaf::X::Form::Data;
@@ -51,7 +51,8 @@ MVC::Neaf->load_view( TT => TT =>
     },
 )->render({ -template => \"\n\ntest\n\n" });
 
-MVC::Neaf->set_default( version => "$VERSION/".App::Its::Potracheno::Model->VERSION );
+MVC::Neaf->set_path_defaults( '/',
+    , { version => "$VERSION/".App::Its::Potracheno::Model->VERSION } );
 
 MVC::Neaf->set_session_handler( engine => $model, view_as => 'session' );
 
@@ -70,8 +71,6 @@ MVC::Neaf->route( login => sub {
     my $name = $req->param( name => '\w+' );
     my $pass = $req->param( pass => '.+' );
     my $return_to = $req->param( return_to => '/.*');
-
-    warn "name=$name, return_to=$return_to";
 
     # If return_to not given, make up from referer
     if (!$return_to and my $from = $req->referer) {
@@ -250,7 +249,7 @@ my $UPDATE_DUE = time + $UPDATE_COOLDOWN;
 my $UPDATE_AVAIL = {};
 my $UPDATE_LINK = $model->get_config("update", "link")
     || "https://raw.githubusercontent.com/dallaylaen/potracheno/master/Changes";
-MVC::Neaf->set_default( auto_update => $UPDATE_AVAIL );
+MVC::Neaf->set_path_defaults( '/', { auto_update => $UPDATE_AVAIL } );
 
 sub auto_update {
     warn "Checking for updates at $UPDATE_LINK";
