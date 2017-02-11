@@ -97,9 +97,12 @@ sub stop {
         unless $pid =~ /^\d+$/;
 
     # detect stale pid
-    if ([stat $fd]->[9] >= ([stat "/proc/$pid"]->[9] || 9**9**9)) {
+    if ([stat $fd]->[9] >= ([stat "/proc/$pid/fd/0"]->[9] || 9**9**9)) {
         print "Killing pid $pid...\n";
-        kill INT => $pid;
+        kill INT => $pid
+            or die "Failed to send signal: $!";
+    } else {
+        warn "Stale pid detected in $conf->{pidfile}: $pid";
     };
 
     print "Waiting for port $conf->{port}...\n";
