@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.1007;
+our $VERSION = 0.1009;
 
 use URI::Escape;
 use Data::Dumper;
@@ -570,39 +570,66 @@ MVC::Neaf->route( help => sub {
     my $req = shift;
 
     my $topic = $req->path_info;
-
+    $topic =~ s#\.md$##;
     my $file = "$Bin/../help/$topic.md";
-    my $fd;
-    if (!open $fd, "<", $file) {
-        # TODO tell 404 from actual error
-        die 404;
-    };
 
-    my $title = <$fd>;
-    local $/;
-    my $body = <$fd>;
+    my $body = cached_slurp( $file );
+    die 404 unless $body; # TODO tell this from actual mistyped url
+
+    $body =~ s/^([^\n]+)\n\n+//
+        or warn "Bad format in file $file, must be title\\n\\nmarkdown";
+    my $title = $1 || $topic;
 
     return {
         -template => "help.html",
         title => "$title - Help",
         body => $body,
     };
-}, path_info_regex => '\w+');
+}, path_info_regex => '\w+(?:\.md)?');
 
-# TODO configurable?..
-undef $!;
-my $greeting_file = "$Bin/../local/welcome.md";
-my $greeting = do {
-    local $/;
-    my $fd;
-    open $fd, "<", $greeting_file
-        and <$fd>;
+# cached_slurp(file)
+# return: content or undef if no such file
+# dies on error!=ENOENT
+my $slurp_ttl = $model->get_config( "help" => "cache_ttl" ) || 5;
+my %slurp_cch;
+sub cached_slurp {
+    my ($file) = @_;
+
+    if (my $entry = $slurp_cch{$file}) {
+        if ($entry->[1] > time) {
+            return $entry->[0];
+        } else {
+            delete $slurp_cch{$file};
+        };
+    };
+
+    my $content;
+    if (open my $fd, "<", $file) {
+        local $/;
+        $content = <$fd>;
+        defined $content or die "Failed to read from $file: $!";
+    } elsif( not $!{ENOENT} ) {
+        # File's there, but something's not right!
+        die "Failed to open(r) $file: $!";
+    };
+
+    # cache 404s as well
+    $slurp_cch{$file} = [ $content, time + $slurp_ttl ];
+    return $content;
 };
-die "Failed to load greeting from $greeting_file: $!"
-    unless defined $greeting or $!{ENOENT};
 
 MVC::Neaf->route( "/" => sub {
     my $req = shift;
+
+    my $greeting_file = $model->get_config("help", "greeting") || 'greeting.md';
+    my $greeting = cached_slurp( $greeting_file );
+
+    my $title = "Welcome to the wasted time tracker";
+    if ($greeting) {
+        $greeting =~ s/^([^\n]+)\n\n+//s
+            or warn "Bad greeting format, should be title\\n\\nmarkup in $greeting_file";
+        $title = $1 || $title;
+    };
 
     my $user_id = $req->session->{user_id};
     my $feed = $user_id &&
@@ -612,10 +639,10 @@ MVC::Neaf->route( "/" => sub {
         );
 
     return {
+        -template  => "main.html",
         feed       => $feed,
         greeting   => $greeting,
-        -template  => "main.html",
-        title      => "Welcome to the wasted time tracker",
+        title      => $title,
     };
 }, path_info_regex => '' );
 
