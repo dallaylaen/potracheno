@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.1006;
+our $VERSION = 0.1007;
 
 use URI::Escape;
 use Data::Dumper;
@@ -589,12 +589,33 @@ MVC::Neaf->route( help => sub {
     };
 }, path_info_regex => '\w+');
 
+# TODO configurable?..
+undef $!;
+my $greeting_file = "$Bin/../local/welcome.md";
+my $greeting = do {
+    local $/;
+    my $fd;
+    open $fd, "<", $greeting_file
+        and <$fd>;
+};
+die "Failed to load greeting from $greeting_file: $!"
+    unless defined $greeting or $!{ENOENT};
+
 MVC::Neaf->route( "/" => sub {
     my $req = shift;
 
+    my $user_id = $req->session->{user_id};
+    my $feed = $user_id &&
+        $model->watch_feed(
+            order_by  => "created", order_dir => 1, limit => 10,
+            user_id   => $user_id,
+        );
+
     return {
-        -template => "main.html",
-        title => "Potracheno - wasted time tracker",
+        feed       => $feed,
+        greeting   => $greeting,
+        -template  => "main.html",
+        title      => "Welcome to the wasted time tracker",
     };
 }, path_info_regex => '' );
 

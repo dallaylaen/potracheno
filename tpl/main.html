@@ -1,36 +1,45 @@
 [% PROCESS inc/form.html %]
-[% IF session.user_id %]
-    <h2>Welcome, <a href="/user/[% session.user_id %]">[% session.user_name | html %]</a>!</h2>
-[% ELSE %]
-    [% INCLUDE login_required explain="Welcome, guest! To be able to post issues and comments, please"%]
-[% END %]
 
-<div class="row marketing">
-[% #TODO configurable explanation %]
-        <div class="col-lg-6">
-          <h4>Potracheno</h4>
-          <p> Potracheno is a wasted time tracker.</p>
+<div class="row">
+    <div class="col-lg-9 col-md-9">
+        [% IF greeting %]
+            [% greeting | render %]
+        [% ELSE %]
+            [% "
+### Potracheno - a wasted time tracker
 
-          <h4>Potracheno</h4>
-          <p>It works similar to a normal bugtracker. However, instead of keeping track of time spent on <i>solving</i> anissue, it focuses on time wasted on <i>living with it</i>.</p>
+Use this small issue tracking system to track down issues that slow down
+development and demotivate the team.
 
-          <h4>Potracheno</h4>
-          <p>Have to wait a minute for the cache to clear on every restart? Post it here!</p>
+[Post issues](/post) that may be a reason for a slow down.
 
-        </div>
+* Legacy code takes ages to fix a bug or add new feature?
+* Scarse or outdated docs require bugging teammates constantly?
+* Cache cleanup takes minute+ during test server restart? *(a real case)*
+* Need to repeat the same process over and over, when it can be automated?
 
-        <div class="col-lg-6">
-          <h4>Potracheno</h4>
-          <p>Spent an hour working around a bug everybody else knew about? Post it here!</p>
+**Post it here!**
+Log time wasted because of them and tell others to do so.
+Propose solutions with estimates.
 
-          <h4>Potracheno</h4>
-          <p>Spent half a day hitting your head against the keyboard, then <a href="http://stackoverflow.com/a/482129/280449">reverted the change
-          </a>? Definitely post it here!</p>
+[Browse issues](/browse) and [tag stats](/stats) to see if there is
+something that needs attention or has a ready-to-go solution.
 
-          <h4>Potracheno</h4>
-          <p>Browse issues, propose solutions, and maybe one day the cost a targeted refactoring will be outweighted by the cost of lost time.
-             Even in the eyes of management.</p>
-
-        </div>
-
-      </div>
+" | render %]
+        [% END %]
+    </div>
+    <div class="col-lg-3 col-md-3 panel panel-default">
+        [% IF session.user_id %]
+            <div>See the whole <a href="/feed">feed</a>,
+                <a href="/user/[% session.user_id %]">[% session.user_name | html %]</a>!
+            </div>
+            <ul>
+            [% FOREACH item IN feed %]
+                <li><a href="/issue/[% item.issue_id %]">Issue [% item.issue_id %] changed</a></li>
+            [% END %]
+            </ul>
+        [% ELSE %]
+            [% INCLUDE login_required explain="Welcome, guest! To be able to post issues and comments, please"%]
+        [% END %]
+    </div>
+</div>
