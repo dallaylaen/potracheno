@@ -3,7 +3,7 @@ VERSION ADDED | VERSION TBD | TITLE
 -- NEXT --
 0.08    0.20    UI  JS calendar - find open-source
 0.10    0.20    APP Edit time entries
-0.10    0.20    APP decorate issues - load (lots of stuff) WHERE is IN
+0.10    0.20    APP decorate issues - load (lots of stuff) WHERE id IN
 0.10    0.20    UI  js-based follow/unfollow
 
 -- BACKLOG --

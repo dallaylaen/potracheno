@@ -1,5 +1,16 @@
 Revision history for the Potracheno time tracker project.
 
+0.11    Sat Feb 11 2017
+        UI  Add configurable front page & front page activity feed
+        UI  Fix form alignment, redo screenshots
+        UI  Add auto-update as in "new version available" in page footer
+        BUG Fix time units: 1d=8h, 1w=5d
+        REF Move to Neaf 0.14
+        AUX Merge pull request #5 from Difrex/master - docker support
+        BUG Fix <code></code> processing (was broken in Perl < 5.10)
+        DOC Step-by-step installation instruction, Winows install OK
+        BUG Lots of minor bugfixes
+
 0.10    Thu Nov 3 2016
         DOC Help improved, modules renamed.
 
