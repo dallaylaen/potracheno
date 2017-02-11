@@ -35,8 +35,21 @@ something that needs attention or has a ready-to-go solution.
             </div>
             <ul>
             [% FOREACH item IN feed %]
-                <li><a href="/issue/[% item.issue_id %]">Issue [% item.issue_id %] changed</a></li>
-            [% END %]
+                <li>
+    <a href="/user/[% item.user_id %]">[% item.user_name | html %]</a>
+    [% IF item.fix_estimate %]
+        proposed fix in <span class="solution">[% item.fix_estimate | time %]</span>
+    [% ELSIF item.seconds %]
+        spent <span class="status">[% item.seconds | time %]</span>
+    [% ELSE %]
+        commented
+    [% END %]
+        on <a href="/issue/[% item.issue_id %]">#[% item.issue_id%][% IF item.summary %]
+        - [% item.summary | html %]
+    [% END %]</a>
+    on <a href="/issue/[%  item.issue_id %]#a[% item.activity_id %]">[% item.created | date %]</a>.
+        </li>
+    [% END %]
             </ul>
         [% ELSE %]
             [% INCLUDE login_required explain="Welcome, guest! To be able to post issues and comments, please"%]

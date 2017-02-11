@@ -5,10 +5,9 @@ VERSION ADDED | VERSION TBD | TITLE
 0.10    0.20    APP Edit time entries
 0.10    0.20    APP decorate issues - load (lots of stuff) WHERE is IN
 0.10    0.20    UI  js-based follow/unfollow
-0.10    0.20    APP Configurable frontpage (static at least)
 
 -- BACKLOG --
-0.10    0.20    APP Configurable frontpage
+0.10    0.20    REF Kill $(ROOT) in config, chdir instead, and go to config::git
 0.10    0.20    REF move to newer neaf
 0.08    0.20    APP Password reset w/o admin knowing passw
 0.08    0.20    APP Oauth support (for jira etc)
