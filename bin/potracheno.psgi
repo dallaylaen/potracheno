@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.11;
+our $VERSION = 0.1101;
 
 use URI::Escape;
 use Data::Dumper;
@@ -242,9 +242,9 @@ MVC::Neaf->route ( edit_issue => sub {
 
 # Add autoupdate detection to ticket display
 # TODO Remove this hack from here when Neaf gets periodic jobs
-my $UPDATE_INTERVAL = $model->get_config("update", "interval");
+my $UPDATE_INTERVAL = $model->get_config("update", "interval") || 0;
 my $UPDATE_COOLDOWN = $model->get_config("update", "cooldown")
-    || $UPDATE_INTERVAL / 10;
+    || ($UPDATE_INTERVAL / 10);
 my $UPDATE_DUE = time + $UPDATE_COOLDOWN;
 my $UPDATE_AVAIL = {};
 my $UPDATE_LINK = $model->get_config("update", "link")
