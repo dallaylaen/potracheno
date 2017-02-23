@@ -6,6 +6,7 @@ use JSON::XS;
 use Getopt::Long;
 use POSIX qw(setsid);
 use IO::Socket::INET;
+use Time::HiRes qw(sleep);
 
 use FindBin qw($Bin);
 use lib "$Bin/lib", "$Bin/local/lib";
@@ -14,7 +15,6 @@ use App::Its::Potracheno::Config;
 my $root = "$Bin";
 my $config_file = "$root/local/potracheno.cfg";
 my $app = "$root/bin/potracheno.psgi";
-my $server = "plackup";
 
 # getopt here?
 
@@ -26,6 +26,7 @@ $conf->{port}       ||= 5000;
 $conf->{access_log} ||= "$root/local/access.log";
 $conf->{error_log}  ||= "$root/local/error.log";
 $conf->{pidfile}    ||= "$root/local/pid.txt";
+my $server = $conf->{server} || "plackup";
 
 my $action = shift;
 if (!$action) {
@@ -71,15 +72,17 @@ sub start {
         # END CHILD SECTION
     };
 
-    print "Waiting for port $conf->{port}...\n";
-    wait_for_port( $conf->{port}, 1 );
-    undef $SIG{CHLD};
     open my $fd, ">", $conf->{pidfile}
         or die "Failed to save pid $pid to file $conf->{pidfile}: $!";
     print $fd $pid
         or die "Failed to save pid $pid to file $conf->{pidfile}: $!";
     close $fd
         or die "Failed to save pid $pid to file $conf->{pidfile}: $!";
+
+    print "Waiting for port $conf->{port}...\n";
+    wait_for_port( $conf->{port}, 1 );
+    undef $SIG{CHLD};
+
     print "Start OK\n";
     return 1;
 };
@@ -120,6 +123,7 @@ sub wait_for_port {
         .($on_off ? "start" : "stop") };
     alarm 10;
 
+    my $int = 0.01;
     while ( 1 ) {
         my $sock = IO::Socket::INET->new(
             Proto => "tcp",
@@ -129,7 +133,8 @@ sub wait_for_port {
         close $sock if $sock;
 
         last unless $sock xor $on_off; # sock and on_off must be both true | both false
-        sleep 0.01;
+        sleep $int;
+        $int *= 1.3;
     };
     alarm 0;
 };
