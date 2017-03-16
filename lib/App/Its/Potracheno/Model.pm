@@ -2,7 +2,7 @@ package App::Its::Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.11;
+our $VERSION = 0.1101;
 
 =head1 NAME
 
@@ -1360,7 +1360,7 @@ sub _run_query {
         };
     };
 
-    my $caller = [ caller(1) ]->[3];
+    my $caller = [ caller(1) ]->[3] || 'main';
     $caller    =~ s/.*:://;
     my $pkg    = ref $self || $self;
 
@@ -1445,7 +1445,7 @@ sub insert_any {
     return $id;
 };
 
-=head2 save_any( table, id_fields, \%data )
+=head2 update_any( table, id_fields, \%data )
 
 UPDATE data in table with id = value of id_field (required).
 
@@ -1477,6 +1477,66 @@ sub update_any {
     $sth->execute( @values, $id );
 
     return $id;
+};
+
+=head2 edit_record( %options )
+
+Edit an existing entry.
+
+=cut
+
+our %Keys = (
+);
+my $select_tpl = "SELECT %s, %s FROM %s LEFT JOIN %s ON %s AND (%s) WHERE %s";
+
+sub edit_record {
+    my ($self, %opt) = @_;
+
+    my $table = $opt{table};
+    my $data  = $opt{data};
+    my $key   = $opt{key} || $Keys{$table} || "${table}_id";
+
+    # TODO check data
+
+    my ($cond, $cond_val) = _mk_where( $opt{condition}, "cond" );
+    my ($perm, $perm_val) = _mk_where( $opt{permission}, "perm" );
+
+    my $sql_sel = sprintf $select_tpl
+        , "cond.$key AS _is_present, perm.$key AS _is_allowed"
+        , join( ",", map { "cond.$_ AS $_" } sort keys %$data )
+        , "$table cond", "$table perm", "cond.$key = perm.$key"
+        , $perm, $cond;
+
+    my $sth_sel = $self->dbh->prepare_cached( $sql_sel );
+    $sth_sel->execute( @$perm_val, @$cond_val );
+    my $old = $sth_sel->fetchrow_hashref;
+    $sth_sel->finish; # Too lazy to check for dupes - we've got a key
+
+    die 404 unless $old and keys %$old;
+    die 403 unless defined $old->{_is_allowed};
+
+    return $self->update_any( $table, $key, { $key => $old->{_is_allowed}, %$data } );
+};
+
+sub _mk_where {
+    my ($data, $prefix) = @_;
+
+    $data ||= {};
+    $prefix = $prefix ? "$prefix." : "";
+    my (@cond, @val);
+
+    foreach my $field (sort keys %$data) {
+        if (defined $data->{$field}) {
+            push @cond, "$prefix$field = ?";
+            push @val,  $data->{$field};
+        } else {
+            push @cond, "$prefix$field IS NULL";
+        }
+    };
+
+    @cond = ("1=1") unless @cond;
+
+    return join( " AND ", @cond), \@val;
 };
 
 # AUXILIARY STUFF

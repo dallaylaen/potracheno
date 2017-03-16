@@ -19,6 +19,7 @@ my $sql = do {
     <$fd>
 };
 
+# copy-paste: t/Model-sqlite.t
 my (undef, $dbfile) = tempfile;
 my $fail;
 $SIG{__DIE__} = sub { $fail++ };
@@ -32,6 +33,7 @@ END {
 
 my $db = "dbi:SQLite:dbname=$dbfile";
 my $dbh = DBI->connect( $db, '', '', { RaiseError => 1 } );
+# end copy-paste: t/Model-sqlite.t
 
 $dbh->do( $_ ) for split /;/, $sql; # this autodies
 $dbh->disconnect;
