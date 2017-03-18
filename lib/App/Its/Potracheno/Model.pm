@@ -2,7 +2,7 @@ package App::Its::Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.1101;
+our $VERSION = 0.1102;
 
 =head1 NAME
 
@@ -455,7 +455,7 @@ sub get_time {
     return $t;
 };
 
-=head2 get_comments( user_id => ... || issue_id => ... )
+=head2 get_comments( user_id => ... || issue_id => ... || activity_id => ...)
 
 Get whatever logged activity for user/issue as an arrayref of hashrefs.
 
@@ -477,7 +477,7 @@ sub get_comments {
 
     my $where = '';
     my @arg;
-    foreach (qw(user_id issue_id)) {
+    foreach (qw(user_id issue_id activity_id)) {
         defined $opt{$_} or next;
         $where .= " AND $_ = ?";
         push @arg, $opt{$_};
