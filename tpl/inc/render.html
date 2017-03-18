@@ -41,7 +41,10 @@
         - [% item.summary | html %]
     [% END %]</a>
     [% END %]
-    on [% item.created | date %].
+    on [% item.created | date %]
+    [%- IF session.user_id == item.user_id && !fix_estimate -%]
+        <a href="/update/edit_time?activity_id=[% item.activity_id %]">edit</a>
+    [%- END -%].
   </div>
 
   [% IF item.note %]

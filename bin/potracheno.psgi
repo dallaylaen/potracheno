@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.1101;
+our $VERSION = 0.1102;
 
 use URI::Escape;
 use Data::Dumper;
@@ -370,6 +370,65 @@ MVC::Neaf->route( addtime => sub {
     $req->redirect( "/issue/$issue_id" );
 }, method => "POST" );
 
+# UPDATE SECTION
+# Require user being logged in for ALL requests under /update
+MVC::Neaf->add_hook( pre_logic => sub {
+    my $req = shift;
+    $req->session->{user_id} or die 403;
+}, path => '/update' );
+
+my $edit_time_form = MVC::Neaf::X::Form->new({
+#    issue_id     => qr/\d+/,
+    seconds      => qr/.*[\d.].*/,
+    note         => qr/.*\S.+/s,
+    activity_id  => [ required => qr/\d+/ ],
+});
+MVC::Neaf->route( '/update/edit_time' => sub {
+    my $req = shift;
+
+    my $form = $req->form( $edit_time_form );
+    if ($form->is_valid) {
+        my $data = { %{ $form->data } }; # shallow copy
+        $data->{seconds} = $model->human2time( $data->{seconds} );
+        $data->{note} .= "\n\n*Edited ".DATE(time)."*";
+        my $id = delete $data->{activity_id};
+
+        $model->edit_record(
+            table       => 'activity',
+            condition   => { activity_id => $id, fix_estimate => undef },
+            permission  => { user_id => $req->session->{user_id} },
+            data        => $data,
+        );
+
+        my $item = $model->get_comments( activity_id => $id )->[0];
+
+        $req->redirect(sprintf "/issue/%u#a%u"
+            , $item->{issue_id}, $form->data->{activity_id});
+    };
+
+    return {
+        -template  => 'edit_time.html',
+        title      => 'Edit time entry',
+        form       => $form,
+    };
+}, method => 'POST');
+
+MVC::Neaf->route( '/update/edit_time' => sub {
+    my $req = shift;
+
+    my $id = $req->param( activity_id => '\d+' );
+    die 404 unless $id;
+
+    my $item = $model->get_comments( activity_id => $id )->[0];
+    die 404 unless $item;
+
+    return {
+        -template  => 'edit_time.html',
+        title      => 'Edit time entry',
+        form       => { raw => $item, data => $item, error => {} },
+    };
+}, method => 'GET' );
+
 MVC::Neaf->route( user => sub {
     my $req = shift;
 
@@ -585,7 +644,10 @@ MVC::Neaf->route( help => sub {
         title => "$title - Help",
         body => $body,
     };
-}, path_info_regex => '\w+(?:\.md)?');
+}
+    , path_info_regex => '\w+(?:\.md)?'
+    , description => 'Generated from help/*.md'
+);
 
 # cached_slurp(file)
 # return: content or undef if no such file

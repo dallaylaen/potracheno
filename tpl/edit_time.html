@@ -1,0 +1,9 @@
+[% PROCESS inc/form.html %]
+[% PROCESS inc/render.html %]
+[% INCLUDE render_comment item=form.raw %]
+<form method="POST">
+    <input type="hidden" name="activity_id" value="[% form.data.activity_id | html %]">
+    <input name="seconds" value="[% form.raw.seconds | time %]"><br>
+    <textarea name="note" class="wide">[% form.raw.note | html %]</textarea><br>
+    <input type="submit" value="Save changes">
+</form>
