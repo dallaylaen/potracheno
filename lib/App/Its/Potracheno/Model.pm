@@ -2,7 +2,7 @@ package App::Its::Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.1102;
+our $VERSION = 0.1103;
 
 =head1 NAME
 
@@ -302,6 +302,66 @@ sub make_pass {
 
     $salt =~ s/#.*//;
     return join '#', $salt, md5_base64( join '#', $salt, $pass );
+};
+
+=head2 request_reset( user_id => ... )
+
+Request a password reset. Returns a random, unique reset_key of letters
+and digits.
+
+=cut
+
+my $uniq;
+sub request_reset {
+    my ($self, %opt) = @_;
+
+    # generate random string
+    # TODO better (use neaf session instead?)
+    my $time = time;
+    my $reset_key = md5_base64(join "#", $time,$$,rand,rand,rand,rand,++$uniq);
+    $reset_key =~ tr,+/,_~,;
+
+    # get ttl
+    my $ttl = $self->get_config("security", "reset_ttl") || 24*60*60;
+
+    # insert into db
+    my $sth = $self->_prepare(
+        "INSERT INTO reset_request(user_id,expires,reset_key,created) VALUES (?,?,?,?)");
+    $sth->execute( $opt{user_id}, $time+$ttl, $reset_key, $time );
+    $sth->finish;
+    return $reset_key;
+};
+
+=head2 confirm_reset( reset_key => ... )
+
+Returns user_id associated with reset key, if present & not expired.
+
+=cut
+
+sub confirm_reset {
+    my ($self, %opt) = @_;
+
+    my $key = $opt{reset_key};
+
+    my $sth = $self->_prepare(
+        "SELECT user_id FROM reset_request WHERE reset_key = ? AND expires > ?");
+    $sth->execute( $key, time );
+    my ($user_id) = $sth->fetchrow_array;
+    $sth->finish;
+    return $user_id || 0;
+};
+
+=head2 delete_reset( user_id => ... )
+
+Deletes ALL password reset requests for a particular user.
+
+=cut
+
+sub delete_reset {
+    my ($self, %opt) = @_;
+
+    my $sth = $self->_prepare("DELETE FROM reset_request WHERE user_id = ?");
+    return $sth->execute($opt{user_id});
 };
 
 =head1 ISSUE METHODS
@@ -1537,6 +1597,11 @@ sub _mk_where {
     @cond = ("1=1") unless @cond;
 
     return join( " AND ", @cond), \@val;
+};
+
+sub _prepare {
+    my ($self, $sql) = @_;
+    return $self->{dbh}->prepare_cached($sql);
 };
 
 # AUXILIARY STUFF
