@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.1102;
+our $VERSION = 0.1103;
 
 use URI::Escape;
 use Data::Dumper;
@@ -37,6 +37,11 @@ my $model = App::Its::Potracheno::Model->new(
     config_file => "$Bin/../local/potracheno.cfg",
     ROOT   => "$Bin/..",
 );
+
+# some basic regexps
+my $re_w    = qr/[A-Za-z_0-9]+/;
+my $re_id   = qr/[A-Za-z]$re_w/;
+my $re_user = qr/$re_id(?:[-.]$re_w)*/;
 
 MVC::Neaf->load_view( TT => TT =>
     INCLUDE_PATH => "$Bin/../tpl",
@@ -108,7 +113,7 @@ MVC::Neaf->route( logout => sub {
 MVC::Neaf->route( register => sub {
     my $req = shift;
 
-    my $user = $req->param( user => '\w+' );
+    my $user = $req->param( user => $re_user );
     if ($req->method eq 'POST') {
         eval {
             $user or die "FORM: [User must be nonempty alphanumeric]";
@@ -165,6 +170,66 @@ MVC::Neaf->route( edit_user => sub {
         details => $details,
     };
 });
+
+my $forgot_ttl = $model->get_config("security", "reset_ttl") || 24*60*60;
+
+MVC::Neaf->route( "/auth/forgot" => sub {
+    my $req = shift;
+
+    if ($req->is_post and my $user = $req->param(user => $re_user)) {
+        if (my $user_data = $model->load_user( name => $user )) {
+            my $base_url  = $req->scheme."://".$req->hostname.":".$req->port."/auth/setpass";
+            my $reset_key = $model->request_reset( user_id => $user_data->{user_id} );
+            warn "INFO password reset issued for $user: $base_url/$reset_key\n";
+        };
+        return {
+            -template => 'forgot.html',
+            title     => 'Password reset successful for '.$user,
+            user      => $user,
+            valid     => time + $forgot_ttl,
+        };
+    };
+
+    return {
+        -template => 'forgot_form.html',
+        title     => 'Password reset request',
+    }
+} );
+
+MVC::Neaf->route( "/auth/setpass" => sub {
+    my $req = shift;
+
+    my $reset_key = $req->path_info;
+
+    my $user_id = $model->confirm_reset( reset_key => $reset_key );
+    warn "INFO reset key=$reset_key, user=$user_id\n";
+
+    if (!$user_id) {
+        # TODO expired message
+        $req->redirect( "/auth/forgot" );
+    };
+
+    my $nomatch;
+    if ($req->is_post) {
+        my $pass  = $req->param(pass  => ".*");
+        my $pass2 = $req->param(pass2 => ".*");
+        defined $pass and defined $pass2 and $pass eq $pass2
+            or $nomatch++;
+        if (!$nomatch) {
+            $model->save_user( { user_id => $user_id, pass => $pass} );
+            $model->delete_reset( user_id => $user_id );
+            # TODO return success message
+            $req->redirect( "/" );
+        };
+    };
+
+    return {
+        -template => 'reset_form.html',
+        title     => "Password reset",
+        reset_key => $reset_key,
+        nomatch   => $nomatch,
+    };
+}, path_info_regex => qr/[A-Za-z_0-9~]+/);
 
 # post new issue - validator
 my $re_tag = qr(\w+(?:-\w+)*);
