@@ -2,7 +2,7 @@ package App::Its::Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.1103;
+our $VERSION = 0.1104;
 
 =head1 NAME
 
@@ -315,6 +315,8 @@ my $uniq;
 sub request_reset {
     my ($self, %opt) = @_;
 
+    # TODO record ip as well
+
     # generate random string
     # TODO better (use neaf session instead?)
     my $time = time;
@@ -362,6 +364,36 @@ sub delete_reset {
 
     my $sth = $self->_prepare("DELETE FROM reset_request WHERE user_id = ?");
     return $sth->execute($opt{user_id});
+};
+
+=head2 list_reset
+
+Select all pending requests from the database.
+
+=cut
+
+sub list_reset {
+    my ($self, %opt) = @_;
+
+    # TODO select by user, dates, etc
+    # Join - select only newest entries, 1 per user
+    my $sth = $self->_prepare(<<"SQL");
+        SELECT u.name,u.user_id,r.reset_key,r.expires
+        FROM user u
+            JOIN reset_request r USING(user_id)
+            LEFT JOIN reset_request r2
+                ON u.user_id = r.user_id AND u.user_id = r2.user_id
+                AND r.reset_request_id < r2.reset_request_id
+        WHERE r.expires > ? AND r2.user_id IS NULL;
+SQL
+
+    $sth->execute(time);
+    my @res;
+    while (my $row = $sth->fetchrow_hashref) {
+        push @res, $row;
+    };
+    $sth->finish;
+    return \@res;
 };
 
 =head1 ISSUE METHODS

@@ -196,6 +196,13 @@ is ($r_user, 0, "Reset failed" );
 $model->delete_reset( user_id => 100 );
 is ($model->confirm_reset( reset_key => $key ), 1, "Reset still present");
 
+my $list = $model->list_reset();
+
+is (scalar @$list, 1, "1 req in list");
+is $list->[0]{reset_key}, $key2, "Last key got listed";
+note "keys: $key, $key2";
+note explain $list;
+
 $model->delete_reset( user_id => 1 );
 is ($model->confirm_reset( reset_key => $key ), 0, "Reset deleted");
 
