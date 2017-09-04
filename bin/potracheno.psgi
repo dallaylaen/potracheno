@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.1103;
+our $VERSION = 0.1104;
 
 use URI::Escape;
 use Data::Dumper;
@@ -70,7 +70,7 @@ MVC::Neaf->static( js            => "$Bin/../html/js" );
 ###################################
 #  Routes
 
-MVC::Neaf->route( login => sub {
+MVC::Neaf->route( '/auth/login' => sub {
     my $req = shift;
 
     my $name = $req->param( name => '\w+' );
@@ -144,7 +144,7 @@ MVC::Neaf->route( register => sub {
 MVC::Neaf->route( edit_user => sub {
     my $req = shift;
 
-    $req->redirect("/login") unless $req->session->{user_id};
+    $req->redirect("/auth/login") unless $req->session->{user_id};
     my $details = $model->load_user( user_id => $req->session->{user_id} );
 
     if ($req->method eq 'POST') {
