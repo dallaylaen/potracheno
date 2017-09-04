@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.1104;
+our $VERSION = 0.1105;
 
 use URI::Escape;
 use Data::Dumper;
@@ -103,7 +103,7 @@ MVC::Neaf->route( '/auth/login' => sub {
     };
 } );
 
-MVC::Neaf->route( logout => sub {
+MVC::Neaf->route( '/auth/logout' => sub {
     my $req = shift;
 
     $req->delete_session;
