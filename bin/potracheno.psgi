@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.1105;
+our $VERSION = 0.1106;
 
 use URI::Escape;
 use Data::Dumper;
@@ -110,7 +110,7 @@ MVC::Neaf->route( '/auth/logout' => sub {
     $req->redirect( $req->referer || '/' );
 });
 
-MVC::Neaf->route( register => sub {
+MVC::Neaf->route( '/auth/register' => sub {
     my $req = shift;
 
     my $user = $req->param( user => $re_user );
