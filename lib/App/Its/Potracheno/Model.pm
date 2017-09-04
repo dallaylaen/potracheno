@@ -2,7 +2,7 @@ package App::Its::Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.1104;
+our $VERSION = 0.1105;
 
 =head1 NAME
 
@@ -299,6 +299,10 @@ Encrypt password. md5 is used (should move to sha1?).
 
 sub make_pass {
     my ($self, $salt, $pass) = @_;
+
+    if (!$pass) {
+        return "LOGIN_DISABLED";
+    };
 
     $salt =~ s/#.*//;
     return join '#', $salt, md5_base64( join '#', $salt, $pass );

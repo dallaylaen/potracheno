@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.1107;
+our $VERSION = 0.1108;
 
 use URI::Escape;
 use Data::Dumper;
@@ -119,6 +119,7 @@ MVC::Neaf->route( '/auth/logout' => sub {
     $req->redirect( '/' );
 });
 
+my $need_pass = !$model->get_config("security", "members_moderated");
 MVC::Neaf->route( '/auth/register' => sub {
     my $req = shift;
 
@@ -126,18 +127,28 @@ MVC::Neaf->route( '/auth/register' => sub {
     if ($req->method eq 'POST') {
         eval {
             $user or die "FORM: [User must be nonempty alphanumeric]";
-            my $pass  = $req->param( pass  => '.+' );
-            $pass or die "FORM: [Password empty]";
-            my $pass2 = $req->param( pass2 => '.+' );
-            $pass eq $pass2 or die "FORM: [Passwords do not match]";
+            # TODO refactor to forms
+
+            my $pass;
+            if ($need_pass) {
+                $pass  = $req->param( pass  => '.+' );
+                $pass or die "FORM: [Password empty]";
+                $pass eq $req->param( pass2 => '.+' )
+                    or die "FORM: [Passwords do not match]";
+            };
 
             my $id = $model->add_user( $user, $pass );
             $id   or die "FORM: [Username '$user' already taken]";
 
-            $req->save_session( { user_id => $id } );
-            $req->redirect("/");
+            if ($need_pass) {
+                $req->save_session( { user_id => $id } );
+                $req->redirect("/");
+            };
         };
         neaf_err($@);
+        if (!$need_pass) {
+            return _reset_pass( $req, $user );
+        };
     };
 
     my ($wrong) = $@ =~ /^FORM:\s*\[(.*)\]/;
@@ -147,6 +158,7 @@ MVC::Neaf->route( '/auth/register' => sub {
         title => "Register new user",
         user => $user,
         wrong => $wrong,
+        need_pass => $need_pass,
     };
 });
 
@@ -182,21 +194,27 @@ MVC::Neaf->route( edit_user => sub {
 
 my $forgot_ttl = $model->get_config("security", "reset_ttl") || 24*60*60;
 
+sub _reset_pass {
+    my ($req, $user) = @_;
+
+    if (my $user_data = $model->load_user( name => $user )) {
+        my $base_url  = $req->scheme."://".$req->hostname.":".$req->port."/auth/setpass";
+        my $reset_key = $model->request_reset( user_id => $user_data->{user_id} );
+        warn "INFO password reset issued for $user: $base_url/$reset_key\n";
+    };
+    return {
+        -template => 'forgot.html',
+        title     => 'Password reset successful for '.$user,
+        user      => $user,
+        valid     => time + $forgot_ttl,
+    };
+};
+
 MVC::Neaf->route( "/auth/forgot" => sub {
     my $req = shift;
 
     if ($req->is_post and my $user = $req->param(user => $re_user)) {
-        if (my $user_data = $model->load_user( name => $user )) {
-            my $base_url  = $req->scheme."://".$req->hostname.":".$req->port."/auth/setpass";
-            my $reset_key = $model->request_reset( user_id => $user_data->{user_id} );
-            warn "INFO password reset issued for $user: $base_url/$reset_key\n";
-        };
-        return {
-            -template => 'forgot.html',
-            title     => 'Password reset successful for '.$user,
-            user      => $user,
-            valid     => time + $forgot_ttl,
-        };
+        return _reset_pass( $req, $user);
     };
 
     return {
