@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.1106;
+our $VERSION = 0.1107;
 
 use URI::Escape;
 use Data::Dumper;
@@ -13,8 +13,8 @@ use LWP::UserAgent;
 
 use File::Basename qw(dirname);
 use lib dirname(__FILE__)."/../lib", dirname(__FILE__)."/../local/lib";
-use MVC::Neaf 0.14;
-use MVC::Neaf qw(neaf_err);
+use MVC::Neaf 0.17;
+use MVC::Neaf qw(:sugar neaf_err);
 use MVC::Neaf::X::Form;
 use MVC::Neaf::X::Form::Data;
 use App::Its::Potracheno::Model;
@@ -67,6 +67,14 @@ MVC::Neaf->static( css           => "$Bin/../html/css" );
 MVC::Neaf->static( i             => "$Bin/../html/i" );
 MVC::Neaf->static( js            => "$Bin/../html/js" );
 
+if ($model->get_config("security", "members_only")) {
+    # only allow static and logging in
+    neaf pre_logic => sub {
+        my $req = shift;
+        die 403 unless $req->session->{user_id};
+    }, exclude => [qw[auth css favicon.ico fonts i js help]];
+};
+
 ###################################
 #  Routes
 
@@ -80,6 +88,7 @@ MVC::Neaf->route( '/auth/login' => sub {
     # If return_to not given, make up from referer
     if (!$return_to and my $from = $req->referer) {
         $return_to = $from =~ m#https?://[^/]+(/.*)# ? $1 : "/";
+        $return_to = '/' if $return_to =~ m#/auth#; # avoid redirect to login, logout etc
     };
 
     my $data;
@@ -107,7 +116,7 @@ MVC::Neaf->route( '/auth/logout' => sub {
     my $req = shift;
 
     $req->delete_session;
-    $req->redirect( $req->referer || '/' );
+    $req->redirect( '/' );
 });
 
 MVC::Neaf->route( '/auth/register' => sub {

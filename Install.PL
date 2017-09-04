@@ -116,6 +116,9 @@ handle = "dbi:SQLite:$(ROOT)/local/potracheno.sqlite"
 70  = "Solution underway"
 100 = Closed
 
+[security]
+member_only = 0
+
 [update]
 interval = 86400
 CONF

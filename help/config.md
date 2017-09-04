@@ -62,6 +62,11 @@ _This only affects `./Start.PL` and is ignored by application itself._
 Does not affect reports & browse,
 which is a bug.
 
+### security
+
+* `members_only` - only allow logged in users, display a 403 for anonymous.
+May be useful if a severe NDA is in place.
+
 ### update
 
 * `interval` = seconds - how ofter to check for newer version on github.
