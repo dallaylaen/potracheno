@@ -1,15 +1,18 @@
 VERSION ADDED | VERSION TBD | TITLE
 
 -- NEXT --
+0.11    0.20    APP email integration
+0.11    0.20    APP only allow logged in user (cloud!)
+0.08    0.20    APP Password reset w/o admin knowing passw
+0.11    0.20    APP Require approval for user registration (that's admin...)
+
+-- BACKLOG --
 0.08    0.20    UI  JS calendar - find open-source
 0.10    0.20    APP Edit time entries
 0.10    0.20    APP decorate issues - load (lots of stuff) WHERE id IN
 0.10    0.20    UI  js-based follow/unfollow
-
--- BACKLOG --
 0.10    0.20    REF Kill $(ROOT) in config, chdir instead, and go to config::git
 0.10    0.20    REF move to newer neaf
-0.08    0.20    APP Password reset w/o admin knowing passw
 0.08    0.20    APP Oauth support (for jira etc)
 0.08    0.20    APP aggregate reports (what to report?)
 0.08    0.20    APP Dashboard with predefined reports (conf?)
@@ -19,6 +22,7 @@ VERSION ADDED | VERSION TBD | TITLE
 0.08    0.20    DEV Logging w/debug
 0.09    0.20    APP Invalidate solutions so that they don't show up
 0.07    0.20    UI  js in report
+0.11    0.30    API json-based api
 0.05    0.30    APP Admin interface
 0.07    0.30    ??? Merge issues (preserving track & solutions)
 0.05    0.30    APP Comment replies
