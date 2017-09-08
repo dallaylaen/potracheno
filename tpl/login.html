@@ -3,13 +3,13 @@
 <div class="alert alert-danger" role="alert">[% wrong | html %]</div>
 [% END %]
 <form class="form-signin" method="POST">
-  <h2 class="form-signin-heading">Please sign in or <a href="/register">register</a></h2>
+  <h2 class="form-signin-heading">Please sign in or <a href="/auth/register">register</a></h2>
   <input type="hidden" name="return_to" value="[% return_to | html %]">
   <label for="inputEmail" class="sr-only">Username</label>
   <input type="text" id="inputEmail" class="form-control"  name="name" value="[% name | html %]" placeholder="Username" required autofocus>
   <label for="inputPassword" class="sr-only">Password</label>
   <input type="password" id="inputPassword" class="form-control" placeholder="Password" name="pass" type="password" required>
   <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-<a href="/help/lostpass">Lost password?</a>
+<a href="/auth/forgot">Lost password?</a>
 </form>
 </div>

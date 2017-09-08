@@ -2,7 +2,7 @@ package App::Its::Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.1102;
+our $VERSION = 0.1105;
 
 =head1 NAME
 
@@ -300,8 +300,104 @@ Encrypt password. md5 is used (should move to sha1?).
 sub make_pass {
     my ($self, $salt, $pass) = @_;
 
+    if (!$pass) {
+        return "LOGIN_DISABLED";
+    };
+
     $salt =~ s/#.*//;
     return join '#', $salt, md5_base64( join '#', $salt, $pass );
+};
+
+=head2 request_reset( user_id => ... )
+
+Request a password reset. Returns a random, unique reset_key of letters
+and digits.
+
+=cut
+
+my $uniq;
+sub request_reset {
+    my ($self, %opt) = @_;
+
+    # TODO record ip as well
+
+    # generate random string
+    # TODO better (use neaf session instead?)
+    my $time = time;
+    my $reset_key = md5_base64(join "#", $time,$$,rand,rand,rand,rand,++$uniq);
+    $reset_key =~ tr,+/,_~,;
+
+    # get ttl
+    my $ttl = $self->get_config("security", "reset_ttl") || 24*60*60;
+
+    # insert into db
+    my $sth = $self->_prepare(
+        "INSERT INTO reset_request(user_id,expires,reset_key,created) VALUES (?,?,?,?)");
+    $sth->execute( $opt{user_id}, $time+$ttl, $reset_key, $time );
+    $sth->finish;
+    return $reset_key;
+};
+
+=head2 confirm_reset( reset_key => ... )
+
+Returns user_id associated with reset key, if present & not expired.
+
+=cut
+
+sub confirm_reset {
+    my ($self, %opt) = @_;
+
+    my $key = $opt{reset_key};
+
+    my $sth = $self->_prepare(
+        "SELECT user_id FROM reset_request WHERE reset_key = ? AND expires > ?");
+    $sth->execute( $key, time );
+    my ($user_id) = $sth->fetchrow_array;
+    $sth->finish;
+    return $user_id || 0;
+};
+
+=head2 delete_reset( user_id => ... )
+
+Deletes ALL password reset requests for a particular user.
+
+=cut
+
+sub delete_reset {
+    my ($self, %opt) = @_;
+
+    my $sth = $self->_prepare("DELETE FROM reset_request WHERE user_id = ?");
+    return $sth->execute($opt{user_id});
+};
+
+=head2 list_reset
+
+Select all pending requests from the database.
+
+=cut
+
+sub list_reset {
+    my ($self, %opt) = @_;
+
+    # TODO select by user, dates, etc
+    # Join - select only newest entries, 1 per user
+    my $sth = $self->_prepare(<<"SQL");
+        SELECT u.name,u.user_id,r.reset_key,r.expires
+        FROM user u
+            JOIN reset_request r USING(user_id)
+            LEFT JOIN reset_request r2
+                ON u.user_id = r.user_id AND u.user_id = r2.user_id
+                AND r.reset_request_id < r2.reset_request_id
+        WHERE r.expires > ? AND r2.user_id IS NULL;
+SQL
+
+    $sth->execute(time);
+    my @res;
+    while (my $row = $sth->fetchrow_hashref) {
+        push @res, $row;
+    };
+    $sth->finish;
+    return \@res;
 };
 
 =head1 ISSUE METHODS
@@ -1537,6 +1633,11 @@ sub _mk_where {
     @cond = ("1=1") unless @cond;
 
     return join( " AND ", @cond), \@val;
+};
+
+sub _prepare {
+    my ($self, $sql) = @_;
+    return $self->{dbh}->prepare_cached($sql);
 };
 
 # AUXILIARY STUFF

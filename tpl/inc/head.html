@@ -32,11 +32,11 @@
               <ul class="dropdown-menu">
                 <li><a href="/user/[% session.user_id %]">My issue</a></li>
                 <li><a href="/edit_user">Settings</a></li>
-                <li><a href="/logout">Logout</a></li>
+                <li><a href="/auth/logout">Logout</a></li>
               </ul>
             </li>
             [% ELSE %]
-            <li><a href="/login" title="Login"><span class="glyphicon glyphicon-log-in" aria-hidden="true"></span></a></li>
+            <li><a href="/auth/login" title="Login"><span class="glyphicon glyphicon-log-in" aria-hidden="true"></span></a></li>
         [% END %]
           </ul>
         </nav>

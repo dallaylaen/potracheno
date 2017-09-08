@@ -34,6 +34,15 @@ CREATE TABLE sess (
     created INT -- unix time
 ) DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS reset_request;
+CREATE TABLE reset_request (
+    reset_request_id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    reset_key varchar(80) UNIQUE NOT NULL,
+    user_id INTEGER NOT NULL,
+    expires INT NOT NULL, -- unix time
+    created INT -- unix time
+) DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS watch;
 CREATE TABLE watch (
     watch_id INTEGER PRIMARY KEY AUTO_INCREMENT,

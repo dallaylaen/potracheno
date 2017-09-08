@@ -20,7 +20,9 @@ my $sql = do {
 };
 
 # copy-paste: t/Model-sqlite.t
-my (undef, $dbfile) = tempfile;
+my $dbfile = shift;
+(undef, $dbfile) = tempfile
+    unless $dbfile;
 my $fail;
 $SIG{__DIE__} = sub { $fail++ };
 END {
@@ -178,5 +180,30 @@ my $stat = $model->get_stats_total();
 is ($stat->{issues}, 1, "Total 1 issue");
 
 note explain $stat;
+
+note "SMOKE TESTING PASSWORD RESET";
+
+my $key  = $model->request_reset( user_id => 1 );
+like ($key, qr/[A-Za-z0-9_~]{10,30}/, "A random key generated");
+my $key2 = $model->request_reset( user_id => 1 );
+isnt ($key, $key2, "Another key generated");
+
+my $r_user = $model->confirm_reset( reset_key => $key );
+is ($r_user, 1, "Reset round-trip" );
+$r_user = $model->confirm_reset( reset_key => "foobared" );
+is ($r_user, 0, "Reset failed" );
+
+$model->delete_reset( user_id => 100 );
+is ($model->confirm_reset( reset_key => $key ), 1, "Reset still present");
+
+my $list = $model->list_reset();
+
+is (scalar @$list, 1, "1 req in list");
+is $list->[0]{reset_key}, $key2, "Last key got listed";
+note "keys: $key, $key2";
+note explain $list;
+
+$model->delete_reset( user_id => 1 );
+is ($model->confirm_reset( reset_key => $key ), 0, "Reset deleted");
 
 done_testing;

@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.1102;
+our $VERSION = 0.1108;
 
 use URI::Escape;
 use Data::Dumper;
@@ -13,8 +13,8 @@ use LWP::UserAgent;
 
 use File::Basename qw(dirname);
 use lib dirname(__FILE__)."/../lib", dirname(__FILE__)."/../local/lib";
-use MVC::Neaf 0.14;
-use MVC::Neaf qw(neaf_err);
+use MVC::Neaf 0.17;
+use MVC::Neaf qw(:sugar neaf_err);
 use MVC::Neaf::X::Form;
 use MVC::Neaf::X::Form::Data;
 use App::Its::Potracheno::Model;
@@ -37,6 +37,11 @@ my $model = App::Its::Potracheno::Model->new(
     config_file => "$Bin/../local/potracheno.cfg",
     ROOT   => "$Bin/..",
 );
+
+# some basic regexps
+my $re_w    = qr/[A-Za-z_0-9]+/;
+my $re_id   = qr/[A-Za-z]$re_w/;
+my $re_user = qr/$re_id(?:[-.]$re_w)*/;
 
 MVC::Neaf->load_view( TT => TT =>
     INCLUDE_PATH => "$Bin/../tpl",
@@ -62,10 +67,18 @@ MVC::Neaf->static( css           => "$Bin/../html/css" );
 MVC::Neaf->static( i             => "$Bin/../html/i" );
 MVC::Neaf->static( js            => "$Bin/../html/js" );
 
+if ($model->get_config("security", "members_only")) {
+    # only allow static and logging in
+    neaf pre_logic => sub {
+        my $req = shift;
+        die 403 unless $req->session->{user_id};
+    }, exclude => [qw[auth css favicon.ico fonts i js help]];
+};
+
 ###################################
 #  Routes
 
-MVC::Neaf->route( login => sub {
+MVC::Neaf->route( '/auth/login' => sub {
     my $req = shift;
 
     my $name = $req->param( name => '\w+' );
@@ -75,6 +88,7 @@ MVC::Neaf->route( login => sub {
     # If return_to not given, make up from referer
     if (!$return_to and my $from = $req->referer) {
         $return_to = $from =~ m#https?://[^/]+(/.*)# ? $1 : "/";
+        $return_to = '/' if $return_to =~ m#/auth#; # avoid redirect to login, logout etc
     };
 
     my $data;
@@ -98,32 +112,43 @@ MVC::Neaf->route( login => sub {
     };
 } );
 
-MVC::Neaf->route( logout => sub {
+MVC::Neaf->route( '/auth/logout' => sub {
     my $req = shift;
 
     $req->delete_session;
-    $req->redirect( $req->referer || '/' );
+    $req->redirect( '/' );
 });
 
-MVC::Neaf->route( register => sub {
+my $need_pass = !$model->get_config("security", "members_moderated");
+MVC::Neaf->route( '/auth/register' => sub {
     my $req = shift;
 
-    my $user = $req->param( user => '\w+' );
+    my $user = $req->param( user => $re_user );
     if ($req->method eq 'POST') {
         eval {
             $user or die "FORM: [User must be nonempty alphanumeric]";
-            my $pass  = $req->param( pass  => '.+' );
-            $pass or die "FORM: [Password empty]";
-            my $pass2 = $req->param( pass2 => '.+' );
-            $pass eq $pass2 or die "FORM: [Passwords do not match]";
+            # TODO refactor to forms
+
+            my $pass;
+            if ($need_pass) {
+                $pass  = $req->param( pass  => '.+' );
+                $pass or die "FORM: [Password empty]";
+                $pass eq $req->param( pass2 => '.+' )
+                    or die "FORM: [Passwords do not match]";
+            };
 
             my $id = $model->add_user( $user, $pass );
             $id   or die "FORM: [Username '$user' already taken]";
 
-            $req->save_session( { user_id => $id } );
-            $req->redirect("/");
+            if ($need_pass) {
+                $req->save_session( { user_id => $id } );
+                $req->redirect("/");
+            };
         };
         neaf_err($@);
+        if (!$need_pass) {
+            return _reset_pass( $req, $user );
+        };
     };
 
     my ($wrong) = $@ =~ /^FORM:\s*\[(.*)\]/;
@@ -133,13 +158,14 @@ MVC::Neaf->route( register => sub {
         title => "Register new user",
         user => $user,
         wrong => $wrong,
+        need_pass => $need_pass,
     };
 });
 
 MVC::Neaf->route( edit_user => sub {
     my $req = shift;
 
-    $req->redirect("/login") unless $req->session->{user_id};
+    $req->redirect("/auth/login") unless $req->session->{user_id};
     my $details = $model->load_user( user_id => $req->session->{user_id} );
 
     if ($req->method eq 'POST') {
@@ -165,6 +191,72 @@ MVC::Neaf->route( edit_user => sub {
         details => $details,
     };
 });
+
+my $forgot_ttl = $model->get_config("security", "reset_ttl") || 24*60*60;
+
+sub _reset_pass {
+    my ($req, $user) = @_;
+
+    if (my $user_data = $model->load_user( name => $user )) {
+        my $base_url  = $req->scheme."://".$req->hostname.":".$req->port."/auth/setpass";
+        my $reset_key = $model->request_reset( user_id => $user_data->{user_id} );
+        warn "INFO password reset issued for $user: $base_url/$reset_key\n";
+    };
+    return {
+        -template => 'forgot.html',
+        title     => 'Password reset successful for '.$user,
+        user      => $user,
+        valid     => time + $forgot_ttl,
+    };
+};
+
+MVC::Neaf->route( "/auth/forgot" => sub {
+    my $req = shift;
+
+    if ($req->is_post and my $user = $req->param(user => $re_user)) {
+        return _reset_pass( $req, $user);
+    };
+
+    return {
+        -template => 'forgot_form.html',
+        title     => 'Password reset request',
+    }
+} );
+
+MVC::Neaf->route( "/auth/setpass" => sub {
+    my $req = shift;
+
+    my $reset_key = $req->path_info;
+
+    my $user_id = $model->confirm_reset( reset_key => $reset_key );
+    warn "INFO reset key=$reset_key, user=$user_id\n";
+
+    if (!$user_id) {
+        # TODO expired message
+        $req->redirect( "/auth/forgot" );
+    };
+
+    my $nomatch;
+    if ($req->is_post) {
+        my $pass  = $req->param(pass  => ".*");
+        my $pass2 = $req->param(pass2 => ".*");
+        defined $pass and defined $pass2 and $pass eq $pass2
+            or $nomatch++;
+        if (!$nomatch) {
+            $model->save_user( { user_id => $user_id, pass => $pass} );
+            $model->delete_reset( user_id => $user_id );
+            # TODO return success message
+            $req->redirect( "/" );
+        };
+    };
+
+    return {
+        -template => 'reset_form.html',
+        title     => "Password reset",
+        reset_key => $reset_key,
+        nomatch   => $nomatch,
+    };
+}, path_info_regex => qr/[A-Za-z_0-9~]+/);
 
 # post new issue - validator
 my $re_tag = qr(\w+(?:-\w+)*);
