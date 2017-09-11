@@ -15,7 +15,7 @@
 <hr>
 <div class="post">
 [% IF session.user_id %]
-<form action="/addtime" method="POST">
+<form action="/update/add_time" method="POST">
     <input type="hidden" name="issue_id" value="[% issue.issue_id %]">
     [% INCLUDE select name="type" pairs=
         [ ["", "Time spent"], ["fix", "Fix estimate" ] ] %]
@@ -32,7 +32,7 @@
         </option>
         [% END %]
     </select>
-    <a href="/edit_issue?id=[% issue.issue_id %]">Edit issue</a>
+    <a href="/update/edit_issue?id=[% issue.issue_id %]">Edit issue</a>
     <br>
     Comment (<a href="/help/markdown">markdown</a> supported):<br>
     <textarea name="note" class="wide"></textarea><br>

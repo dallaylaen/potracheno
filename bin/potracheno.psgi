@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.1109;
+our $VERSION = 0.1110;
 
 use URI::Escape;
 use Data::Dumper;
@@ -265,7 +265,7 @@ my $val_post = MVC::Neaf::X::Form->new({
     issue_id  => '\d+',
     tags_str  => qr/(?:\s*$re_tag\s*)*/,
 });
-MVC::Neaf->route( post => sub {
+MVC::Neaf->route( '/update/post' => sub {
     my $req = shift;
 
     my $user = $req->session;
@@ -308,7 +308,7 @@ MVC::Neaf->route( post => sub {
     };
 } );
 
-MVC::Neaf->route ( edit_issue => sub {
+MVC::Neaf->route ( "/update/edit_issue" => sub {
     my $req = shift;
 
     my $user = $req->session->{user_id};
@@ -325,7 +325,7 @@ MVC::Neaf->route ( edit_issue => sub {
         title     => 'Edit issue',
         form      => $form,
         issue     => $model->render_issue( $issue ),
-        post_to   => "/post",
+        post_to   => "/update/post",
     };
 });
 
@@ -427,7 +427,7 @@ MVC::Neaf->route( search => sub {
 # fetch usr
 # model. add time
 # return to view
-MVC::Neaf->route( addtime => sub {
+MVC::Neaf->route( '/update/add_time' => sub {
     my $req = shift;
 
     my $user = $req->session;

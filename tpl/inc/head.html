@@ -9,10 +9,10 @@
       <div class="header clearfix">
         <nav>
           <ul class="nav nav-pills pull-right">
-            <li role="presentation"><a href="/post">New issue</a></li>
+            <li role="presentation"><a href="/update/post">New issue</a></li>
             <li role="presentation"><a href="/browse">Browse</a></li>
             <li role="presentation"><a href="/stats">Stats</a></li>
-[% IF session.user_id %]
+[% IF session.allow %]
             <li role="presentation"><a href="/feed">My feed</a></li>
 [% END %]
             <li role="presentation"><a href="/help/general">Help</a></li>
