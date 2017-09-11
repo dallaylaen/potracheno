@@ -47,22 +47,23 @@ my $model = App::Its::Potracheno::Model->new(
 # Huh, let the tests begin
 note "TESTING USER";
 
-my $user = $model->add_user( "Foo", "secret" );
+my $user = $model->add_user( name => "Foo", pass => "secret" );
 
 is ($user, 1, "1st user on a clean db" );
 
-$user = $model->add_user( "Bar", "secret" );
+$user = $model->add_user( name => "Bar", pass => "secret" );
 
 is ($user, 2, "2nd user on a clean db" );
 
 $user = $model->load_user( name => "Foo" );
 is ($user->{user_id}, 1, "Fetching 1st user again" );
 is ($user->{name}, "Foo", "Input round trip(3)" );
+is ($user->{banned}, 0, "Not banned by default" );
 
 note explain $user;
 
-$model->add_user( "Commenter", "secret" );
-$model->add_user( "Solver", "secret" );
+$model->add_user( name => "Commenter", pass => "secret" );
+$model->add_user( name => "Solver", pass => "secret" );
 
 note "TESTING ISSUE";
 

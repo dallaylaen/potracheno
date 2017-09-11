@@ -3,6 +3,8 @@ CREATE TABLE user (
     user_id INTEGER PRIMARY KEY AUTO_INCREMENT,
     name varchar(20) UNIQUE,
     password varchar(256),
+    admin INT(1) DEFAULT 0,
+    banned INT(1) DEFAULT 0,
     created INT -- unix time
 ) DEFAULT CHARSET=utf8;
 

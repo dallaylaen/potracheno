@@ -37,11 +37,18 @@
             </li>
             [% ELSE %]
             <li><a href="/auth/login" title="Login"><span class="glyphicon glyphicon-log-in" aria-hidden="true"></span></a></li>
-        [% END %]
+            [% END # session.user_id %]
           </ul>
         </nav>
         <a href="/"><img height="50" width="50" src="/i/potracheno-logo.png"></a>
       </div>
+
+[% IF session.banned %]
+    <div class="error">
+        Your membership is suspended. Please contact the administrator
+        to let you in again.
+    </div>
+[% END %]
 
       <div>
         <h1>[% title | html %]</h1>

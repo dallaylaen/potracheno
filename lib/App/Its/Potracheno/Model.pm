@@ -2,7 +2,7 @@ package App::Its::Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.1105;
+our $VERSION = 0.1106;
 
 =head1 NAME
 
@@ -219,24 +219,41 @@ sub login {
     return $user;
 };
 
-my $sql_user_ins = <<'SQL';
-INSERT INTO user(name,password) VALUES (?,?);
-SQL
+=head2 add_user( \%options )
 
-=head2 add_user( name, password )
+Create new user.
 
-Create new user. To be rewritten.
+Options may include:
+
+=over
+
+=item * name (required)
+
+=item * pass
+
+=item * admin
+
+=item * banned - if set, user won't be able to log in until approved
+
+=back
 
 =cut
 
 # TODO refactor into (insert stub, save_user)
-sub add_user {
-    my ($self, $user, $pass) = @_;
+my $sql_user_ins = <<'SQL';
+INSERT INTO user(name,password,banned) VALUES (?,?,?);
+SQL
 
-    my $crypt = $self->make_pass( $self->get_session_id, $pass );
+sub add_user {
+    my ($self, %opt) = @_;
+
+    my $user = $opt{name};
+    my $banned = $opt{banned} ? 1 : 0;
+
+    my $crypt = $self->make_pass( $self->get_session_id, $opt{pass} );
     my $sth = $self->dbh->prepare( $sql_user_ins );
     eval {
-        $sth->execute( $user, $crypt );
+        $sth->execute( $user, $crypt, $banned );
     };
     return if ($@ =~ /unique/);
     die $@ if $@; # rethrow
@@ -709,7 +726,7 @@ This implements L<MVC::Neaf::X::Session>.
 =cut
 
 my $sql_sess_load = <<'SQL';
-SELECT u.user_id, u.name
+SELECT u.user_id, u.banned, u.admin, u.name AS user_name
 FROM user u JOIN sess s USING(user_id)
 WHERE s.sess_id = ?
 SQL
@@ -724,10 +741,12 @@ sub load_session {
     my $sth = $self->dbh->prepare($sql_sess_load);
 
     $sth->execute( $id );
-    my ($user_id, $name) = $sth->fetchrow_array;
+    my $data = $sth->fetchrow_hashref;
     $sth->finish;
 
-    return { data => { user_id => $user_id, user_name => $name } };
+    $data->{allow} = !$data->{banned};
+
+    return { data => $data };
 };
 
 sub save_session {

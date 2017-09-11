@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.1108;
+our $VERSION = 0.1109;
 
 use URI::Escape;
 use Data::Dumper;
@@ -71,7 +71,7 @@ if ($model->get_config("security", "members_only")) {
     # only allow static and logging in
     neaf pre_logic => sub {
         my $req = shift;
-        die 403 unless $req->session->{user_id};
+        die 403 unless $req->session->{allow};
     }, exclude => [qw[auth css favicon.ico fonts i js help]];
 };
 
@@ -119,7 +119,7 @@ MVC::Neaf->route( '/auth/logout' => sub {
     $req->redirect( '/' );
 });
 
-my $need_pass = !$model->get_config("security", "members_moderated");
+my $new_banned = $model->get_config("security", "members_moderated");
 MVC::Neaf->route( '/auth/register' => sub {
     my $req = shift;
 
@@ -130,25 +130,23 @@ MVC::Neaf->route( '/auth/register' => sub {
             # TODO refactor to forms
 
             my $pass;
-            if ($need_pass) {
                 $pass  = $req->param( pass  => '.+' );
                 $pass or die "FORM: [Password empty]";
                 $pass eq $req->param( pass2 => '.+' )
                     or die "FORM: [Passwords do not match]";
-            };
 
-            my $id = $model->add_user( $user, $pass );
+            my $id = $model->add_user(
+               name => $user, pass => $pass, banned => $new_banned );
             $id   or die "FORM: [Username '$user' already taken]";
 
-            if ($need_pass) {
-                $req->save_session( { user_id => $id } );
+            $req->save_session( { user_id => $id } );
+            if ($new_banned) {
+                $req->redirect("/user/$id");
+            } else {
                 $req->redirect("/");
             };
         };
         neaf_err($@);
-        if (!$need_pass) {
-            return _reset_pass( $req, $user );
-        };
     };
 
     my ($wrong) = $@ =~ /^FORM:\s*\[(.*)\]/;
@@ -158,7 +156,6 @@ MVC::Neaf->route( '/auth/register' => sub {
         title => "Register new user",
         user => $user,
         wrong => $wrong,
-        need_pass => $need_pass,
     };
 });
 
@@ -466,7 +463,7 @@ MVC::Neaf->route( addtime => sub {
 # Require user being logged in for ALL requests under /update
 MVC::Neaf->add_hook( pre_logic => sub {
     my $req = shift;
-    $req->session->{user_id} or die 403;
+    $req->session->{allow} or die 403;
 }, path => '/update' );
 
 my $edit_time_form = MVC::Neaf::X::Form->new({
