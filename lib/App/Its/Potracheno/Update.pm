@@ -2,7 +2,7 @@ package App::Its::Potracheno::Update;
 
 use strict;
 use warnings;
-our $VERSION = 0.1101;
+our $VERSION = 0.1102;
 
 =head1 NAME
 
@@ -56,8 +56,8 @@ sub new {
     $opt{version}      ||= $VERSION;
     $opt{interval}     ||= 0;
     $opt{cooldown}     ||= $opt{interval} / 10;
-    $opt{update_avail} ||= {};
-    $opt{update_due}     = time + $opt{cooldown}
+    $opt{update_avail}   = {};
+    $opt{update_due}     = time
         if $opt{interval};
     $opt{update_link}  ||= "https://raw.githubusercontent.com/dallaylaen/potracheno/master/Changes";
 
@@ -75,7 +75,8 @@ but this is how potracheno checks updates right now.
 =cut
 
 sub permanent_ref {
-    my $self;
+    my $self = shift;
+
     return $self->{update_avail};
 };
 
@@ -87,7 +88,7 @@ Tell whether it's time for the next update.
 
 sub is_due {
     my $self = shift;
-    return $self->{interval} && $self->{update_due} > time;
+    return $self->{interval} && $self->{update_due} <= time;
 };
 
 =head2 run_update()
