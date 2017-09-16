@@ -103,7 +103,8 @@ or when updating the tool. I.e.
 bin/migrate.pl --dump local/dump.txt
 git pull
 mv local/potracheno.sqlite local/potracheno.sqlite.bak
-sqlite3 local/potracheno.sqlite <sql/potracheno.sqlite.sql
+perl -MApp::Its::Potracheno -we 'print get_schema_sqlite()' |\
+    sqlite3 local/potracheno.sqlite
 bin/migrate.pl --restore local/dump.txt
 </code>
 

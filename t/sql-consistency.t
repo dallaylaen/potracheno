@@ -3,21 +3,18 @@
 use strict;
 use warnings;
 use Test::More;
-use File::Basename qw(dirname);
+use App::Its::Potracheno;
 
-my $dir = dirname($0)."/../sql";
-opendir( my $dfd, $dir )
-    or die "Failed to read $dir: $!";
-my @files = grep { /^potracheno\..*\.sql$/ } readdir($dfd);
-closedir $dfd;
+my %schema = (
+    sqlite => get_schema_sqlite(),
+    mysql  => get_schema_mysql(),
+);
 
 my %signatures;
-foreach my $f (@files) {
-    open my $fd, "<", "$dir/$f"
-        or die "Failed to open(r) $dir/$f: $!";
+foreach my $dbtype (keys %schema) {
     my %fields;
     my $table;
-    while (<$fd>) {
+    foreach (split /\n/, $schema{$dbtype}) {
         s#^\s+##;
         if ($table) {
             if (/^\)/) {
@@ -32,14 +29,14 @@ foreach my $f (@files) {
         } else {
             /CREATE TABLE (\w+)/i or next;
             $table = $1;
-            note "Found table $table in $f"
+            note "Found table $table in $dbtype"
         };
     };
 
-    $signatures{$f} = join ";", sort keys %fields;
+    $signatures{$dbtype} = join ";", sort keys %fields;
 };
 
-my ($first, @other) = @files;
+my ($first, @other) = sort keys %schema;
 
 foreach (@other) {
     is ($signatures{$_}, $signatures{$first}, "files $_ and $first identic");

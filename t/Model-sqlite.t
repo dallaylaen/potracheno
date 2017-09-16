@@ -8,16 +8,10 @@ use File::Temp qw(tempfile);
 use FindBin qw($Bin);
 use DBI;
 
+use App::Its::Potracheno;
 use App::Its::Potracheno::Model;
 
-my $spec = "$Bin/../sql/potracheno.sqlite.sql";
-
-my $sql = do {
-    open (my $fd, "<", $spec)
-        or die "Failed to load sqlite schema $spec: $!";
-    local $/;
-    <$fd>
-};
+my $sql = get_schema_sqlite();
 
 # copy-paste: t/Model-sqlite.t
 my $dbfile = shift;

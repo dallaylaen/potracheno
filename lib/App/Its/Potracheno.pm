@@ -3,7 +3,7 @@ package App::Its::Potracheno;
 use strict;
 use warnings;
 
-our $VERSION = 0.1102;
+our $VERSION = 0.1103;
 
 =head1 NAME
 
@@ -801,6 +801,15 @@ sub run {
     return MVC::Neaf->run();
 }; # sub run ends here
 
+=head2 get_schema_sqlite()
+
+=head2 get_schema_mysql()
+
+Use these functions to fetch database schema:
+
+    perl -MApp::Its::Potracheno -we 'print get_schema_sqlite()' | sqlite3 base.sqlite
+
+=cut
 
 sub get_schema_sqlite {
     return <<'SQL';
