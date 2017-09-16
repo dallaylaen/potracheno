@@ -3,7 +3,7 @@ package App::Its::Potracheno;
 use strict;
 use warnings;
 
-our $VERSION = 0.1104;
+our $VERSION = 0.1105;
 
 =head1 NAME
 
@@ -93,7 +93,7 @@ sub run {
     #  Routes
     #  TODO Move all routes inside run()
 
-    MVC::Neaf->route( '/auth/login' => sub {
+    get+post '/auth/login' => sub {
         my $req = shift;
 
         my $name = $req->param( name => '\w+' );
@@ -125,16 +125,16 @@ sub run {
             name      => $name,
             return_to => $return_to,
         };
-    } );
+    };
 
-    MVC::Neaf->route( '/auth/logout' => sub {
+    get+post '/auth/logout' => sub {
         my $req = shift;
 
         $req->delete_session;
         $req->redirect( '/' );
-    });
+    };
 
-    MVC::Neaf->route( '/auth/register' => sub {
+    get+post '/auth/register' => sub {
         my $req = shift;
 
         my $user = $req->param( user => $re_user );
@@ -171,9 +171,9 @@ sub run {
             user => $user,
             wrong => $wrong,
         };
-    });
+    };
 
-    MVC::Neaf->route( edit_user => sub {
+    get+post edit_user => sub {
         my $req = shift;
 
         $req->redirect("/auth/login") unless $req->session->{user_id};
@@ -201,9 +201,9 @@ sub run {
             title => "Edit user $details->{name}",
             details => $details,
         };
-    });
+    };
 
-    MVC::Neaf->route( "/auth/forgot" => sub {
+    get+post "/auth/forgot" => sub {
         my $req = shift;
 
         if ($req->is_post and my $user = $req->param(user => $re_user)) {
@@ -224,9 +224,9 @@ sub run {
             -template => 'forgot_form.html',
             title     => 'Password reset request',
         }
-    } );
+    };
 
-    MVC::Neaf->route( "/auth/setpass" => sub {
+    get+post "/auth/setpass" => sub {
         my $req = shift;
 
         my $reset_key = $req->path_info;
@@ -259,7 +259,7 @@ sub run {
             reset_key => $reset_key,
             nomatch   => $nomatch,
         };
-    }, path_info_regex => qr/[A-Za-z_0-9~]+/);
+    }, path_info_regex => qr/[A-Za-z_0-9~]+/;
 
     # post new issue - validator
     my $re_tag = qr(\w+(?:-\w+)*);
@@ -271,7 +271,7 @@ sub run {
         issue_id  => '\d+',
         tags_str  => qr/(?:\s*$re_tag\s*)*/,
     });
-    MVC::Neaf->route( '/update/post' => sub {
+    get+post '/update/post' => sub {
         my $req = shift;
 
         my $user = $req->session;
@@ -312,9 +312,9 @@ sub run {
             form      => $form,
             issue     => $model->render_issue($form->data),
         };
-    } );
+    };
 
-    MVC::Neaf->route ( "/update/edit_issue" => sub {
+    get+post "/update/edit_issue" => sub {
         my $req = shift;
 
         my $user = $req->session->{user_id};
@@ -333,9 +333,9 @@ sub run {
             issue     => $model->render_issue( $issue ),
             post_to   => "/update/post",
         };
-    });
+    };
 
-    MVC::Neaf->route( issue => sub {
+    get+post issue => sub {
         my $req = shift;
 
         my $id = $req->path_info || $req->param ( id => '\d+' );
@@ -359,10 +359,10 @@ sub run {
             statuses  => $model->get_status_pairs,
             watch     => $watch,
         };
-    }, path_info_regex => '\d+' );
+    }, path_info_regex => '\d+';
 
     $search_limit ||= 10;
-    MVC::Neaf->route( search => sub {
+    get+post search => sub {
         my $req = shift;
 
         my $q      = $req->param( q => '.*' );
@@ -388,12 +388,12 @@ sub run {
             seen       => $seen,
             last       => (@$result < $search_limit),
         };
-    } );
+    };
 
     # fetch usr
     # model. add time
     # return to view
-    MVC::Neaf->route( '/update/add_time' => sub {
+    post '/update/add_time' => sub {
         my $req = shift;
 
         my $user = $req->session;
@@ -423,7 +423,7 @@ sub run {
         };
 
         $req->redirect( "/issue/$issue_id" );
-    }, method => "POST" );
+    };
 
     # UPDATE SECTION
     # Require user being logged in for ALL requests under /update
@@ -438,7 +438,7 @@ sub run {
         note         => qr/.*\S.+/s,
         activity_id  => [ required => qr/\d+/ ],
     });
-    MVC::Neaf->route( '/update/edit_time' => sub {
+    post '/update/edit_time' => sub {
         my $req = shift;
 
         my $form = $req->form( $edit_time_form );
@@ -466,9 +466,9 @@ sub run {
             title      => 'Edit time entry',
             form       => $form,
         };
-    }, method => 'POST');
+    };
 
-    MVC::Neaf->route( '/update/edit_time' => sub {
+    get '/update/edit_time' => sub {
         my $req = shift;
 
         my $id = $req->param( activity_id => '\d+' );
@@ -482,9 +482,9 @@ sub run {
             title      => 'Edit time entry',
             form       => { raw => $item, data => $item, error => {} },
         };
-    }, method => 'GET' );
+    };
 
-    MVC::Neaf->route( user => sub {
+    get+post user => sub {
         my $req = shift;
 
         my $id = $req->param( user_id => '\d+', $req->path_info );
@@ -499,7 +499,7 @@ sub run {
             user => $data,
             comments => $comments,
         };
-    }, path_info_regex => '\d+');
+    }, path_info_regex => '\d+';
 
     our %pagination = (
         order_by     => '\w+',
@@ -549,14 +549,14 @@ sub run {
         };
     };
 
-    MVC::Neaf->route( browse => sub {
+    get+post browse => sub {
         my $req = shift;
 
         my $form = $req->form( $val_browse );
         return $_do_browse->( $form );
-    });
+    };
 
-    MVC::Neaf->route( browse => tag => sub {
+    get+post browse => tag => sub {
         my $req = shift;
 
         my $form = $req->form( $val_browse );
@@ -565,7 +565,7 @@ sub run {
         $form->data( tag => $tag );
 
         return $_do_browse->( $form );
-    }, path_info_regex => $re_tag );
+    }, path_info_regex => $re_tag;
 
     my $val_stats = MVC::Neaf::X::Form->new({
         min_a_created    => '\d\d\d\d-\d\d-\d\d',
@@ -573,7 +573,7 @@ sub run {
         tag_like         => '[-\w]+',
         %pagination,
     });
-    MVC::Neaf->route( stats => sub {
+    get+post stats => sub {
         my $req = shift;
 
         my $form = $req->form( $val_stats );
@@ -597,9 +597,9 @@ sub run {
             form       => $form,
             order_options => [[name => "Tag name"], [time_spent => "Time spent"]],
         };
-    });
+    };
 
-    MVC::Neaf->route( add_watch => sub {
+    get+post add_watch => sub {
         my $req = shift;
 
         die 403 if (!$req->session->{user_id});
@@ -616,7 +616,7 @@ sub run {
         };
 
         $req->redirect( "/issue/$issue" );
-    }); # TODO method => 'POST'
+    }; # TODO method => 'POST'
 
     my $val_feed = MVC::Neaf::X::Form->new({
         min_created  => '\d\d\d\d-\d\d-\d\d',
@@ -624,7 +624,7 @@ sub run {
         all          => '.+',
         %pagination,
     });
-    MVC::Neaf->route( feed => sub {
+    get+post feed => sub {
         my $req = shift;
 
         die 403 if (!$req->session->{user_id});
@@ -655,9 +655,9 @@ sub run {
             table_data => $result,
             stat => $stat,
         };
-    });
+    };
 
-    MVC::Neaf->route( help => sub {
+    get+post help => sub {
         my $req = shift;
 
         my $topic = $req->path_info;
@@ -679,10 +679,10 @@ sub run {
     }
         , path_info_regex => '\w+(?:\.md)?'
         , description => 'Generated from help/*.md'
-    );
+    ;
 
 
-    MVC::Neaf->route( "/" => sub {
+    get+post "/" => sub {
         my $req = shift;
 
         my $greeting_file = $model->get_config("help", "greeting") || 'greeting.md';
@@ -708,40 +708,21 @@ sub run {
             greeting   => $greeting,
             title      => $title,
         };
-    }, path_info_regex => '' );
+    }, path_info_regex => '';
 
-    MVC::Neaf->set_error_handler( 403 => {
+    neaf 403 => {
         -template => '403.html',
          title => "403 Forbidden",
          version => "$VERSION/".App::Its::Potracheno::Model->VERSION,
-    } );
-    MVC::Neaf->set_error_handler( 404 => {
+    };
+    neaf 404 => {
         -template => '404.html',
          title => "404 Not Found",
          version => "$VERSION/".App::Its::Potracheno::Model->VERSION,
-    } );
+    };
 
     ################################
     # Some extra hacks
-
-    # TODO move to model OR view
-    # TODO UGLY HACK - remove after Form is updated.
-    # Monkey patch form into showing itself as url
-    # pointing to the same form again, with some additions
-    if (!MVC::Neaf::X::Form::Data->can("as_url")) {
-        *MVC::Neaf::X::Form::Data::as_url = # avoid warn
-        *MVC::Neaf::X::Form::Data::as_url = sub {
-            my ($self, %override) = @_;
-
-            my %data = ( %{ $self->{raw} }, %override );
-            return join "&"
-                , map { uri_escape($_)."=".uri_escape_utf8($data{$_}) }
-                grep { defined $data{$_} && length $data{$_} }
-                keys %data;
-        };
-    };
-
-
     MVC::Neaf->set_session_handler( engine => $model, view_as => 'session' );
 
     MVC::Neaf->set_path_defaults( '/', {
