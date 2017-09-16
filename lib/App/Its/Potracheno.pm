@@ -3,7 +3,7 @@ package App::Its::Potracheno;
 use strict;
 use warnings;
 
-our $VERSION = 0.1101;
+our $VERSION = 0.1102;
 
 =head1 NAME
 
@@ -36,7 +36,7 @@ use Encode;
 use File::Basename qw(dirname);
 
 use parent 'Exporter';
-our @EXPORT = qw(run schema_mysql schema_sqlite);
+our @EXPORT = qw(run get_schema_mysql get_schema_sqlite);
 
 use MVC::Neaf 0.17;
 use MVC::Neaf qw(:sugar neaf_err);
@@ -403,7 +403,7 @@ MVC::Neaf->route( '/update/edit_time' => sub {
     if ($form->is_valid) {
         my $data = { %{ $form->data } }; # shallow copy
         $data->{seconds} = $model->human2time( $data->{seconds} );
-        $data->{note} .= "\n\n*Edited ".DATE(time)."*";
+        $data->{note} .= "\n\n*Edited "._date(time)."*";
         my $id = delete $data->{activity_id};
 
         $model->edit_record(
@@ -533,28 +533,6 @@ MVC::Neaf->route( stats => sub {
     };
 });
 
-sub _form_paginate {
-    my ($form) = @_;
-
-    # TODO Use form->defaults when they appear
-    if (!defined $form->data->{limit}) {
-        $form->data->{limit} = 20;
-        $form->raw->{limit} = 20;
-    };
-    $form->data->{start} ||= 0;
-    if (delete $form->data->{next}) {
-        $form->data->{start}+=$form->data->{limit};
-        $form->raw->{start}+=$form->data->{limit};
-    };
-    if (delete $form->data->{prev}) {
-        $form->data->{start}-=$form->data->{limit};
-        $form->raw->{start}-=$form->data->{limit};
-    };
-    $form->data->{start} = 0
-        if $form->data->{start} < 0 or delete $form->data->{start_scratch};
-
-    return $form;
-};
 
 
 MVC::Neaf->route( add_watch => sub {
@@ -623,7 +601,7 @@ MVC::Neaf->route( help => sub {
     $topic =~ s#\.md$##;
     my $file = "$HELP/$topic.md";
 
-    my $body = cached_slurp( $file );
+    my $body = _cached_slurp( $file );
     die 404 unless $body; # TODO tell this from actual mistyped url
 
     $body =~ s/^([^\n]+)\n\n+//
@@ -645,7 +623,7 @@ MVC::Neaf->route( "/" => sub {
     my $req = shift;
 
     my $greeting_file = $model->get_config("help", "greeting") || 'greeting.md';
-    my $greeting = cached_slurp( $greeting_file );
+    my $greeting = _cached_slurp( $greeting_file );
 
     my $title = "Welcome to the wasted time tracker";
     if ($greeting) {
@@ -700,11 +678,6 @@ if (!MVC::Neaf::X::Form::Data->can("as_url")) {
     };
 };
 
-sub DATE {
-    my $time = shift;
-    return strftime("%Y-%m-%d %H:%M:%S", localtime($time));
-};
-
 sub _reset_pass {
     my ($req, $user) = @_;
 
@@ -721,36 +694,6 @@ sub _reset_pass {
     };
 };
 
-# cached_slurp(file)
-# return: content or undef if no such file
-# dies on error!=ENOENT
-my $slurp_ttl = 5;
-my %slurp_cch;
-sub cached_slurp {
-    my ($file) = @_;
-
-    if (my $entry = $slurp_cch{$file}) {
-        if ($entry->[1] > time) {
-            return $entry->[0];
-        } else {
-            delete $slurp_cch{$file};
-        };
-    };
-
-    my $content;
-    if (open my $fd, "<", $file) {
-        local $/;
-        $content = <$fd>;
-        defined $content or die "Failed to read from $file: $!";
-    } elsif( not $!{ENOENT} ) {
-        # File's there, but something's not right!
-        die "Failed to open(r) $file: $!";
-    };
-
-    # cache 404s as well
-    $slurp_cch{$file} = [ $content, time + $slurp_ttl ];
-    return $content;
-};
 
 sub _do_browse {
     my ($form) = @_;
@@ -784,13 +727,13 @@ return a PSGI app subroutine.
 =cut
 
 sub run {
-    my ($self, $config) = @_;
+    my ($config) = @_;
 
-    die "Usage: ".__PACKAGE__."->run( 'config_file' );"
+    die "Usage: ".__PACKAGE__."::run( 'config_file' );"
         unless $config;
 
     $SIG{__WARN__} = sub {
-        print STDERR join " ", DATE(time), "[$$]", $_[0];
+        print STDERR join " ", _date(time), "[$$]", $_[0];
     };
 
     my $root = '.';
@@ -834,7 +777,7 @@ sub run {
             int     => sub { return int $_[0] },
             time    => sub { return $model->time2human($_[0]) },
             render  => sub { warn "undef render" unless defined $_[0]; return $model->render_text($_[0]) },
-            date    => \&DATE,
+            date    => \&_date,
         },
     )->render({ -template => \"\n\ntest\n\n" });
 
@@ -857,5 +800,231 @@ sub run {
 
     return MVC::Neaf->run();
 }; # sub run ends here
+
+
+sub get_schema_sqlite {
+    return <<'SQL';
+CREATE TABLE user (
+    user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name varchar(20) UNIQUE,
+    password varchar(256),
+    admin INT(1) DEFAULT 0,
+    banned INT(1) DEFAULT 0,
+    created INT -- unix time
+);
+
+CREATE TABLE issue (
+    issue_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    summary varchar (256) NOT NULL,
+    body varchar(4096) NOT NULL,
+    user_id INT,
+    status_id INT default 1, -- doesn't address any table, statuses are conf'ed
+    created INT -- unix time
+);
+
+CREATE TABLE activity (
+    activity_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INT NOT NULL,
+    issue_id INT NOT NULL,
+    seconds INT,
+    fix_estimate INT,
+    note varchar(4096),
+    created INT -- unix time
+);
+
+CREATE TABLE sess (
+    sess_id varchar(43) PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    created INT -- unix time
+);
+
+CREATE TABLE reset_request (
+    reset_request_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    reset_key varchar(80) UNIQUE NOT NULL,
+    user_id INT NOT NULL,
+    expires INT NOT NULL, --unix time
+    created INT -- unix time
+);
+
+CREATE TABLE watch (
+    watch_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INT NOT NULL,
+    issue_id INT NOT NULL,
+    created INT -- unix time
+);
+
+CREATE TABLE tag (
+    tag_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name varchar(20) NOT NULL,
+    descr varchar(4096),
+    created INT -- unix time
+);
+
+CREATE TABLE issue_tag (
+    issue_tag_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    issue_id INTEGER NOT NULL,
+    tag_id INTEGER NOT NULL,
+    created INT -- unix time
+);
+
+-- hand written indices
+CREATE UNIQUE INDEX index__watch__user_id__issue_id ON watch (user_id,issue_id);
+CREATE INDEX index__activity__seconds ON activity(seconds);
+CREATE INDEX index__activity__fix_estimate ON activity(fix_estimate);
+CREATE UNIQUE INDEX index__reset_request__reset_key ON reset_request(reset_key);
+CREATE INDEX index__reset_request__user_id ON reset_request(user_id);
+
+-- autogenerated indices (table + something_id)
+CREATE INDEX index__issue__user_id ON issue (user_id);
+CREATE INDEX index__issue__status_id ON issue (status_id);
+CREATE INDEX index__activity__user_id ON activity (user_id);
+CREATE INDEX index__activity__issue_id ON activity (issue_id);
+CREATE INDEX index__sess__user_id ON sess (user_id);
+CREATE INDEX index__watch__issue_id ON watch (issue_id);
+CREATE INDEX index__issue_tag__issue_id ON issue_tag (issue_id);
+CREATE INDEX index__issue_tag__tag_id ON issue_tag (tag_id);
+
+-- autogenerated indices on time (only issue & activity)
+CREATE INDEX index__issue__created ON issue (created);
+CREATE INDEX index__activity__created ON activity (created);
+CREATE INDEX index__reset_request__expires ON reset_request (expires);
+SQL
+};
+
+sub get_schema_mysql {
+    return <<'SQL';
+DROP TABLE IF EXISTS user;
+CREATE TABLE user (
+    user_id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    name varchar(20) UNIQUE,
+    password varchar(256),
+    admin INT(1) DEFAULT 0,
+    banned INT(1) DEFAULT 0,
+    created INT -- unix time
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS issue;
+CREATE TABLE issue (
+    issue_id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    summary varchar (256) NOT NULL,
+    body varchar(4096) NOT NULL,
+    user_id INT,
+    status_id INT default 1,
+    created INT -- unix time
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS activity;
+CREATE TABLE activity (
+    activity_id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    issue_id INT NOT NULL,
+    seconds INT,
+    fix_estimate INT,
+    note varchar(4096),
+    created INT -- unix time
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS sess;
+CREATE TABLE sess (
+    sess_id varchar(43) PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    created INT -- unix time
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS reset_request;
+CREATE TABLE reset_request (
+    reset_request_id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    reset_key varchar(80) UNIQUE NOT NULL,
+    user_id INTEGER NOT NULL,
+    expires INT NOT NULL, -- unix time
+    created INT -- unix time
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS watch;
+CREATE TABLE watch (
+    watch_id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    user_id INTEGER NOT NULL,
+    issue_id INTEGER NOT NULL,
+    created INT -- unix time
+);
+
+DROP TABLE IF EXISTS tag;
+CREATE TABLE tag (
+    tag_id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    name varchar(20) NOT NULL,
+    descr varchar(4096),
+    created INT -- unix time
+);
+
+DROP TABLE IF EXISTS issue_tag;
+CREATE TABLE issue_tag (
+    issue_tag_id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    issue_id INTEGER NOT NULL,
+    tag_id INTEGER NOT NULL,
+    created INT -- unix time
+);
+SQL
+};
+
+sub _date {
+    my $time = shift;
+    return strftime("%Y-%m-%d %H:%M:%S", localtime($time));
+};
+
+# TODO rewrite in understandable manner
+sub _form_paginate {
+    my ($form) = @_;
+
+    # TODO Use form->defaults when they appear
+    if (!defined $form->data->{limit}) {
+        $form->data->{limit} = 20;
+        $form->raw->{limit} = 20;
+    };
+    $form->data->{start} ||= 0;
+    if (delete $form->data->{next}) {
+        $form->data->{start}+=$form->data->{limit};
+        $form->raw->{start}+=$form->data->{limit};
+    };
+    if (delete $form->data->{prev}) {
+        $form->data->{start}-=$form->data->{limit};
+        $form->raw->{start}-=$form->data->{limit};
+    };
+    $form->data->{start} = 0
+        if $form->data->{start} < 0 or delete $form->data->{start_scratch};
+
+    return $form;
+};
+
+# _cached_slurp(file)
+# TODO use separate module
+# return: content or undef if no such file
+# dies on error!=ENOENT
+my $slurp_ttl = 5;
+my %slurp_cch;
+sub _cached_slurp {
+    my ($file) = @_;
+
+    if (my $entry = $slurp_cch{$file}) {
+        if ($entry->[1] > time) {
+            return $entry->[0];
+        } else {
+            delete $slurp_cch{$file};
+        };
+    };
+
+    my $content;
+    if (open my $fd, "<", $file) {
+        local $/;
+        $content = <$fd>;
+        defined $content or die "Failed to read from $file: $!";
+    } elsif( not $!{ENOENT} ) {
+        # File's there, but something's not right!
+        die "Failed to open(r) $file: $!";
+    };
+
+    # cache 404s as well
+    $slurp_cch{$file} = [ $content, time + $slurp_ttl ];
+    return $content;
+};
 
 1;
