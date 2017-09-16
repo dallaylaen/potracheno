@@ -3,7 +3,7 @@ package App::Its::Potracheno;
 use strict;
 use warnings;
 
-our $VERSION = 0.1105;
+our $VERSION = 0.1106;
 
 =head1 NAME
 
@@ -427,10 +427,10 @@ sub run {
 
     # UPDATE SECTION
     # Require user being logged in for ALL requests under /update
-    MVC::Neaf->add_hook( pre_logic => sub {
+    neaf pre_logic => sub {
         my $req = shift;
         $req->session->{allow} or die 403;
-    }, path => '/update' );
+    }, path => '/update';
 
     my $edit_time_form = MVC::Neaf::X::Form->new({
     #    issue_id     => qr/\d+/,
@@ -723,12 +723,12 @@ sub run {
 
     ################################
     # Some extra hacks
-    MVC::Neaf->set_session_handler( engine => $model, view_as => 'session' );
+    neaf session => $model, view_as => 'session', cookie => 'potracheno.sess';
 
-    MVC::Neaf->set_path_defaults( '/', {
+    neaf default => '/' => {
         version => "$VERSION/".App::Its::Potracheno::Model->VERSION,
         auto_update => $auto_update->permanent_ref,
-    } );
+    };
     if ($auto_update->is_due) {
         neaf pre_cleanup => sub { $auto_update->is_due and $auto_update->run_update }
             , path => '/issue';
@@ -736,7 +736,7 @@ sub run {
 
     # Load view
     my $tpl = "$root/tpl";
-    MVC::Neaf->load_view( TT => TT =>
+    neaf( view => TT => TT =>
         INCLUDE_PATH => $tpl,
         PRE_PROCESS  => "inc/head.html",
         POST_PROCESS => "inc/foot.html",
@@ -749,11 +749,11 @@ sub run {
         },
     )->render({ -template => \"\n\ntest\n\n" });
 
-    MVC::Neaf->static( 'favicon.ico' => "$root/html/i/icon.png" );
-    MVC::Neaf->static( fonts         => "$root/html/fonts" );
-    MVC::Neaf->static( css           => "$root/html/css" );
-    MVC::Neaf->static( i             => "$root/html/i" );
-    MVC::Neaf->static( js            => "$root/html/js" );
+    neaf static => 'favicon.ico' => "$root/html/i/icon.png";
+    neaf static => fonts         => "$root/html/fonts";
+    neaf static => css           => "$root/html/css";
+    neaf static => i             => "$root/html/i";
+    neaf static => js            => "$root/html/js";
 
     # Some extra routes
     if ($model->get_config("security", "members_only")) {
@@ -766,7 +766,7 @@ sub run {
 
     # set globa
 
-    return MVC::Neaf->run();
+    return neaf->run;
 }; # sub run ends here
 
 =head2 get_schema_sqlite()
