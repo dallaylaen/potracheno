@@ -5,13 +5,14 @@ use warnings;
 use Getopt::Long;
 use Data::Dumper;
 use POSIX qw(strftime);
+use File::Basename qw(dirname);
 
 use FindBin qw($Bin);
 use lib "$Bin/../lib", "$Bin/../local/lib";
 use App::Its::Potracheno::Model;
 
-my $root   = "$Bin/..";
-my $config = "$root/local/potracheno.cfg";
+my $root;
+my $config;
 GetOptions (
     "help"     => \&usage,
     "root=s"   => \$root,
@@ -32,6 +33,8 @@ USAGE
 usage() unless @ARGV;
 
 my $base_url = shift;
+
+$root ||= dirname( $config );
 
 my $model = App::Its::Potracheno::Model->new(
     config_file   => $config,
