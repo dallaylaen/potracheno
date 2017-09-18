@@ -2,7 +2,7 @@ package App::Its::Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.1107;
+our $VERSION = 0.1108;
 
 =head1 NAME
 
@@ -27,6 +27,7 @@ use Digest::MD5 qw(md5_base64);
 use Time::Local qw(timelocal);
 use Data::Dumper;
 use Text::Markdown qw(markdown);
+use File::Basename qw(dirname);
 
 # We'll also work as a session storage
 use parent qw(MVC::Neaf::X::Session);
@@ -54,6 +55,9 @@ sub new {
     my ($class, %opt) = @_;
 
     if ($opt{config_file}) {
+        # TODO kill this ROOT or make it more sane
+        # right now it's required to bootstrap the conf
+        $opt{ROOT} ||= dirname($opt{config_file});
         $opt{config} = App::Its::Potracheno::Config->load_config( $opt{config_file}, %opt )
             || $opt{config}; # fallback to defaults if file not found
     };
@@ -283,6 +287,7 @@ sub save_user {
     $new{password} = $self->make_pass( $self->get_session_id, $data->{pass} )
         if defined $data->{pass};
     # TODO more options here
+    defined $data->{$_} and $new{$_} = $data->{$_} for qw(admin banned);
 
     return unless %new;
 
