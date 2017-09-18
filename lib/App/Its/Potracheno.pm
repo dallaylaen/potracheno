@@ -3,7 +3,7 @@ package App::Its::Potracheno;
 use strict;
 use warnings;
 
-our $VERSION = 0.1107;
+our $VERSION = 0.1108;
 
 =head1 NAME
 
@@ -82,6 +82,7 @@ sub run {
         %{ $conf->get_section("update") },
     );
     my $model = App::Its::Potracheno::Model->new( config => $conf->get );
+    $model->self_check;
 
     # set global vars TODO make better
     my $help = _my_dir( $conf, "help" );

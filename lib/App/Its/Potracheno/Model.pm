@@ -2,7 +2,7 @@ package App::Its::Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.1106;
+our $VERSION = 0.1107;
 
 =head1 NAME
 
@@ -1407,6 +1407,40 @@ sub get_stats_total {
 };
 
 =head1 BACKUP & ORM PROCEDURES
+
+=head2 self_check
+
+Check that the database works at all.
+
+=cut
+
+my %check = (
+    user       => [qw[name password]],
+    issue      => [],
+    sess       => [],
+    activity   => [qw[user_id issue_id]],
+);
+
+sub self_check {
+    my $self = shift;
+
+    my @err;
+    foreach my $table (keys %check) {
+        my $fields = join ",", "${table}_id", @{ $check{$table} }, "created";
+        eval {
+            my $sth = $self->dbh->prepare(
+            "SELECT $fields FROM $table WHERE ${table}_id IS NULL ORDER BY created LIMIT 1" );
+            $sth->execute;
+            1;
+        } or push @err, $@;
+    };
+
+    if (@err) {
+        $self->my_croak( "FATAL Database $self->{config}{db}{handle} not suitable: @err" );
+    };
+
+    return 1;
+};
 
 =head2 dump
 
