@@ -1,11 +1,12 @@
 Password recovery
 
-Unfortunately, right now there is no automatic password recovery
-in *Potracheno*. However, you can ask the tool admin
-to execute the following script from the directory where it's installed:
+Unfortunately, password recovery is not completely automated yet.
 
-<code>./bin/lostpass.pl your_name temp_password</code>
+Please use [/auth/setpass](/auth/setpass) to request a password reset.
+Then ask admin to execute the script
 
-Please [change this password](/edit_user) as soon as you can log back in.
+<code>./bin/potracheno-lostpass.pl <your potracheno url></code>
+
+and send the recovery link to you.
 
 Go back to [login page](/login).

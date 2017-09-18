@@ -90,14 +90,14 @@ make a fresh sqlite db.
 * `Start.PL` - init-script accepting start, stop, and restart options.
 Run Potracheno on a Unix-like system.
 
-* bin/check-db.t - test whether the configured database is suitable
+* bin/potracheno-dbcheck.pl - test whether the configured database is suitable
 for Potracheno, by doing some simple requests.
 
-* bin/lostpass.pl - force change password for a user.
+* bin/potracheno-lostpass.pl - force change password for a user.
 There is no better password reset mechanism yet.
 
-* bin/migrate.pl - dump & restore DB content. Use this script for backup,
-or when updating the tool. I.e.
+* bin/potracheno-backup.pl - dump & restore DB content.
+Use this script for backup, or when updating the tool. I.e.
 
 <code>
 bin/migrate.pl --dump local/dump.txt

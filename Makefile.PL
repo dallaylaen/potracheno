@@ -13,7 +13,12 @@ WriteMakefile(
     ABSTRACT_FROM    => 'lib/App/Its/Potracheno.pm',
     LICENSE          => 'Artistic_2',
     PL_FILES         => {},
-    MIN_PERL_VERSION => 5.006,
+    EXE_FILES        => [qw[
+        bin/potracheno-backup.pl
+        bin/potracheno-dbtest.pl
+        bin/potracheno-lostpass.pl
+    ]],
+    MIN_PERL_VERSION => 5.008,
     CONFIGURE_REQUIRES => {
         'ExtUtils::MakeMaker' => 0,
     },
