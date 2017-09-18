@@ -6,8 +6,11 @@ use Test::More;
 use File::Temp qw(tempfile);
 use DBI;
 
+BEGIN { note "Neaf loading..." };
 use MVC::Neaf qw(:sugar);
+BEGIN { note "App loading..." };
 use App::Its::Potracheno;
+note "Preparing test data...";
 
 my (undef, $dbfile) = tempfile( SUFFIX => 'sqlite', UNLINK => 1 );
 
@@ -24,11 +27,11 @@ foreach my $stm( split /;/, $schema ) {
     $dbh->do( $stm );
 };
 
-note "LOADING...";
+note "Routes loading...";
 is ref run(\%min_config), "CODE", "A codefer was returned";
 note "LOADED POTRACHENO";
 
-note "MAKING REQUEST";
+note "MAKING REQUESTS";
 
 my ($status, $head, $content);
 ($status, $head, $content) = neaf->run_test("/");

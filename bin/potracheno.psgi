@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-our $VERSION = 0.1110;
+our $VERSION = 0.1111;
 
 use URI::Escape;
 use Data::Dumper;
@@ -18,6 +18,14 @@ use MVC::Neaf qw(:sugar neaf_err);
 use MVC::Neaf::X::Form;
 use MVC::Neaf::X::Form::Data;
 use App::Its::Potracheno::Model;
+
+warn <<"WARN";
+ ***
+This is legacy version of potracheno.
+App::Its::Potracheno is about to come.
+Please update!
+ ***
+WARN
 
 $SIG{__WARN__} = sub {
     print STDERR join " ", DATE(time), "[$$]", $_[0];
@@ -44,7 +52,7 @@ my $re_id   = qr/[A-Za-z]$re_w/;
 my $re_user = qr/$re_id(?:[-.]$re_w)*/;
 
 MVC::Neaf->load_view( TT => TT =>
-    INCLUDE_PATH => "$Bin/../tpl",
+    INCLUDE_PATH => "$Bin/../share/tpl",
     PRE_PROCESS  => "inc/head.html",
     POST_PROCESS => "inc/foot.html",
     EVAL_PERL => 1,
@@ -61,11 +69,11 @@ MVC::Neaf->set_path_defaults( '/',
 
 MVC::Neaf->set_session_handler( engine => $model, view_as => 'session' );
 
-MVC::Neaf->static( 'favicon.ico' => "$Bin/../html/i/icon.png" );
-MVC::Neaf->static( fonts         => "$Bin/../html/fonts" );
-MVC::Neaf->static( css           => "$Bin/../html/css" );
-MVC::Neaf->static( i             => "$Bin/../html/i" );
-MVC::Neaf->static( js            => "$Bin/../html/js" );
+MVC::Neaf->static( 'favicon.ico' => "$Bin/../share/html/i/icon.png" );
+MVC::Neaf->static( fonts         => "$Bin/../share/html/fonts" );
+MVC::Neaf->static( css           => "$Bin/../share/html/css" );
+MVC::Neaf->static( i             => "$Bin/../share/html/i" );
+MVC::Neaf->static( js            => "$Bin/../share/html/js" );
 
 if ($model->get_config("security", "members_only")) {
     # only allow static and logging in
@@ -719,7 +727,7 @@ MVC::Neaf->route( help => sub {
 
     my $topic = $req->path_info;
     $topic =~ s#\.md$##;
-    my $file = "$Bin/../help/$topic.md";
+    my $file = "$Bin/../share/help/$topic.md";
 
     my $body = cached_slurp( $file );
     die 404 unless $body; # TODO tell this from actual mistyped url

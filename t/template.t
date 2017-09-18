@@ -7,7 +7,7 @@ use Template;
 use File::Find;
 use File::Basename qw(basename dirname);
 
-my $tpl = dirname(__FILE__)."/../tpl";
+my $tpl = dirname(__FILE__)."/../share/tpl";
 
 my @files = @ARGV;
 my @fail;
