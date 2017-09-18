@@ -4,3 +4,13 @@ cover_db
 nytprof*
 /local
 /lib/MVC
+/Later
+Makefile
+*.old
+*.bak
+MANIFEST
+META.*
+MYMETA.*
+blib
+pm_to_blib
+/App-*

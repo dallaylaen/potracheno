@@ -2,7 +2,7 @@ package App::Its::Potracheno::Update;
 
 use strict;
 use warnings;
-our $VERSION = 0.1102;
+our $VERSION = 0.1103;
 
 =head1 NAME
 
@@ -59,7 +59,6 @@ sub new {
     $opt{update_avail}   = {};
     $opt{update_due}     = time
         if $opt{interval};
-    $opt{update_link}  ||= "https://raw.githubusercontent.com/dallaylaen/potracheno/master/Changes";
 
     return bless \%opt, $class;
 };

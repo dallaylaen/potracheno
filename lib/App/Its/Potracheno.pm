@@ -3,7 +3,7 @@ package App::Its::Potracheno;
 use strict;
 use warnings;
 
-our $VERSION = 0.1106;
+our $VERSION = 0.1107;
 
 =head1 NAME
 
@@ -30,12 +30,14 @@ All functions are exported by default for brevity.
 
 =cut
 
+use Carp;
 use URI::Escape;
 use Data::Dumper;
 use POSIX qw(strftime);
 use Digest::MD5 qw(md5_base64);
 use Encode;
 use File::Basename qw(dirname);
+use File::ShareDir qw(module_dir);
 
 use parent 'Exporter';
 our @EXPORT = qw(run get_schema_mysql get_schema_sqlite);
@@ -61,33 +63,54 @@ return a PSGI app subroutine.
 =cut
 
 sub run {
-    my ($config) = @_;
+    my ($arg) = @_;
 
-    die "Usage: ".__PACKAGE__."::run( 'config_file' );"
-        unless $config;
+    croak "Usage: ".__PACKAGE__."::run( 'config_file' );"
+        unless @_ == 1;
 
     $SIG{__WARN__} = sub {
         print STDERR join " ", _date(time), "[$$]", $_[0];
     };
 
-    my $root = '.';
-
-    if (!ref $config) {
-        my $config_file = $config;
-        $root = dirname($config_file)."/.."; # TODO other ways to detect
-        $config = App::Its::Potracheno::Config->load_config( $config_file, ROOT => $root );
-    };
-
     # Load model
+    # TODO kill this root= thing
+    my $root = ref $arg ? "." : dirname( $arg );
+    my $conf = App::Its::Potracheno::Config->new(
+        conf => $arg, preconf => { ROOT => $root } );
     my $auto_update = App::Its::Potracheno::Update->new(
-        %{ $config->{update} } );
-    my $model = App::Its::Potracheno::Model->new( config => $config );
+        update_link => "https://raw.githubusercontent.com/dallaylaen/potracheno/master/Changes",
+        %{ $conf->get_section("update") },
+    );
+    my $model = App::Its::Potracheno::Model->new( config => $conf->get );
 
     # set global vars TODO make better
-    my $HELP = "$root/help";
-    my $new_banned = $model->get_config("security", "members_moderated");
-    my $forgot_ttl = $model->get_config("security", "reset_ttl") || 24*60*60;
-    my $search_limit = $model->get_config( search => "limit" ) || 10;
+    my $help = _my_dir( $conf, "help" );
+    my $html = _my_dir( $conf, "html" );
+    my $tpl  = _my_dir( $conf, "tpl"  );
+    my $new_banned = $conf->get("security", "members_moderated");
+    my $forgot_ttl = $conf->get("security", "reset_ttl") || 24*60*60;
+    my $search_limit = $conf->get( search => "limit" ) || 10;
+
+    # Load view
+    neaf( view => TT => TT =>
+        INCLUDE_PATH => $tpl,
+        PRE_PROCESS  => "inc/head.html",
+        POST_PROCESS => "inc/foot.html",
+        EVAL_PERL => 1,
+        FILTERS => {
+            int     => sub { return int $_[0] },
+            time    => sub { return $model->time2human($_[0]) },
+            render  => sub { warn "undef render" unless defined $_[0]; return $model->render_text($_[0]) },
+            date    => \&_date,
+        },
+    )->render({ -template => \"\n\ntest\n\n" });
+
+    # Load static
+    neaf static => 'favicon.ico' => "$html/i/icon.png";
+    neaf static => fonts         => "$html/fonts";
+    neaf static => css           => "$html/css";
+    neaf static => i             => "$html/i";
+    neaf static => js            => "$html/js";
 
     ###################################
     #  Routes
@@ -662,7 +685,7 @@ sub run {
 
         my $topic = $req->path_info;
         $topic =~ s#\.md$##;
-        my $file = "$HELP/$topic.md";
+        my $file = "$help/$topic.md";
 
         my $body = _cached_slurp( $file );
         die 404 unless $body; # TODO tell this from actual mistyped url
@@ -733,27 +756,6 @@ sub run {
         neaf pre_cleanup => sub { $auto_update->is_due and $auto_update->run_update }
             , path => '/issue';
     };
-
-    # Load view
-    my $tpl = "$root/tpl";
-    neaf( view => TT => TT =>
-        INCLUDE_PATH => $tpl,
-        PRE_PROCESS  => "inc/head.html",
-        POST_PROCESS => "inc/foot.html",
-        EVAL_PERL => 1,
-        FILTERS => {
-            int     => sub { return int $_[0] },
-            time    => sub { return $model->time2human($_[0]) },
-            render  => sub { warn "undef render" unless defined $_[0]; return $model->render_text($_[0]) },
-            date    => \&_date,
-        },
-    )->render({ -template => \"\n\ntest\n\n" });
-
-    neaf static => 'favicon.ico' => "$root/html/i/icon.png";
-    neaf static => fonts         => "$root/html/fonts";
-    neaf static => css           => "$root/html/css";
-    neaf static => i             => "$root/html/i";
-    neaf static => js            => "$root/html/js";
 
     # Some extra routes
     if ($model->get_config("security", "members_only")) {
@@ -942,6 +944,21 @@ CREATE TABLE issue_tag (
 );
 SQL
 };
+
+sub _my_dir {
+    my ($conf, $name) = @_;
+
+    my @list = map { "$_/$name" } qw(share ../share)
+        , eval { module_dir(__PACKAGE__) };
+        # skip exception - will die anyway if not found
+
+    return $conf->get( files => $name )
+        || $conf->find_dir( @list )
+        || croak("Failed to locate directory /$name anywhere under @list");
+};
+
+# Some auxiliary subs used by run()
+# TODO this all should be Potracheno::Util or smth...
 
 sub _date {
     my $time = shift;

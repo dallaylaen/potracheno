@@ -2,14 +2,21 @@ package App::Its::Potracheno::Config;
 
 use strict;
 use warnings;
-our $VERSION = 0.10;
+our $VERSION = 0.1101;
 
-# TODO replace with stock module!!!!!
+=head1 NAME
+
+App::Its::Potracheno::Config - tech debt ITS config manager
 
 =head1 DESCRIPTION
 
-Potracheno uses an ini file with optional JSON values.
-Format is as follows:
+B<DEPRECATED!> Right now, L<App::Its::Potracheno> uses an ini file
+with optional JSON values.
+
+This is going to be replaced with L<Config::GitLike> or something like that
+in the nearest future.
+
+Current format is as follows:
 
     # This is a comment
 
@@ -45,12 +52,88 @@ Format is as follows:
 
 use JSON::XS;
 use Errno qw(ENOENT);
+use File::Basename qw(dirname);
 
 use parent qw(MVC::Neaf::X); # get my_croak
 
+sub new {
+    my ($class, %opt) = @_;
+
+    if (!ref $opt{conf}) {
+        $opt{file} = $opt{conf};
+        $opt{conf} = $class->load_config($opt{file}, %{$opt{preconf} || {}});
+        $opt{root} ||= dirname($opt{file});
+    };
+
+    if (ref $opt{conf} ne 'HASH') {
+        $class->my_croak("conf parameter must be a hash or filename");
+    };
+
+    if (my $name = $opt{root_from}) {
+        $opt{root} = $opt{conf}{$name} || $opt{root};
+    };
+
+    $opt{root} ||= "."; # poor man's root
+
+    return bless \%opt, $class;
+};
+
+sub get {
+    my $self = shift;
+    my $ref = $self->{conf};
+    foreach (@_) {
+        last unless defined $ref;
+        $ref = $ref->{$_};
+    };
+    return $ref;
+};
+
+sub get_section {
+    my ($self, $name) = @_;
+    return $self->get($name) || {};
+};
+
+sub get_path {
+    my $self = shift;
+    my $value = $self->get(@_);
+    $self->my_croak("Non-scalar requested as path")
+        if ref $value;
+
+    return '' unless defined $value and length $value;
+    return $self->to_path( $value );
+};
+
+sub root {
+    my $self = shift;
+    if (@_) {
+        $self->{root} = shift;
+        return $self;
+    } else {
+        return $self->{root};
+    };
+};
+
+sub to_path {
+    my ($self, $name) = @_;
+
+    $name =~ m,^/, and return $name;
+    return $self->{root}."/".$name;
+};
+
+sub find_dir {
+    my ($self, @list) = @_;
+
+    -d $_ and return $_
+        for map { $self->to_path($_) }
+        grep { defined $_ }
+        @list;
+
+    return;
+};
+
 =head2 load_config( $filename, %defaults )
 
-One and only public static method for now.
+Public static method.
 Loads config and returns a hash.
 
 As a special case, if file is missing, nothing is returned.
