@@ -4,13 +4,14 @@ use strict;
 use warnings;
 use JSON::XS;
 use Getopt::Long;
+use File::Basename qw(dirname);
 
 use FindBin qw($Bin);
 use lib "$Bin/../lib", "$Bin/../local/lib";
 use App::Its::Potracheno::Model;
 
-my $root = "$Bin/..";
-my $config = "$root/local/potracheno.cfg";
+my $root;
+my $config;
 my $todo;
 my $dry_run;
 GetOptions(
@@ -26,17 +27,22 @@ sub usage {
     print <<"USAGE"; exit 0;
 Usage: $0 [options] [dumpfile]
 Options may include:
+    --config - config file (required)
     --dump - dump Potracheno database
     --restore - restore Potracheno into an empty database
     Exactly ONE of --dump and --restore must be specified
-    --root - project directory ( default: where this binary is )
-    --config - config file ( default: local/potracheno.cfg )
+    --root - project directory ( default: where config is )
     --help - this message
 USAGE
 };
 
 usage() unless $todo;
 my $file = shift;
+
+die "Config required (--config?)"
+    unless $config;
+
+$root ||= dirname( $config );
 
 my $model = App::Its::Potracheno::Model->new(
     ROOT        => $root,
