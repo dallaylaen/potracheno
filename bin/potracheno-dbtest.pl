@@ -3,18 +3,20 @@
 use strict;
 use warnings;
 use Test::More;
+use File::Basename qw(dirname);
 
 use FindBin qw($Bin);
 use lib "$Bin/../lib", "$Bin/../local/lib";
 use App::Its::Potracheno::Model;
 
-my $root = "$Bin/..";
 my $conf = shift;
 
 if (!$conf) {
     plan skip_all => "Usage: $0 <config.file>";
     exit;
 };
+
+my $root = dirname($conf);
 
 my $model = App::Its::Potracheno::Model->new( ROOT => $root, config_file => $conf );
 
