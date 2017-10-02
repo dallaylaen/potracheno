@@ -2,7 +2,7 @@ package App::Its::Potracheno::Model;
 
 use strict;
 use warnings;
-our $VERSION = 0.1108;
+our $VERSION = 0.1109;
 
 =head1 NAME
 
@@ -201,6 +201,23 @@ sub load_user {
     $sth->execute(@arg);
 
     my ($data) = $sth->fetchrow_hashref;
+    $sth->finish;
+    return $data;
+};
+
+=head2 find_user ( like => "..." )
+
+=cut
+
+sub find_user {
+    my ($self, %opt) = @_;
+
+    defined $opt{like}
+        or $self->my_croak( "like is required" );
+
+    my $sth = $self->_prepare( "SELECT * FROM user WHERE name LIKE ?" );
+    $sth->execute("%$opt{like}%");
+    my $data = $sth->fetchall_arrayref({});
     $sth->finish;
     return $data;
 };

@@ -2,7 +2,7 @@ package App::Its::Potracheno::Routes;
 
 use strict;
 use warnings;
-our $VERSION = 0.1109;
+our $VERSION = 0.1110;
 
 =head1 NAME
 
@@ -686,6 +686,53 @@ get+post help => sub {
     , description => 'Generated from help/*.md'
 ;
 
+neaf pre_logic => sub {
+    my $req = shift;
+    $req->session->{admin} or die 403
+}, path => '/admin';
+
+get '/admin/user' => sub {
+    my $req = shift;
+
+    my $search = $req->param( q => '.+' );
+
+    my $list = defined $search ? $model->find_user ( like => $search ) : [];
+    # TODO no pagination
+
+    return {
+        users => $list,
+        q     => $search,
+    };
+}, -template => 'admin_user.html', -title => 'User access administration';
+
+my %ADMIN_TODO = (
+    ban => sub { $_[0]->{banned} = 1 },
+    unban => sub { $_[0]->{banned} = 0 },
+    admin => sub { $_[0]->{admin} = 1 },
+    unadmin => sub { $_[0]->{admin} = 0 },
+);
+my $ADMIN_TODO_RE = join "|", keys %ADMIN_TODO;
+$ADMIN_TODO_RE = qr/$ADMIN_TODO_RE/;
+
+post '/admin/user' => sub {
+    my $req = shift;
+
+    my $user = $req->param(user_id => '\d+');
+    my $todo = $req->param(action => $ADMIN_TODO_RE);
+
+    if ($user and $todo) {
+        # TODO this should be UPDATE!1111
+        my $data = $model->load_user( user_id => $user )
+            or die 404;
+        $ADMIN_TODO{$todo}->($data);
+        $model->save_user($data);
+    } else {
+        # TODO report invalid action properly
+        die 422;
+    };
+
+    $req->redirect('/admin/user?');
+};
 
 get+post "/" => sub {
     my $req = shift;
