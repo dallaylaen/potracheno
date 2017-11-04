@@ -8,7 +8,8 @@
     [% ELSE %]
     Username: <input name="user" value="[% user | html %]"><br>
     [% END %]
-    Password: <input name="pass" type="password"><br>
-    Password: <input name="pass2" type="password"><br>
+    E-mail (optional): <input name="email" value="[% email | html %]"><br>
+    New password: <input name="pass" type="password"><br>
+    New password: <input name="pass2" type="password"><br>
     <input type="submit" value="[% IF id %]Save[% ELSE %]Register a new user[% END %]">
 </form>

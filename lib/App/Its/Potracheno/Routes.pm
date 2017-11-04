@@ -2,7 +2,7 @@ package App::Its::Potracheno::Routes;
 
 use strict;
 use warnings;
-our $VERSION = 0.1111;
+our $VERSION = 0.1112;
 
 =head1 NAME
 
@@ -149,13 +149,16 @@ get+post '/auth/register' => sub {
             # TODO refactor to forms
 
             my $pass;
-                $pass  = $req->param( pass  => '.+' );
-                $pass or die "FORM: [Password empty]";
-                $pass eq $req->param( pass2 => '.+' )
-                    or die "FORM: [Passwords do not match]";
+            $pass  = $req->param( pass  => '.+' );
+            $pass or die "FORM: [Password empty]";
+            $pass eq $req->param( pass2 => '.+' )
+                or die "FORM: [Passwords do not match]";
+
+            my $email = $req->param( email => '\S+\@\S+\.\S+' );
+            # TODO email mandatory if cinfigured so
 
             my $id = $model->add_user(
-               name => $user, pass => $pass, banned => $new_banned );
+               name => $user, pass => $pass, banned => $new_banned, email => $email );
             $id   or die "FORM: [Username '$user' already taken]";
 
             $req->save_session( { user_id => $id } );
@@ -195,6 +198,9 @@ get+post edit_user => sub {
         if ($newpass) {
             $newpass eq $pass2 or die "422"; # TODO show form again
             $details->{pass} = $newpass;
+        };
+        if (my $email = $req->param( email => '\S+\@\S+\.\S+' ) ) {
+            $details->{email} = $email;
         };
 
         $model->save_user( $details );
