@@ -2,7 +2,7 @@ package App::Its::Potracheno::Routes;
 
 use strict;
 use warnings;
-our $VERSION = 0.1110;
+our $VERSION = 0.1111;
 
 =head1 NAME
 
@@ -731,7 +731,9 @@ post '/admin/user' => sub {
         die 422;
     };
 
-    $req->redirect('/admin/user?');
+    # TODO this is a shame, patch Neaf to get rid
+    my $q = $req->param(q => '.+');
+    $req->redirect( '/admin/user'. (defined $q ? "?q=". uri_escape($q) : '' ) );
 };
 
 get+post "/" => sub {

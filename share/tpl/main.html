@@ -30,6 +30,9 @@ something that needs attention or has a ready-to-go solution.
     </div>
     <div class="col-lg-3 col-md-3 panel panel-default">
         [% IF session.user_id %]
+            [% IF session.admin %]
+                <a href="/admin/user" class="menu">Admin duty</a>
+            [% END %]
             <div>See the whole <a href="/feed">feed</a>,
                 <a href="/user/[% session.user_id %]">[% session.user_name | html %]</a>!
             </div>
