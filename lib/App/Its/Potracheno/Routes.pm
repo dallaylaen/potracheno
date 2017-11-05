@@ -2,7 +2,7 @@ package App::Its::Potracheno::Routes;
 
 use strict;
 use warnings;
-our $VERSION = 0.1112;
+our $VERSION = 0.1113;
 
 =head1 NAME
 
@@ -708,8 +708,9 @@ get '/admin/user' => sub {
     return {
         users => $list,
         q     => $search,
+        title => 'User access administration',
     };
-}, -template => 'admin_user.html', -title => 'User access administration';
+}, -template => 'admin_user.html';
 
 my %ADMIN_TODO = (
     ban => sub { $_[0]->{banned} = 1 },
