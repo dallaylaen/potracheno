@@ -64,7 +64,7 @@ sub setup {
         create_config( $conf );
 
         my $sqlite = "$root/local/potracheno.sqlite";
-        create_sqlite( $sqlite, "$root/sql/potracheno.sqlite.sql" )
+        create_sqlite( $sqlite )
             unless -f $sqlite;
     };
 
@@ -105,7 +105,7 @@ sub create_config {
     print $fd <<'CONF' or die "Failed to write config $conf: $!";
 # default config
 [db]
-handle = "dbi:SQLite:$(ROOT)/local/potracheno.sqlite"
+handle = "dbi:SQLite:$(ROOT)/potracheno.sqlite"
 
 # handle = "dbi:mysql:database=potracheno;host=localhost"
 # user = 'my_user'
@@ -127,7 +127,7 @@ CONF
 
 sub check_db {
     my ($root, $conf) = @_;
-    system perl => "$root/bin/check-db.t" => $conf;
+    system perl => "$root/bin/potracheno-dbtest.pl" => $conf;
     $? and die "DB check failed, adjust config or set up db";
 };
 
@@ -160,17 +160,17 @@ sub run_tests {
 };
 
 sub create_sqlite {
-    my ( $sqlite, $schema ) = @_;
-
-    open (my $fd, "<", $schema)
-        or die "Failed t oopen(r) $schema: $!";
+    my ( $sqlite ) = @_;
 
     require DBI;
     my $dbh = DBI->connect("dbi:SQLite:dbname=$sqlite"
         , '', '', { RaiseError => 1} );
 
-    local $/ = ';';
-    while (<$fd>) {
+    require App::Its::Potracheno::Model;
+
+    my $sql = App::Its::Potracheno::Model->get_schema_sqlite;
+
+    foreach (split /;/, $sql) {
         $dbh->do($_);
     };
 };
