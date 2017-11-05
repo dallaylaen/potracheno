@@ -1,5 +1,11 @@
 Revision history for the Potracheno time tracker project.
 
+0.12    Mon Nov 6 2017
+        ADM Added admin interface to ban/allow users
+        ADM Added proper password reset links
+        BIN Rework scripts
+        BUG A lot of refactoring and bugfix
+
 0.11    Sat Feb 11 2017
         UI  Add configurable front page & front page activity feed
         UI  Fix form alignment, redo screenshots

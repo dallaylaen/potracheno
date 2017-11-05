@@ -3,7 +3,7 @@ package App::Its::Potracheno;
 use strict;
 use warnings;
 
-our $VERSION = 0.1110;
+our $VERSION = 0.12;
 
 =head1 NAME
 
