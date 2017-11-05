@@ -1,38 +1,31 @@
 VERSION ADDED | VERSION TBD | TITLE
 
 -- NEXT --
-0.11    0.20    APP email integration
-0.11    0.20    APP only allow logged in user (cloud!)
-0.08    0.20    APP Password reset w/o admin knowing passw
-0.11    0.20    APP Require approval for user registration (that's admin...)
+0.07    0.20    AUX Release to CPAN as App::Potraczeno
+0.11    0.20    MOD Add custom fields to user (table user_prop(id,name,value)
+0.10    0.20    REF Kill $(ROOT) in config, config::gitlike
 
 -- BACKLOG --
+0.11    0.20    APP email integration
 0.08    0.20    UI  JS calendar - find open-source
-0.10    0.20    APP Edit time entries
 0.10    0.20    APP decorate issues - load (lots of stuff) WHERE id IN
 0.10    0.20    UI  js-based follow/unfollow
-0.10    0.20    REF Kill $(ROOT) in config, chdir instead, and go to config::git
-0.10    0.20    REF move to newer neaf
 0.08    0.20    APP Oauth support (for jira etc)
 0.08    0.20    APP aggregate reports (what to report?)
 0.08    0.20    APP Dashboard with predefined reports (conf?)
 0.01    0.20    APP issue & comment editing - versioned
 0.07    0.20    BUG Search breaks UTF8 under mysql
-0.07    0.20    AUX Release to CPAN as App::Potracheno
 0.08    0.20    DEV Logging w/debug
 0.09    0.20    APP Invalidate solutions so that they don't show up
 0.07    0.20    UI  js in report
 0.11    0.30    API json-based api
-0.05    0.30    APP Admin interface
-0.07    0.30    ??? Merge issues (preserving track & solutions)
+0.07    0.30    APP Merge issues (preserving track & solutions)
 0.05    0.30    APP Comment replies
 0.07    0.30    UI  User/guest menu as select, remove jquery if possible
 0.07    0.30    APP in-app messages
 0.04    0.30    use search engine, sql too slow
-0.01    0.30    seamless install.pl (win included)
 0.01    0.30    adjust time "price" for different team members
 0.01    0.30    comment pagination
-0.04    0.30    front page activity stream
 0.04    0.30    front page ready to go solutions
 0.04    0.30    Pg support
 
