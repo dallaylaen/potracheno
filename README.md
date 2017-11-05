@@ -51,20 +51,20 @@ Planned:
 
 ## Issue preview
 
-![issue preview](html/screenshot/shot-preview.png)
+![issue preview](share/html/screenshot/shot-preview.png)
 
 ## Comment form
 
-![comment form](html/screenshot/shot-comment-form.png)
-![adding fix estimate](html/screenshot/shot-fix-estimate.png)
+![comment form](share/html/screenshot/shot-comment-form.png)
+![adding fix estimate](share/html/screenshot/shot-fix-estimate.png)
 
 ## Browsing issues
 
-![browsing issues](html/screenshot/shot-browse.png)
+![browsing issues](share/html/screenshot/shot-browse.png)
 
 ## Browsing issues with solutions ready
 
-![solutions ready](html/screenshot/shot-solution-ready.png)
+![solutions ready](share/html/screenshot/shot-solution-ready.png)
 
 # INSTALLATION
 
