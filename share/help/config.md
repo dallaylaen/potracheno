@@ -66,6 +66,7 @@ which is a bug.
 
 * `members_only` - only allow logged in users, display a 403 for anonymous.
 May be useful if a severe NDA is in place.
+* `members_moderated` - only allow users after approval by admin
 
 ### update
 
@@ -90,23 +91,25 @@ make a fresh sqlite db.
 * `Start.PL` - init-script accepting start, stop, and restart options.
 Run Potracheno on a Unix-like system.
 
-* bin/potracheno-dbcheck.pl - test whether the configured database is suitable
-for Potracheno, by doing some simple requests.
-
-* bin/potracheno-lostpass.pl - force change password for a user.
-There is no better password reset mechanism yet.
+* bin/potracheno-admin.pl
 
 * bin/potracheno-backup.pl - dump & restore DB content.
 Use this script for backup, or when updating the tool. I.e.
 
 <code>
-bin/migrate.pl --dump local/dump.txt
+bin/potracheno-backup.pl --config local/potracheno.cfg --dump local/dump.txt
 git pull
 mv local/potracheno.sqlite local/potracheno.sqlite.bak
 perl -MApp::Its::Potracheno -we 'print get_schema_sqlite()' |\
     sqlite3 local/potracheno.sqlite
-bin/migrate.pl --restore local/dump.txt
+bin/potracheno-backup.pl --config local/potracheno.cfg --restore local/dump.txt
 </code>
+
+* bin/potracheno-dbcheck.pl - test whether the configured database is suitable
+for Potracheno, by doing some simple requests.
+
+* bin/potracheno-lostpass.pl - generate links for users who want 
+a forced password change.
 
 * bin/potracheno.psgi - finally, the application itself.
 Unless Start.PL is being used, run it as
@@ -123,7 +126,7 @@ Starting from version 0.11, _Potracheno_ will search for a newer version on
 github.com periodically and output a red "new version available" box
 in the footer if found. No calling home apart from that.
 
-This can be turned off, but is on by default.
+This can be turned off (by setting update interval to 0), but is on by default.
 
 ## Troubleshooting
 

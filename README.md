@@ -37,6 +37,8 @@ wasted on corresponding issues;
 
 * issue & comment search (SLQ-based, search engine planned);
 
+* admin interface to ban/unban users;
+
 * DB migration script; MySQL, sqlite support.
 
 Planned:
@@ -119,8 +121,8 @@ unless it's already there;
 unless a previous config was detected, or database already exists.
 
 If **sqlite** which comes by default is not enough due to high load or other
-reasons, a **MySQL** DB scheme is also available in `sql/` directory, as well
-as a DB migration script (`bin/migrate --help`).
+reasons, a **MySQL** DB scheme is also available, as well
+as a DB migration script (`bin/potracheno-backup.pl --help`).
 Postgresql support is planned in the future. Patches welcome.
 
 Please see file `help/config.md` for configuration & troubleshooting options.
