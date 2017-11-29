@@ -2,7 +2,7 @@ package App::Its::Potracheno::Update;
 
 use strict;
 use warnings;
-our $VERSION = 0.12;
+our $VERSION = 0.1201;
 
 =head1 NAME
 
@@ -113,6 +113,7 @@ sub run_update {
         alarm 10;
         my $ua = LWP::UserAgent->new;
         my $resp = $ua->get($self->{update_link});
+        alarm 0;
         die "Bad response: ".$resp->status_line unless $resp->is_success;
         die "No version in response"
             unless $resp->decoded_content =~ m#^(?:our  *\$VERSION *= *)?(\d+\.\d+)#m;
@@ -135,6 +136,8 @@ sub run_update {
     } else {
         $self->{update_due} = time + $self->{interval};
     };
+
+    warn "INFO Update: all done";
 
     return;
 };

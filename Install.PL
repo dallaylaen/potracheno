@@ -84,6 +84,7 @@ sub check_deps {
         HTTP::Headers
         JSON::XS
         LWP::UserAgent
+        LWP::Protocol::https
         Plack::Request POSIX
         Scalar::Util Sys::Hostname
         Template Test::More Text::Markdown Time::HiRes

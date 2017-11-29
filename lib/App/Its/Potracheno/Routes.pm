@@ -2,7 +2,7 @@ package App::Its::Potracheno::Routes;
 
 use strict;
 use warnings;
-our $VERSION = 0.12;
+our $VERSION = 0.1201;
 
 =head1 NAME
 
@@ -86,6 +86,7 @@ neaf( view => TT => TT =>
         date    => \&_date,
     },
 )->render({ -template => \"\n\ntest\n\n" });
+neaf default => '/' => { -view => 'TT', foo => 42 };
 
 # Load static
 neaf static => 'favicon.ico' => "$html/i/icon.png";
@@ -567,7 +568,7 @@ get+post browse => sub {
     return $_do_browse->( $form );
 };
 
-get+post browse => tag => sub {
+get+post '/browse/tag' => sub {
     my $req = shift;
 
     my $form = $req->form( $val_browse );
@@ -772,14 +773,16 @@ get+post "/" => sub {
 }, path_info_regex => '';
 
 neaf 403 => {
+    -view     => 'TT',
     -template => '403.html',
-     title => "403 Forbidden",
-     version => "$VERSION/".App::Its::Potracheno::Model->VERSION,
+     title    => "403 Forbidden",
+     version  => "$VERSION/".App::Its::Potracheno::Model->VERSION,
 };
 neaf 404 => {
+    -view     => 'TT',
     -template => '404.html',
-     title => "404 Not Found",
-     version => "$VERSION/".App::Its::Potracheno::Model->VERSION,
+     title    => "404 Not Found",
+     version  => "$VERSION/".App::Its::Potracheno::Model->VERSION,
 };
 
 ################################
