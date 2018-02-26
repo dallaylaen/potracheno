@@ -2,7 +2,7 @@ package App::Its::Potracheno::Routes;
 
 use strict;
 use warnings;
-our $VERSION = 0.1201;
+our $VERSION = 0.1202;
 
 =head1 NAME
 
@@ -99,10 +99,11 @@ neaf static => js            => "$html/js";
 #  Routes
 #  TODO Move all routes inside run()
 
+# TODO use forms
 get+post '/auth/login' => sub {
     my $req = shift;
 
-    my $name = $req->param( name => '\w+' );
+    my $name = $req->param( name => $re_user );
     my $pass = $req->param( pass => '.+' );
     my $return_to = $req->param( return_to => '/.*');
 
