@@ -1,5 +1,8 @@
 Revision history for the Potracheno time tracker project.
 
+0.13    Mon Feb 26 2018
+        BUG Catch up with neaf, fix login/register inconsistency
+
 0.12    Mon Nov 6 2017
         ADM Added admin interface to ban/allow users
         ADM Added proper password reset links

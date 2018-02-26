@@ -4,6 +4,7 @@ VERSION ADDED | VERSION TBD | TITLE
 0.07    0.20    AUX Release to CPAN as App::Potraczeno
 0.11    0.20    MOD Add custom fields to user (table user_prop(id,name,value)
 0.10    0.20    REF Kill $(ROOT) in config, config::gitlike
+0.12    0.20    REF Use neaf form
 
 -- BACKLOG --
 0.11    0.20    APP email integration
