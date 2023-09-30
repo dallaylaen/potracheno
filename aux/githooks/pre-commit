@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -ue
+
 FAIL=
 fail () {
 	FAIL="$FAIL $*"
@@ -24,18 +26,21 @@ echo "Checking files: $FILES"
 # check selected files
 for i in $FILES; do
 	echo "$i"
-	perl -Ilib -Ilocal/lib -wc "$i" || fail "$i" - "Syntax error"
-	perl -Mwarnings=FATAL,all -Mstrict -Ilib -Ilocal/lib -w "$i" || fail "$i" - Strict 
 	perl -wne '/\s\n/ and exit 1' "$i" || fail "$i" - "Spaces at EOL"
 	perlcritic "$i" || fail "$i" - "Perl critic"
 
-	# The module part
-	echo "$i" | egrep -q 'pm$' || continue;
-	git diff --cached $i | grep '^+.*\$VERSION' || fail "$i" - "No version change"
-done 
+  CHECK_ONLY='-c'
+	echo "$i" | egrep -q '\.pm$' && CHECK_ONLY=''
+
+  SYNTAX="$(perl -Mwarnings=FATAL,all -Mstrict -Ilib -Ilib/perl5 -w $CHECK_ONLY "$i" 2>&1)"
+  if [ ! -z "$SYNTAX" ] && [ "$SYNTAX" != "$i syntax OK" ]; then
+    echo >&2 "<syntax $i>\n$SYNTAX\n</syntax>"
+    fail "$i" - Strict
+  fi
+done
 
 check_fail
 
-prove -Ilib -Ilocal/lib -r t || fail "tests fail"
+prove -Ilib -r t xt || fail "tests fail"
 
 check_fail

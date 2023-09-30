@@ -1,0 +1,15 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+$/ = '';
+my $msg = <>;
+
+# [tag] is for regular commits
+# A ^_^ smiley denotes a <module> version release
+# merges are ok, too
+$msg =~ /^(\[[a-z][a-z 0-9]+\])+ /
+    or $msg =~ /^\^_\^ .* +\d+(\.\d+)+ +released/
+    or $msg =~ /^Merged? branch/
+	or die "Commit message must start 1+ tags in brackets([api], [doc], [test] ...)";
