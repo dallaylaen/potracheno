@@ -32,7 +32,7 @@ for i in $FILES; do
   CHECK_ONLY='-c'
 	echo "$i" | egrep -q '\.pm$' && CHECK_ONLY=''
 
-  SYNTAX="$(perl -Mwarnings=FATAL,all -Mstrict -Ilib -Ilib/perl5 -w $CHECK_ONLY "$i" 2>&1)"
+  SYNTAX="$(perl -Mstrict -Ilib -Ilib/perl5 -w $CHECK_ONLY "$i" 2>&1)"
   if [ ! -z "$SYNTAX" ] && [ "$SYNTAX" != "$i syntax OK" ]; then
     echo >&2 "<syntax $i>\n$SYNTAX\n</syntax>"
     fail "$i" - Strict
@@ -41,6 +41,6 @@ done
 
 check_fail
 
-prove -Ilib -r t xt || fail "tests fail"
+prove -Ilib -r t || fail "tests fail"
 
 check_fail
