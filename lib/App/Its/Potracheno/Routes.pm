@@ -46,9 +46,9 @@ my $re_w    = qr/[A-Za-z_0-9]+/;
 my $re_id   = qr/[A-Za-z]$re_w/;
 my $re_user = qr/$re_id(?:[-.]$re_w)*/;
 
-$SIG{__WARN__} = sub {
-    print STDERR join " ", _date(time), "[$$]", $_[0];
-};
+# $SIG{__WARN__} = sub {
+#     print STDERR join " ", _date(time), "[$$]", $_[0];
+# };
 
 # Load model
 # TODO kill this root= thing
@@ -85,8 +85,8 @@ neaf( view => TT => TT =>
         render  => sub { warn "undef render" unless defined $_[0]; return $model->render_text($_[0]) },
         date    => \&_date,
     },
-)->render({ -template => \"\n\ntest\n\n" });
-neaf default => '/' => { -view => 'TT', foo => 42 };
+); #->render({ -template => \"\n\ntest\n\n" });
+neaf default => { -view => 'TT', foo => 42 }, path => '/';
 
 # Load static
 neaf static => 'favicon.ico' => "$html/i/icon.png";
@@ -790,10 +790,10 @@ neaf 404 => {
 # Some extra hacks
 neaf session => $model, view_as => 'session', cookie => 'potracheno.sess';
 
-neaf default => '/' => {
+neaf default => {
     version => "$VERSION/".App::Its::Potracheno::Model->VERSION,
     auto_update => $auto_update->permanent_ref,
-};
+} => path => '/';
 if ($auto_update->is_due) {
     neaf pre_cleanup => sub { $auto_update->is_due and $auto_update->run_update }
         , path => '/issue';
@@ -815,7 +815,10 @@ sub _my_dir {
     my ($conf, $name) = @_;
 
     my @list = map { "$_/$name" } qw(share ../share)
-        , eval { module_dir(__PACKAGE__) };
+        , eval {
+            local $SIG{__WARN__} = sub {};
+            module_dir(__PACKAGE__);
+        };
         # skip exception - will die anyway if not found
 
     return $conf->get( files => $name )

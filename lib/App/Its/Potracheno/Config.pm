@@ -50,6 +50,7 @@ Current format is as follows:
 
 =cut
 
+use Cwd qw(abs_path);
 use JSON::XS;
 use Errno qw(ENOENT);
 use File::Basename qw(dirname);
@@ -123,7 +124,7 @@ sub to_path {
 sub find_dir {
     my ($self, @list) = @_;
 
-    -d $_ and return $_
+    -d $_ and return abs_path($_)
         for map { $self->to_path($_) }
         grep { defined $_ }
         @list;
