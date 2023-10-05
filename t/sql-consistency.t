@@ -5,6 +5,10 @@ use warnings;
 use Test::More;
 use App::Its::Potracheno;
 
+App::Its::Potracheno->import('silo');
+
+silo->ctl->override( config => {}, dbh => {} );
+
 my %schema = (
     sqlite => get_schema_sqlite(),
     mysql  => get_schema_mysql(),

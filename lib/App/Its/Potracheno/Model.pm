@@ -29,11 +29,11 @@ use Data::Dumper;
 use Text::Markdown qw(markdown);
 use File::Basename qw(dirname);
 
-# We'll also work as a session storage
-use parent qw(MVC::Neaf::X::Session);
+use Moo;
 
-# TODO use config from CPAN instead
-use App::Its::Potracheno::Config;
+# We'll also work as a session storage
+# TODO move to a separate file
+extends qq(MVC::Neaf::X::Session);
 
 =head2 new (%options)
 
@@ -43,36 +43,17 @@ use App::Its::Potracheno::Config;
 
 =item * config - hash with parameters
 
-=item * config_file - file with parameters
-
 =item * dbh - provide database handler
 
 =back
 
 =cut
 
-sub new {
-    my ($class, %opt) = @_;
-
-    if ($opt{config_file}) {
-        # TODO kill this ROOT or make it more sane
-        # right now it's required to bootstrap the conf
-        $opt{ROOT} ||= dirname($opt{config_file});
-        $opt{config} = App::Its::Potracheno::Config->load_config( $opt{config_file}, %opt )
-            || $opt{config}; # fallback to defaults if file not found
-    };
-
-    $opt{status} = $opt{config}{status} || { 1 => "Open", 100 => "Closed" };
-    my @bad_status = grep { !/^\d+$/ || $_ < 1 || $_ > 100 }
-        keys %{ $opt{status} };
-    $class->my_croak("Bad status ids @bad_status")
-        if @bad_status;
-
-    my $self = bless \%opt, $class;
-
-    $self->{dbh} ||= $self->get_dbh( $self->{config}{db} );
-
-    return $self;
+has config  => is => 'ro';
+has dbh     => is => 'ro';
+has status  => is => 'lazy', builder => sub {
+    my $self = shift;
+    return $self->config->{status} // { 1 => 'Open', 100 => 'Closed' };
 };
 
 =head1 DB SCHEMA
@@ -287,41 +268,6 @@ The config hash is expected to contain the following:
 
 =cut
 
-=head2 dbh()
-
-Return database handler.
-
-=cut
-
-sub dbh { return $_[0]->{dbh} };
-
-=head2 get_dbh($config)
-
-Connect to database using config information.
-This is performed in new(), no need to do manually.
-
-=cut
-
-sub get_dbh {
-    my ($self, $db) = @_;
-
-    my ($type) = $db->{handle}=~ /dbi:([^:]+)/;
-    if ($type eq 'SQLite') {
-        return DBI->connect($db->{handle}, $db->{user}, $db->{pass},
-            { RaiseError => 1, sqlite_unicode => 1 });
-    } elsif($type eq 'mysql') {
-        my $dbh = DBI->connect($db->{handle}, $db->{user}, $db->{pass},
-            { RaiseError => 1 });
-        $dbh->do('SET NAMES utf8;');
-        return $dbh;
-    };
-    # TODO more DB types welcome
-
-    warn "WARN Unknown DB is being used";
-    return DBI->connect($db->{handle}, $db->{user}, $db->{pass},
-        { RaiseError => 1 });
-};
-
 =head2 get_status( $id )
 
 Resolve status id to name. Statuses are stored in config rather than db.
@@ -330,7 +276,7 @@ Resolve status id to name. Statuses are stored in config rather than db.
 
 sub get_status {
     my ($self, $id) = @_;
-    return $self->{status}{$id};
+    return $self->status->{$id};
 };
 
 =head2 get_status_pairs()

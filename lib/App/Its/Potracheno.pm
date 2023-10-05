@@ -30,25 +30,84 @@ All functions are exported by default for brevity.
 
 =cut
 
-use Carp;
-use URI::Escape;
-use Data::Dumper;
-use POSIX qw(strftime);
-use Digest::MD5 qw(md5_base64);
-use Encode;
-use File::Basename qw(dirname);
-use File::ShareDir qw(module_dir);
-
 use parent 'Exporter';
-our @EXPORT = qw(run get_schema_mysql get_schema_sqlite);
+push our @EXPORT, qw(run get_schema_mysql get_schema_sqlite);
 
-use MVC::Neaf 0.17;
-use MVC::Neaf qw(:sugar neaf_err);
-use MVC::Neaf::X::Form;
-use MVC::Neaf::X::Form::Data;
-use App::Its::Potracheno::Model;
-use App::Its::Potracheno::Config; # TODO replace ->config::gitlike
 use App::Its::Potracheno::Update;
+
+use Carp;
+use File::Basename qw(dirname);
+use FindBin;
+use Cwd qw(abs_path);
+
+use Resource::Silo;
+
+# warn "Export: @EXPORT";
+
+resource local_dir => sub {
+        abs_path(dirname $FindBin::RealBin) . "/local";
+    };
+
+resource config_path => sub {
+        $_[0]->local_dir . "/potracheno.cfg";
+    };
+
+resource config =>
+    require         => 'App::Its::Potracheno::Config',
+    init            => sub {
+        my $self = shift;
+        my $driver = App::Its::Potracheno::Config->new;
+        $driver->load_config($self->config_path);
+    };
+
+resource dbh =>
+    dependencies    => [ 'config' ],
+    require         => [ 'DBI' ],
+    init            => sub {
+        my $self = shift;
+        my $db = $self->config->{db};
+
+        my ($type) = $db->{handle}=~ /dbi:([^:]+)/;
+        if ($type eq 'SQLite') {
+            return DBI->connect($db->{handle}, $db->{user}, $db->{pass},
+                { RaiseError => 1, sqlite_unicode => 1 });
+        } elsif($type eq 'mysql') {
+            my $dbh = DBI->connect($db->{handle}, $db->{user}, $db->{pass},
+                { RaiseError => 1 });
+            $dbh->do('SET NAMES utf8;');
+            return $dbh;
+        };
+        # TODO more DB types welcome
+
+        warn "WARN Unknown DB is being used";
+        return DBI->connect($db->{handle}, $db->{user}, $db->{pass},
+            { RaiseError => 1 });
+    };
+
+resource share_dir => sub {
+    my $dir = abs_path(__FILE__);
+    $dir =~ s#\.pm$##;
+    return "$dir/share";
+};
+
+resource dir =>
+    argument        => qr([a-z_0-9]+),
+    dependencies    => [ 'share_dir' ],
+    init            => sub {
+        my ($self, undef, $suffix) = shift;
+        my $dir = $self->share_dir . "/" . $suffix;
+        croak "Failed to locate directory $dir"
+            unless -d $dir;
+        return $dir;
+    };
+
+resource model =>
+    class           => 'App::Its::Potracheno::Model',
+    dependencies    => {
+        dbh     => 1,
+        config  => 1,
+    },
+    ;
 
 =head2 run( \%config || $config_file )
 
@@ -84,11 +143,11 @@ Use these functions to fetch database schema:
 =cut
 
 sub get_schema_sqlite {
-    App::Its::Potracheno::Model->get_schema_sqlite;
+    silo->model->get_schema_sqlite;
 };
 
 sub get_schema_mysql {
-    App::Its::Potracheno::Model->get_schema_mysql;
+    silo->model->get_schema_mysql;
 };
 
 

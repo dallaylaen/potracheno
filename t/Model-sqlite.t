@@ -8,10 +8,7 @@ use File::Temp qw(tempfile);
 use FindBin qw($Bin);
 use DBI;
 
-use App::Its::Potracheno;
 use App::Its::Potracheno::Model;
-
-my $sql = get_schema_sqlite();
 
 # copy-paste: t/Model-sqlite.t
 my $dbfile = shift;
@@ -31,12 +28,17 @@ my $db = "dbi:SQLite:dbname=$dbfile";
 my $dbh = DBI->connect( $db, '', '', { RaiseError => 1 } );
 # end copy-paste: t/Model-sqlite.t
 
-$dbh->do( $_ ) for split /;/, $sql; # this autodies
-$dbh->disconnect;
-
 my $model = App::Its::Potracheno::Model->new(
-    config => { db => { handle => $db }},
+    config  => { status => {
+        1 => 'Open',
+        2 => 'Closed',
+    }},
+    dbh     => $dbh,
 );
+
+# must deploy schema by hand
+my $sql = $model->get_schema_sqlite();
+$dbh->do( $_ ) for split /;/, $sql; # this autodies
 
 # Huh, let the tests begin
 note "TESTING USER";
