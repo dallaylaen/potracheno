@@ -42,7 +42,9 @@ use Cwd qw(abs_path);
 
 use Resource::Silo;
 
-# warn "Export: @EXPORT";
+resource root => sub {
+        abs_path(dirname $FindBin::RealBin);
+    };
 
 resource local_dir => sub {
         abs_path(dirname $FindBin::RealBin) . "/local";
@@ -56,8 +58,11 @@ resource config =>
     require         => 'App::Its::Potracheno::Config',
     init            => sub {
         my $self = shift;
-        my $driver = App::Its::Potracheno::Config->new;
-        $driver->load_config($self->config_path);
+        my $driver = App::Its::Potracheno::Config->new( );
+        $driver->load_config(
+            $self->config_path,
+            ROOT => $self->root,
+        );
     };
 
 resource dbh =>
@@ -94,7 +99,7 @@ resource dir =>
     argument        => qr([a-z_0-9]+),
     dependencies    => [ 'share_dir' ],
     init            => sub {
-        my ($self, undef, $suffix) = shift;
+        my ($self, undef, $suffix) = @_;
         my $dir = $self->share_dir . "/" . $suffix;
         croak "Failed to locate directory $dir"
             unless -d $dir;
@@ -109,6 +114,16 @@ resource model =>
     },
     ;
 
+resource auto_update =>
+    require         => 'App::Its::Potracheno::Update',
+    init            => sub {
+        my $self = shift;
+        App::Its::Potracheno::Update->new(
+            update_link => "https://raw.githubusercontent.com/dallaylaen/potracheno/master/Changes",
+            %{ $self->config->{update} },
+        );
+    };
+
 =head2 run( \%config || $config_file )
 
 Parse config, initialize model (L<App::Its:Potracheno::Model & friends),
@@ -116,21 +131,13 @@ return a PSGI app subroutine.
 
 =cut
 
-our $CONFIG;
 sub run {
-    croak "Usage: ".__PACKAGE__."::run( 'config_file' );"
-        unless @_ == 1;
+    require App::Its::Potracheno::Routes;
+    silo->ctl->override( config_path => shift )
+        if @_;
 
-    local $CONFIG = shift;
-    my $app = do 'App/Its/Potracheno/Routes.pm';
-
-    croak "Failed to load App/Its/Potracheno/Routes.pm: "
-        .($@ || $! || "unknown reason")
-            unless ref $app eq 'CODE';
-
-    # return $app;
-    neaf->run;
-}; # sub run ends here
+    App::Its::Potracheno::Routes->run;
+};
 
 =head2 get_schema_sqlite()
 

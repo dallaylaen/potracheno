@@ -7,7 +7,8 @@ use Template;
 use File::Find;
 use File::Basename qw(basename dirname);
 
-my $tpl = dirname(__FILE__)."/../share/tpl";
+use App::Its::Potracheno qw(silo);
+my $tpl = silo->dir("tpl");
 
 my @files = @ARGV;
 my @fail;

@@ -7,7 +7,7 @@ use Getopt::Long;
 # Always prefer local libs if possible
 use FindBin qw($Bin);
 use lib "$Bin/../local/lib", "$Bin/../lib";
-use App::Its::Potracheno::Model;
+use App::Its::Potracheno qw(silo);
 
 my $conf;
 my %todo;
@@ -42,8 +42,7 @@ die "Only one action may be specified at a time"
     if scalar keys %todo > 1;
 
 my ($action) = keys %todo;
-my $model = App::Its::Potracheno::Model->new(
-    config_file => $config, ROOT => $root );
+my $model = silo->model;
 
 my %ACT = (
     ban => sub { $_[0]->{banned} = 1 },

@@ -9,7 +9,7 @@ use File::Basename qw(dirname);
 
 use FindBin qw($Bin);
 use lib "$Bin/../lib", "$Bin/../local/lib";
-use App::Its::Potracheno::Model;
+use App::Its::Potracheno qw(silo);
 
 my $root;
 my $config;
@@ -34,12 +34,7 @@ usage() unless @ARGV;
 
 my $base_url = shift;
 
-$root ||= dirname( $config );
-
-my $model = App::Its::Potracheno::Model->new(
-    config_file   => $config,
-    ROOT          => $root,
-);
+my $model = silo->model;
 
 my $list = $model->list_reset;
 

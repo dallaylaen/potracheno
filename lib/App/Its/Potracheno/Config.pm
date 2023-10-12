@@ -50,6 +50,7 @@ Current format is as follows:
 
 =cut
 
+use Carp;
 use Cwd qw(abs_path);
 use JSON::XS;
 use Errno qw(ENOENT);
@@ -60,13 +61,13 @@ use parent qw(MVC::Neaf::X); # get my_croak
 sub new {
     my ($class, %opt) = @_;
 
-    if (!ref $opt{conf}) {
+    if (defined $opt{conf} and !ref $opt{conf}) {
         $opt{file} = $opt{conf};
         $opt{conf} = $class->load_config($opt{file}, %{$opt{preconf} || {}});
         $opt{root} ||= dirname($opt{file});
     };
 
-    if (ref $opt{conf} ne 'HASH') {
+    if (defined $opt{conf} and ref $opt{conf} ne 'HASH') {
         $class->my_croak("conf parameter must be a hash or filename");
     };
 
@@ -149,6 +150,9 @@ my $js = JSON::XS->new->relaxed;
 
 sub load_config {
     my ($self, $file, %opt) = @_;
+
+    croak "load_config: filename is required"
+        unless defined $file;
 
     my $fd;
     if (!open ($fd, "<", $file)) {

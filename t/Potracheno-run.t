@@ -10,22 +10,30 @@ BEGIN { note "Neaf loading..." };
 use MVC::Neaf qw(:sugar);
 BEGIN { note "App loading..." };
 use App::Its::Potracheno;
+use App::Its::Potracheno::Model;
 note "Preparing test data...";
 
-my (undef, $dbfile) = tempfile( SUFFIX => 'sqlite', UNLINK => 1 );
+my (undef, $dbfile) = tempfile( SUFFIX => '.sqlite', UNLINK => 1 );
 
 my %min_config = (
-    db       => { handle => "dbi:SQLite:$dbfile" },
+    db       => { handle => "dbi:SQLite:database=$dbfile" },
     status   => { 1 => "open", 2 => "closed " },
 );
 
 my $dbh = DBI->connect($min_config{db}{handle}, '', '', { RaiseError => 1 });
 
-my $schema = get_schema_sqlite();
+my $schema = App::Its::Potracheno::Model->get_schema_sqlite();
 
 foreach my $stm( split /;/, $schema ) {
     $dbh->do( $stm );
 };
+
+silo->ctl->override(
+    config  => \%min_config,
+    dbh     => $dbh,
+);
+
+
 
 note "Routes loading...";
 is ref run(\%min_config), "CODE", "A codefer was returned";
