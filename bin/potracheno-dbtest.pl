@@ -7,7 +7,7 @@ use File::Basename qw(dirname);
 
 use FindBin qw($Bin);
 use lib "$Bin/../lib", "$Bin/../local/lib";
-use App::Its::Potracheno::Model;
+use App::Its::Potracheno qw(silo);
 
 my $conf = shift;
 
@@ -16,9 +16,9 @@ if (!$conf) {
     exit;
 };
 
-my $root = dirname($conf);
+silo->ctl->override(config_path => $conf);
 
-my $model = App::Its::Potracheno::Model->new( ROOT => $root, config_file => $conf );
+my $model = silo->model;
 
 ok ( $model->dbh, "DBH exists" );
 
