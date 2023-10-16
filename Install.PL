@@ -48,12 +48,6 @@ sub setup {
     die "Cannot access local directory at $root/local"
         unless -d "$root/local";
 
-    if ($write) {
-        install_neaf( $root, "$root/local/perl-mvc-neaf", $neaf_home );
-    } else {
-        # Don't install, just check
-        require MVC::Neaf;
-    };
     run_tests( $root );
 
     my $conf = "$root/local/potracheno.cfg";
@@ -76,20 +70,15 @@ sub setup {
 
 sub check_deps {
     my @modlist = qw(
-        Carp CGI
         Data::Dumper DBI DBD::SQLite Digest::MD5
-        Encode Errno
-        File::Basename File::Find File::Temp FindBin
+        File::ShareDir
         Getopt::Long
-        HTTP::Headers
         JSON::XS
+        lib::relative
         LWP::UserAgent
-        LWP::Protocol::https
-        Plack::Request POSIX
-        Scalar::Util Sys::Hostname
-        Template Test::More Text::Markdown Time::HiRes
-        URI::Escape
-        overload parent
+        Moo MVC::Neaf
+        Resource::Silo
+        Test::More Text::Markdown Time::Local
     );
 
     my @missing = grep { !eval "require $_;" } @modlist; ## no critic
@@ -130,28 +119,6 @@ sub check_db {
     my ($root, $conf) = @_;
     system perl => "$root/bin/potracheno-dbtest.pl" => $conf;
     $? and die "DB check failed, adjust config or set up db";
-};
-
-sub install_neaf {
-    my ($root, $neaf_local, $neaf_home) = @_;
-
-    # already there - nothing to do
-    return if eval { require MVC::Neaf; };
-
-    # MVC::Neaf not installed, try to get from github
-    system git => clone => $neaf_home => $neaf_local
-        unless -d $neaf_local;
-    $? and die "Failed to clone MVC::Neaf to $neaf_local";
-
-    system prove => "-I$neaf_local/lib" => -r => "$neaf_local/t";
-    $? and die "Failed to build & test MVC::Neaf in $neaf_local";
-
-    mkdir "$root/local/lib";
-    system cp => -r => "$neaf_local/lib/MVC" => "$root/local/lib/";
-    $? and die "Failed to make local copy of Neaf libs";
-
-    require MVC::Neaf; # or die
-    print "check_heaf() done\n";
 };
 
 sub run_tests {
