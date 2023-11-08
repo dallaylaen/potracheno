@@ -3,9 +3,6 @@ use strict;
 use warnings FATAL => 'all';
 use ExtUtils::MakeMaker;
 
-use File::ShareDir::Install;
-File::ShareDir::Install::install_share( module => "App::Its::Wasted" => "share" );
-
 WriteMakefile(
     NAME             => 'App::Its::Wasted',
     AUTHOR           => q{Konstantin S. Uvarin <khedin@gmail.com>},
@@ -26,18 +23,19 @@ WriteMakefile(
         'Test::More' => 0,
     },
     PREREQ_PM => {
-        'MVC::Neaf'      => 0.19,
-        'DBD::SQLite'    => 0,
-        'Template'       => 0,
-        'Text::Markdown' => 0,
-        'LWP::UserAgent' => 0,
-        'JSON::XS'       => 0,
-        'LWP::Protocol::https' => 0,
+        'DBD::SQLite'           => 0,
+        'DBI'                   => 0,
+        'Getopt::Long'          => 0,
+        'JSON::XS'              => 0,
+        'LWP::Protocol::https'  => 0,
+        'LWP::UserAgent'        => 0,
+        'MVC::Neaf'             => 0.29,
+        'Resource::Silo'        => 0.10,
+        'Template'              => 0,
+        'Text::Markdown'        => 0,
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES => 'App-Its-Wasted-*' },
 );
 
 
-package MY;
-use File::ShareDir::Install 'postamble';
