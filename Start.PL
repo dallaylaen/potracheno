@@ -10,7 +10,7 @@ use Time::HiRes qw(sleep);
 
 use FindBin qw($Bin);
 use lib "$Bin/lib", "$Bin/local/lib";
-use App::Its::Potracheno::Config;
+use App::Its::Wasted::Config;
 
 my $root = "$Bin";
 my $config_file = "$root/local/potracheno.cfg";
@@ -18,7 +18,7 @@ my $app = "$root/bin/potracheno.psgi";
 
 # getopt here?
 
-my $conf = App::Its::Potracheno::Config->load_config(
+my $conf = App::Its::Wasted::Config->load_config(
     $config_file, ROOT => $root );
 
 $conf = $conf->{server};

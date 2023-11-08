@@ -1,4 +1,4 @@
-package App::Its::Potracheno::Config;
+package App::Its::Wasted::Config;
 
 use strict;
 use warnings;
@@ -6,11 +6,11 @@ our $VERSION = 0.13;
 
 =head1 NAME
 
-App::Its::Potracheno::Config - tech debt ITS config manager
+App::Its::Wasted::Config - tech debt ITS config manager
 
 =head1 DESCRIPTION
 
-B<DEPRECATED!> Right now, L<App::Its::Potracheno> uses an ini file
+B<DEPRECATED!> Right now, L<App::Its::Wasted> uses an ini file
 with optional JSON values.
 
 This is going to be replaced with L<Config::GitLike> or something like that

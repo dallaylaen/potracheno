@@ -1,4 +1,4 @@
-package App::Its::Potracheno::Routes;
+package App::Its::Wasted::Routes;
 
 use strict;
 use warnings;
@@ -6,11 +6,11 @@ our $VERSION = 0.13;
 
 =head1 NAME
 
-App::Its::Potracheno::Routes - a technical debt assessment tool.
+App::Its::Wasted::Routes - a technical debt assessment tool.
 
 =head1 DESCRIPTION
 
-See L<App::Its::Potracheno>.
+See L<App::Its::Wasted>.
 
 Dragons be here.
 Because L<MVC::Neaf> is not really ready to handle application of this size,
@@ -32,7 +32,7 @@ use File::ShareDir qw(module_dir);
 use MVC::Neaf qw(:sugar neaf_err);
 use MVC::Neaf::X::Form;
 use MVC::Neaf::X::Form::Data;
-use App::Its::Potracheno qw(silo);
+use App::Its::Wasted qw(silo);
 
 # some basic regexps
 my $re_w    = qr/[A-Za-z_0-9]+/;
@@ -759,13 +759,13 @@ sub run {
         -view     => 'TT',
         -template => '403.html',
          title    => "403 Forbidden",
-         version  => "$VERSION/".App::Its::Potracheno::Model->VERSION,
+         version  => "$VERSION/".App::Its::Wasted::Model->VERSION,
     };
     neaf 404 => {
         -view     => 'TT',
         -template => '404.html',
          title    => "404 Not Found",
-         version  => "$VERSION/".App::Its::Potracheno::Model->VERSION,
+         version  => "$VERSION/".App::Its::Wasted::Model->VERSION,
     };
 
     ################################
@@ -773,7 +773,7 @@ sub run {
     neaf session => $model, view_as => 'session', cookie => 'potracheno.sess';
 
     neaf default => {
-        version => "$VERSION/".App::Its::Potracheno::Model->VERSION,
+        version => "$VERSION/".App::Its::Wasted::Model->VERSION,
         auto_update => $auto_update->permanent_ref,
     } => path => '/';
     if ($auto_update->is_due) {

@@ -5,7 +5,7 @@ use warnings;
 use Test::More;
 use File::Temp qw(tempfile);
 
-use App::Its::Potracheno::Update;
+use App::Its::Wasted::Update;
 
 $SIG{__WARN__} = sub { $_[0] =~ /^INFO/ or fail $_[0]; };
 
@@ -15,7 +15,7 @@ my ($fd, $name) = tempfile(
 print $fd "our \$VERSION = 1.1;\n" or die "Failed to write $name: $!";
 close $fd or die "Failed to close $name: $!";
 
-my $upd = App::Its::Potracheno::Update->new(
+my $upd = App::Its::Wasted::Update->new(
     update_link => 'file://'.$name,
     interval    => 10000,
     version     => 0.5,
@@ -32,7 +32,7 @@ is_deeply $hash, { version => '1.1' }, "Permanent data saved";
 
 ok !$upd->is_due, "No need to update";
 
-my $upd2 = App::Its::Potracheno::Update->new(
+my $upd2 = App::Its::Wasted::Update->new(
     update_link => 'file://'.$name,
     interval    => 10000,
     version     => 2.5,

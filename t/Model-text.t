@@ -4,9 +4,9 @@ use strict;
 use warnings;
 use Test::More;
 
-use App::Its::Potracheno::Model;
+use App::Its::Wasted::Model;
 
-my $model = App::Its::Potracheno::Model->new( dbh => {} );
+my $model = App::Its::Wasted::Model->new( dbh => {} );
 
 my $text = $model->render_text(<<"MD");
  * this

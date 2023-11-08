@@ -134,9 +134,9 @@ sub create_sqlite {
     my $dbh = DBI->connect("dbi:SQLite:dbname=$sqlite"
         , '', '', { RaiseError => 1} );
 
-    require App::Its::Potracheno::Model;
+    require App::Its::Wasted::Model;
 
-    my $sql = App::Its::Potracheno::Model->get_schema_sqlite;
+    my $sql = App::Its::Wasted::Model->get_schema_sqlite;
 
     foreach (split /;/, $sql) {
         $dbh->do($_);

@@ -4,13 +4,13 @@ use warnings FATAL => 'all';
 use ExtUtils::MakeMaker;
 
 use File::ShareDir::Install;
-File::ShareDir::Install::install_share( module => "App::Its::Potracheno" => "share" );
+File::ShareDir::Install::install_share( module => "App::Its::Wasted" => "share" );
 
 WriteMakefile(
-    NAME             => 'App::Its::Potracheno',
+    NAME             => 'App::Its::Wasted',
     AUTHOR           => q{Konstantin S. Uvarin <khedin@gmail.com>},
-    VERSION_FROM     => 'lib/App/Its/Potracheno.pm',
-    ABSTRACT_FROM    => 'lib/App/Its/Potracheno.pm',
+    VERSION_FROM     => 'lib/App/Its/Wasted.pm',
+    ABSTRACT_FROM    => 'lib/App/Its/Wasted.pm',
     LICENSE          => 'Artistic_2',
     PL_FILES         => {},
     EXE_FILES        => [qw[
@@ -35,7 +35,7 @@ WriteMakefile(
         'LWP::Protocol::https' => 0,
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean => { FILES => 'App-Its-Potracheno-*' },
+    clean => { FILES => 'App-Its-Wasted-*' },
 );
 
 

@@ -7,7 +7,7 @@ use Getopt::Long;
 # Always prefer local libs if possible
 use FindBin qw($Bin);
 use lib "$Bin/../local/lib", "$Bin/../lib";
-use App::Its::Potracheno qw(silo);
+use App::Its::Wasted qw(silo);
 
 my $conf;
 my %todo;

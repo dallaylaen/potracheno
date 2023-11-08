@@ -1,4 +1,4 @@
-package App::Its::Potracheno::Model;
+package App::Its::Wasted::Model;
 
 use strict;
 use warnings;
@@ -6,7 +6,7 @@ our $VERSION = 0.13;
 
 =head1 NAME
 
-App::Its::Potracheno::Model - The data model for tech debt ITS.
+App::Its::Wasted::Model - The data model for tech debt ITS.
 
 =head1 DESCRIPTION
 

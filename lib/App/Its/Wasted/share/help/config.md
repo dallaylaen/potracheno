@@ -100,7 +100,7 @@ Use this script for backup, or when updating the tool. I.e.
 bin/potracheno-backup.pl --config local/potracheno.cfg --dump local/dump.txt
 git pull
 mv local/potracheno.sqlite local/potracheno.sqlite.bak
-perl -MApp::Its::Potracheno -we 'print get_schema_sqlite()' |\
+perl -MApp::Its::Wasted -we 'print get_schema_sqlite()' |\
     sqlite3 local/potracheno.sqlite
 bin/potracheno-backup.pl --config local/potracheno.cfg --restore local/dump.txt
 </code>

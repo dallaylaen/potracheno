@@ -7,7 +7,7 @@ use Template;
 use File::Find;
 use File::Basename qw(basename dirname);
 
-use App::Its::Potracheno qw(silo);
+use App::Its::Wasted qw(silo);
 my $tpl = silo->dir("tpl");
 
 my @files = @ARGV;

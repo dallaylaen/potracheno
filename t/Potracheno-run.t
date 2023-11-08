@@ -9,8 +9,8 @@ use DBI;
 BEGIN { note "Neaf loading..." };
 use MVC::Neaf qw(:sugar);
 BEGIN { note "App loading..." };
-use App::Its::Potracheno;
-use App::Its::Potracheno::Model;
+use App::Its::Wasted;
+use App::Its::Wasted::Model;
 note "Preparing test data...";
 
 my (undef, $dbfile) = tempfile( SUFFIX => '.sqlite', UNLINK => 1 );
@@ -22,7 +22,7 @@ my %min_config = (
 
 my $dbh = DBI->connect($min_config{db}{handle}, '', '', { RaiseError => 1 });
 
-my $schema = App::Its::Potracheno::Model->get_schema_sqlite();
+my $schema = App::Its::Wasted::Model->get_schema_sqlite();
 
 foreach my $stm( split /;/, $schema ) {
     $dbh->do( $stm );

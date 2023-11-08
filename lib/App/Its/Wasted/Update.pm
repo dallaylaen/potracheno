@@ -1,4 +1,4 @@
-package App::Its::Potracheno::Update;
+package App::Its::Wasted::Update;
 
 use strict;
 use warnings;
@@ -6,12 +6,12 @@ our $VERSION = 0.13;
 
 =head1 NAME
 
-App::Its::Potracheno::Update - Auto-update handler for Potracheno ITS.
+App::Its::Wasted::Update - Auto-update handler for Potracheno ITS.
 
 =head1 SYNOPSIS
 
-    use App::Its::Potracheno::Update;
-    my $upd = App::Its::Potracheno::Update->new(
+    use App::Its::Wasted::Update;
+    my $upd = App::Its::Wasted::Update->new(
         interval => 3600,
         update_link => 'file:///dev/null',
     );

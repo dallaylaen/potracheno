@@ -8,7 +8,7 @@ use File::Basename qw(dirname);
 
 use FindBin qw($Bin);
 use lib "$Bin/../lib", "$Bin/../local/lib";
-use App::Its::Potracheno::Model;
+use App::Its::Wasted::Model;
 
 my $root;
 my $config;
@@ -44,7 +44,7 @@ die "Config required (--config?)"
 
 $root ||= dirname( $config );
 
-my $model = App::Its::Potracheno::Model->new(
+my $model = App::Its::Wasted::Model->new(
     ROOT        => $root,
     config_file => $config,
 );

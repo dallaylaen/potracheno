@@ -6,7 +6,7 @@ use Test::More;
 use DBD::SQLite;
 use File::Temp qw(tempfile);
 
-use App::Its::Potracheno::Model;
+use App::Its::Wasted::Model;
 
 # copy-paste: t/Model-sqlite.t
 my (undef, $dbfile) = tempfile( SUFFIX => '.potr.sqlite' );
@@ -23,7 +23,7 @@ my $db = "dbi:SQLite:dbname=$dbfile";
 my $dbh = DBI->connect( $db, '', '', { RaiseError => 1 } );
 # end copy-paste: t/Model-sqlite.t
 
-my $model = App::Its::Potracheno::Model->new( dbh => $dbh );
+my $model = App::Its::Wasted::Model->new( dbh => $dbh );
 
 $dbh->do( <<"SQL" );
 CREATE TABLE test (

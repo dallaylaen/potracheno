@@ -3,9 +3,9 @@
 use strict;
 use warnings;
 use Test::More;
-use App::Its::Potracheno;
+use App::Its::Wasted;
 
-App::Its::Potracheno->import('silo');
+App::Its::Wasted->import('silo');
 
 silo->ctl->override( config => {}, dbh => {} );
 

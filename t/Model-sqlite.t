@@ -8,7 +8,7 @@ use File::Temp qw(tempfile);
 use FindBin qw($Bin);
 use DBI;
 
-use App::Its::Potracheno::Model;
+use App::Its::Wasted::Model;
 
 # copy-paste: t/Model-sqlite.t
 my $dbfile = shift;
@@ -28,7 +28,7 @@ my $db = "dbi:SQLite:dbname=$dbfile";
 my $dbh = DBI->connect( $db, '', '', { RaiseError => 1 } );
 # end copy-paste: t/Model-sqlite.t
 
-my $model = App::Its::Potracheno::Model->new(
+my $model = App::Its::Wasted::Model->new(
     config  => { status => {
         1 => 'Open',
         2 => 'Closed',

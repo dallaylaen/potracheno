@@ -7,7 +7,7 @@ use File::Basename qw(dirname);
 
 use FindBin qw($Bin);
 use lib "$Bin/../lib", "$Bin/../local/lib";
-use App::Its::Potracheno qw(silo);
+use App::Its::Wasted qw(silo);
 
 my $conf = shift;
 
