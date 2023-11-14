@@ -42,16 +42,17 @@ use Cwd qw(abs_path);
 
 use Resource::Silo;
 
+resource config_path => sub {
+        croak "App::Its::Wasted: config_path => '...' is required";
+    };
+
 resource root => sub {
-        abs_path(dirname $FindBin::RealBin);
+        my $self = shift;
+        abs_path(dirname $self->config_path);
     };
 
 resource local_dir => sub {
-        abs_path(dirname $FindBin::RealBin) . "/local";
-    };
-
-resource config_path => sub {
-        $_[0]->local_dir . "/potracheno.cfg";
+        $_[0]->root;
     };
 
 resource config =>
