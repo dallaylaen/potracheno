@@ -156,7 +156,8 @@ sub load_config {
 
     my $fd;
     if (!open ($fd, "<", $file)) {
-        return if $!{ENOENT};
+        croak "Config file does not exist: $file"
+            if $!{ENOENT};
         $self->my_croak("Failed to load config $file: $!");
     };
 
