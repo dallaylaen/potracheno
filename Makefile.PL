@@ -11,11 +11,10 @@ WriteMakefile(
     LICENSE          => 'Artistic_2',
     PL_FILES         => {},
     EXE_FILES        => [qw[
-        bin/potracheno-backup.pl
-        bin/potracheno-dbtest.pl
-        bin/potracheno-lostpass.pl
+        bin/wasted-admin.pl
+        bin/wasted.psgi
     ]],
-    MIN_PERL_VERSION => 5.008,
+    MIN_PERL_VERSION => 5.010,
     CONFIGURE_REQUIRES => {
         'ExtUtils::MakeMaker' => 0,
     },
@@ -23,6 +22,7 @@ WriteMakefile(
         'Test::More' => 0,
     },
     PREREQ_PM => {
+        'lib::relative'         => 0,
         'DBD::SQLite'           => 0,
         'DBI'                   => 0,
         'Getopt::Long'          => 0,
