@@ -11,7 +11,7 @@ App::Its::Wasted - a technical debt assessment tool.
 
 =head1 DESCRIPTION
 
-Potracheno is a technical debt tracker similar to a normal gubtracker.
+This is a technical debt tracker similar to a normal bugtracker.
 However, instead of tracking time spent on resolving an issue,
 it tracks time wasted by the team because of it.
 
@@ -40,28 +40,22 @@ use File::Basename qw(dirname);
 use FindBin;
 use Cwd qw(abs_path);
 
-use Resource::Silo;
+use Resource::Silo -class;
 
-resource config_path => sub {
-        croak "App::Its::Wasted: config_path => '...' is required";
-    };
+resource config_file =>
+    literal => '/etc/its-wasted/wasted.conf';
 
-resource root => sub {
-        my $self = shift;
-        abs_path(dirname $self->config_path);
-    };
-
-resource local_dir => sub {
-        $_[0]->root;
-    };
+resource root =>
+    literal => '/var/lib/its-wasted';
 
 resource config =>
+    # TODO config::gitlike
     require         => 'App::Its::Wasted::Config',
     init            => sub {
         my $self = shift;
         my $driver = App::Its::Wasted::Config->new( );
         $driver->load_config(
-            $self->config_path,
+            $self->config_file,
             ROOT => $self->root,
         );
     };
@@ -125,18 +119,34 @@ resource auto_update =>
         );
     };
 
+=head2 setup_local( $config_file )
+
+override both config file and root.
+
+=cut
+
+sub setup_local {
+    my ($self, $config) = @_;
+    warn $config;
+
+    $self->ctl->override( config_file => $config );
+    $self->ctl->override( root => abs_path( dirname( $config )) );
+    return $self;
+};
+
 =head2 run( \%config || $config_file )
 
-Parse config, initialize model (L<App::Its:Potracheno::Model & friends),
+Parse config, initialize model (L<App::Its::Wasted::Model & friends),
 return a PSGI app subroutine.
 
 =cut
 
 sub run {
-    require App::Its::Wasted::Routes;
-    silo->ctl->override( config_path => shift )
+    warn "cmdline: @_";
+    silo->setup_local( @_ )
         if @_;
 
+    require App::Its::Wasted::Routes;
     App::Its::Wasted::Routes->run;
 };
 
